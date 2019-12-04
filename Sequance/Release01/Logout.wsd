@@ -1,0 +1,76 @@
+@startuml GetProfile
+
+actor Employee
+participant "Page: Profile" as ProfilePage
+participant "Router" as Router
+participant "Session: HTTP Transport" as SessionHTTPTransport
+participant "Session: Endpoint" as SessionEndpoint
+participant "Session: Service" as SessionService
+participant "User: Service" as UserService
+participant "User: Query" as UserQuery
+participant "Session: Command" as SessionCommand
+participant "Session: Query" as SessionQuery
+
+activate Employee
+
+Employee->ProfilePage: Open "Profile" Page
+activate ProfilePage
+ProfilePage->Router: route("POST", "v2/me")
+activate Router
+Router->SessionHTTPTransport: Me(SessionService, []ServerOption)
+activate SessionHTTPTransport
+SessionHTTPTransport->SessionEndpoint: Me(SessionService)
+activate SessionEndpoint
+SessionEndpoint->SessionService: Me()
+activate SessionService
+SessionService->UserService: FindByEmail(email)
+activate UserService
+UserService->UserQuery: Find([]SliceConditions)
+activate UserQuery
+UserQuery-->UserService: user
+deactivate UserQuery
+UserService-->SessionService: user
+deactivate UserService
+SessionService-->SessionEndpoint
+deactivate SessionService
+SessionEndpoint->SessionEndpoint: response := Response(user, nil)
+SessionEndpoint-->SessionHTTPTransport: response
+deactivate SessionEndpoint
+SessionHTTPTransport-->Router: response
+deactivate SessionHTTPTransport
+Router-->ProfilePage: response
+deactivate Router
+ProfilePage-->Employee: response
+
+Employee->ProfilePage: Click "Logout" Button
+ProfilePage->Router: route("POST", "v2/logout")
+activate Router
+Router->SessionHTTPTransport: Logout(SessionService, []ServerOption)
+activate SessionHTTPTransport
+SessionHTTPTransport->SessionEndpoint: Logout(SessionService)
+activate SessionEndpoint
+SessionEndpoint->SessionService: Logout()
+activate SessionService
+SessionService->SessionQuery: FindToken(token)
+activate SessionQuery
+SessionQuery-->SessionService: session
+deactivate SessionQuery
+SessionService->SessionCommand: Delete(session)
+activate SessionCommand
+SessionCommand-->SessionService: isDeleted
+deactivate SessionCommand
+SessionService-->SessionEndpoint: isDeleted
+deactivate SessionService
+SessionEndpoint->SessionEndpoint: response := Response(user, nil)
+SessionEndpoint-->SessionHTTPTransport: response
+deactivate SessionEndpoint
+SessionHTTPTransport-->Router: response
+deactivate SessionHTTPTransport
+Router-->ProfilePage: response
+deactivate Router
+ProfilePage-->Employee: response
+deactivate ProfilePage
+
+deactivate Employee
+
+@enduml
