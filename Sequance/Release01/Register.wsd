@@ -1,0 +1,142 @@
+@startuml Register
+
+actor Member
+participant "Page: Register" as RegisterPage
+participant "Container: Fulfilment Form" as FulfilmentFormContainer
+participant "Component: Form" as FulfilmentFormComponent
+participant "Route" as Route
+participant "User: HTTP Transport" as UserHTTPTransport
+participant "Role: HTTP Transport" as RoleHTTPTransport
+participant "Division: HTTP Transport" as DivisionHTTPTransport
+participant "User: Endpoint" as UserEndpoint
+participant "Role: Endpoint" as RoleEndpoint
+participant "Division: Endpoint" as DivisionEndpoint
+participant "User: Service" as UserService
+participant "Role: Service" as RoleService
+participant "Division: Service" as DivisionService
+participant "Session: Command" as SessionCommand
+participant "User: Query" as UserQuery
+participant "User: Command" as UserCommand
+participant "Role: Query" as RoleQuery
+participant "Division: Query" as DivisionQuery
+
+activate Member
+
+' Load Data
+Member->RegisterPage: Open "Fulfilment" Page
+activate RegisterPage
+RegisterPage->FulfilmentFormContainer: Render "Fulfilment Form" Container
+activate FulfilmentFormContainer
+FulfilmentFormContainer->FulfilmentFormComponent: fetchRoles()
+
+' Fetch Roles
+activate FulfilmentFormComponent
+FulfilmentFormComponent->Route: route("GET", "v2/roles")\
+activate Route
+Route->RoleHTTPTransport: FetchRoles(RoleService, []ServerOption)
+activate RoleHTTPTransport
+RoleHTTPTransport->RoleEndpoint: All(RoleService)
+activate RoleEndpoint
+RoleEndpoint->RoleService: All()
+activate RoleService
+RoleService->RoleQuery: roles := All([]SliceConditions)
+activate RoleQuery
+RoleQuery-->RoleService: roles
+deactivate RoleQuery
+RoleEndpoint-->RoleEndpoint: roles
+deactivate RoleService
+RoleEndpoint->RoleEndpoint: response := Response(roles, nil)
+RoleEndpoint-->RoleHTTPTransport: response
+deactivate RoleEndpoint
+RoleHTTPTransport-->Route: response
+deactivate RoleHTTPTransport
+Route-->FulfilmentFormComponent: response
+deactivate Route
+' End Fetch Roles
+
+' Fetch Division
+FulfilmentFormComponent->Route: route("GET", "v2/divisions")
+activate Route
+Route->DivisionHTTPTransport: FetchDivisions(DivisionService, []ServerOption)
+activate DivisionHTTPTransport
+DivisionHTTPTransport->DivisionEndpoint: All(DivisionService)
+activate DivisionEndpoint
+DivisionEndpoint->DivisionService: All()
+activate DivisionService
+DivisionService->DivisionQuery: Divisions := All([]SliceConditions)
+activate DivisionQuery
+DivisionQuery-->DivisionService: divisions
+deactivate DivisionQuery
+DivisionService-->DivisionEndpoint: divisions
+deactivate DivisionService
+DivisionEndpoint->DivisionEndpoint: response := Response(divisions, nil)
+DivisionEndpoint-->DivisionHTTPTransport: response
+deactivate DivisionEndpoint
+DivisionHTTPTransport-->Route: response
+deactivate DivisionHTTPTransport
+Route-->FulfilmentFormComponent: response
+deactivate Route
+' End Fetch Division
+
+FulfilmentFormComponent-->FulfilmentFormContainer
+FulfilmentFormContainer-->RegisterPage
+RegisterPage-->Member
+' End Load Data
+
+' Fill Data
+Member->RegisterPage: Fill Form
+RegisterPage->FulfilmentFormContainer: Fill Form
+FulfilmentFormContainer->FulfilmentFormComponent: Fill Form
+FulfilmentFormComponent-->FulfilmentFormContainer: form data
+deactivate FulfilmentFormComponent
+FulfilmentFormContainer-->RegisterPage: form data
+RegisterPage-->Member: form data
+' End Fill Data
+
+Member->RegisterPage: Click "Complete" Button
+RegisterPage->FulfilmentFormContainer: Click "Complete" Button
+FulfilmentFormContainer->Route: route("POST", "v2/register", formData)
+activate Route
+Route->UserHTTPTransport: CreateUser(UserService, []ServerOption)
+activate UserHTTPTransport
+UserHTTPTransport->UserEndpoint: Create(UserService)
+activate UserEndpoint
+UserEndpoint->UserService: CreateUser(payload)
+activate UserService
+UserService->UserService: Validate()
+
+alt "Data not valid"
+    UserService-->UserEndpoint: UnprocessableEntity
+    UserEndpoint-->UserHTTPTransport: UnprocessableEntity
+    UserHTTPTransport-->Route: UnprocessableEntity
+    Route-->FulfilmentFormContainer: UnprocessableEntity
+    FulfilmentFormContainer-->RegisterPage: UnprocessableEntity
+    RegisterPage-->Member: UnprocessableEntity
+else
+    UserService->UserService: user := UserModel()
+    UserService->UserCommand: Create(user)
+    activate UserCommand
+    UserCommand-->UserService: uuid
+    deactivate UserCommand
+    UserService->UserQuery: Find(uuid)
+    activate UserQuery
+    UserQuery-->UserService: user
+    deactivate UserQuery
+    UserService->UserEndpoint: user
+    deactivate UserService
+    UserEndpoint->UserEndpoint:  response := Response(user, nil)
+    UserEndpoint-->UserHTTPTransport: response
+    deactivate UserEndpoint
+    UserHTTPTransport-->Route: response
+    deactivate UserHTTPTransport
+    Route-->FulfilmentFormContainer: response
+    deactivate Route
+    FulfilmentFormContainer-->RegisterPage: response
+    deactivate FulfilmentFormContainer
+    RegisterPage-->Member: response
+    deactivate RegisterPage
+end
+
+deactivate Member
+
+@enduml
