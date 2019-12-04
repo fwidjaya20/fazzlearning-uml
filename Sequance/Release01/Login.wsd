@@ -1,0 +1,67 @@
+@startuml Login
+
+actor Admin
+participant "Page: Login" as LoginPage
+participant "Route" as Route
+participant "Session: Transport" as SessionTransport
+participant "Session: Endpoint" as SessionEndpoint
+participant "Session: Service" as SessionService
+participant "Session: Command" as SessionCommand
+participant "User: Query" as UserQuery
+
+activate Admin
+
+Admin->LoginPage: Click "Login" Button
+activate LoginPage
+LoginPage->Route: route("POST", "v2/auth/login")
+activate Route
+Route->SessionTransport: Authenticate(SessionService, []ServerOption)
+activate SessionTransport
+SessionTransport->SessionEndpoint: Login(SessionService)
+activate SessionEndpoint
+SessionEndpoint->SessionService: Login(source, payload)
+activate SessionService
+SessionService->SessionService: Validate()
+
+alt "Data not valid"
+    SessionService-->SessionEndpoint: UnprocessableEntity
+    SessionEndpoint-->SessionTransport: UnprocessableEntity
+    SessionTransport-->Route: UnprocessableEntity
+    Route-->LoginPage: UnprocessableEntity
+    LoginPage-->Admin: UnprocessableEntity
+else
+    SessionService->UserQuery: "Find([]SliceCondition)"
+    activate UserQuery
+    UserQuery-->SessionService: "user"
+    deactivate UserQuery
+
+    alt "User not found"
+        SessionService-->SessionEndpoint: BadRequest
+        SessionEndpoint-->SessionTransport: BadRequest
+        SessionTransport-->Route: BadRequest
+        Route-->LoginPage: BadRequest
+        LoginPage-->Admin: BadRequest
+    else
+        SessionService->SessionService: generateToken(user)
+        SessionService->SessionService: session := SessionModel()
+        SessionService->SessionCommand: CreateSession(session)
+        activate SessionCommand
+        SessionCommand-->SessionService
+        deactivate SessionCommand
+        SessionService-->SessionEndpoint: session
+        deactivate SessionService
+        SessionEndpoint->SessionEndpoint: response := Response(session, nil)
+        SessionEndpoint-->SessionTransport: response
+        deactivate SessionEndpoint
+        SessionTransport-->Route: response
+        deactivate SessionTransport
+        Route-->LoginPage: response
+        deactivate Route
+        LoginPage-->Admin: response
+        deactivate LoginPage
+    end
+end
+
+deactivate Admin
+
+@enduml
