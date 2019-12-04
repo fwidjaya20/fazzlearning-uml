@@ -1,0 +1,46 @@
+@startuml GetProfile
+
+actor Employee
+participant "Page: Profile" as ProfilePage
+participant "Route" as Route
+participant "Session: HTTP Transport" as SessionHTTPTransport
+participant "Session: Endpoint" as SessionEndpoint
+participant "Session: Service" as SessionService
+participant "User: Service" as UserService
+participant "User: Query" as UserQuery
+
+activate Employee
+
+Employee->ProfilePage: Open "Profile" Page
+activate ProfilePage
+ProfilePage->Route: route("POST", "v2/me")
+activate Route
+Route->SessionHTTPTransport: Me(SessionService, []ServerOption)
+activate SessionHTTPTransport
+SessionHTTPTransport->SessionEndpoint: Me(SessionService)
+activate SessionEndpoint
+SessionEndpoint->SessionService: Me()
+activate SessionService
+SessionService->UserService: FindByEmail(email)
+activate UserService
+UserService->UserQuery: Find([]SliceConditions)
+activate UserQuery
+UserQuery-->UserService: user
+deactivate UserQuery
+UserService-->SessionService: user
+deactivate UserService
+SessionService-->SessionEndpoint
+deactivate SessionService
+SessionEndpoint->SessionEndpoint: response := Response(user, nil)
+SessionEndpoint-->SessionHTTPTransport: response
+deactivate SessionEndpoint
+SessionHTTPTransport-->Route: response
+deactivate SessionHTTPTransport
+Route-->ProfilePage: response
+deactivate Route
+ProfilePage-->Employee: response
+deactivate ProfilePage
+
+deactivate Employee
+
+@enduml
