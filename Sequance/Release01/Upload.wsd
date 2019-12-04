@@ -1,0 +1,30 @@
+@startuml Upload
+
+actor Caller
+participant "Storage: GRPC Transport" as Transport
+participant "Storage: Service" as Service
+
+activate Caller
+
+Caller->Transport: Upload(ProtoBuffer)
+activate Transport
+Transport->Service: Upload(bytes)
+activate Service
+Service->Service: Validate()
+
+alt "Data not valid"
+    Service-->Transport: GRPC_PRECONDITION_FAILED
+    Transport->Caller: GRPC_PRECONDITION_FAILED
+else
+    loop "For each file"
+        Service->Service: PutObject(PutObjectInput)
+    end
+    Service-->Transport: OK
+    deactivate Service
+    Transport-->Caller: OK
+    deactivate Transport
+end
+
+deactivate Caller
+
+@enduml
