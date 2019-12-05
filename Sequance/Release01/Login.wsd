@@ -1,6 +1,6 @@
 @startuml Login
 
-actor Admin
+actor Employee
 participant "Page: Login" as LoginPage
 participant "Route" as Route
 participant "Session: Transport" as SessionTransport
@@ -9,9 +9,9 @@ participant "Session: Service" as SessionService
 participant "Session: Command" as SessionCommand
 participant "User: Query" as UserQuery
 
-activate Admin
+activate Employee
 
-Admin->LoginPage: Click "Login" Button
+Employee->LoginPage: Click "Login" Button
 activate LoginPage
 LoginPage->Route: route("POST", "v2/auth/login")
 activate Route
@@ -28,7 +28,7 @@ alt "Data not valid"
     SessionEndpoint-->SessionTransport: UnprocessableEntity
     SessionTransport-->Route: UnprocessableEntity
     Route-->LoginPage: UnprocessableEntity
-    LoginPage-->Admin: UnprocessableEntity
+    LoginPage-->Employee: UnprocessableEntity
 else
     SessionService->UserQuery: "Find([]SliceCondition)"
     activate UserQuery
@@ -40,7 +40,7 @@ else
         SessionEndpoint-->SessionTransport: BadRequest
         SessionTransport-->Route: BadRequest
         Route-->LoginPage: BadRequest
-        LoginPage-->Admin: BadRequest
+        LoginPage-->Employee: BadRequest
     else
         SessionService->SessionService: generateToken(user)
         SessionService->SessionService: session := SessionModel()
@@ -57,11 +57,11 @@ else
         deactivate SessionTransport
         Route-->LoginPage: response
         deactivate Route
-        LoginPage-->Admin: response
+        LoginPage-->Employee: response
         deactivate LoginPage
     end
 end
 
-deactivate Admin
+deactivate Employee
 
 @enduml

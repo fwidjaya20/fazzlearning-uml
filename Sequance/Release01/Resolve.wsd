@@ -1,0 +1,34 @@
+@startuml Resolve
+
+actor Caller
+participant "Router" as Router
+participant "Storage: HTTP Transport" as StorageHTTPTransport
+participant "Storage: Endpoint" as StorageEndpoint
+participant "Storage: Service" as StorageService
+participant "AWS: S3" as AWSS3
+
+
+activate Caller
+
+Caller->Router: route("GET", "v2/resolve")
+Router->StorageHTTPTransport: ResolveURL(UploaderService, []ServerOption)
+StorageHTTPTransport->StorageEndpoint: ResolveURL(UploaderService, key)
+StorageEndpoint->StorageService: ResolveURL(key)
+StorageService->AWSS3: GetObjectRequest(GetObjectInput)
+AWSS3-->StorageService: url, error
+
+alt "AWS Error"
+    StorageService-->StorageEndpoint: InternalServerError
+    StorageEndpoint-->StorageHTTPTransport: InternalServerError
+    StorageHTTPTransport-->Router: InternalServerError
+    Router-->Caller: InternalServerError
+else
+    StorageService-->StorageEndpoint: url
+    StorageEndpoint-->StorageHTTPTransport: url
+    StorageHTTPTransport-->Router: url
+    Router-->Caller: url
+end
+
+deactivate Caller
+
+@enduml
