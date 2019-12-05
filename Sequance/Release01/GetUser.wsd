@@ -1,0 +1,67 @@
+@startuml DeleteUser
+
+actor Admin
+participant "Page: User" as UserPage
+participant "Container: User Table" as UserTableContainer
+participant "Component: User Table" as UserTable
+participant "Router" as Router
+participant "User: HTTP Transport" as UserHTTPTransport
+participant "User: Endpoint" as UserEndpoint
+participant "User: Service" as UserService
+participant "User: Command" as UserCommand
+participant "User: Query" as UserQuery
+
+activate Admin
+
+Admin->UserPage: Open "Manage User" Page
+activate UserPage
+UserPage->UserTableContainer: Render "User Table" Container
+activate UserTableContainer
+UserTableContainer->UserTable: Render "User Table"
+activate UserTable
+UserTable-->UserTableContainer: rendered
+UserTableContainer->Router: route("GET", "v2/users")
+activate Router
+Router->UserHTTPTransport: FetchPaginatedUsers(UserService, []ServerOption)
+activate UserHTTPTransport
+UserHTTPTransport->UserEndpoint: All(UserService, withPaginated)
+activate UserEndpoint
+UserEndpoint->UserService: All(params)
+
+activate UserService
+activate UserQuery
+alt "With Paginate"
+    UserService->UserQuery: All([]SliceConditions, PaginateModel)
+else
+    UserService->UserQuery: All([]SliceConditions, nil)
+end
+UserQuery-->UserService: users
+UserService-->UserEndpoint: users
+
+opt "With Paginate"
+    UserEndpoint->UserService: GetPagination(PaginateModel)
+    UserService->UserQuery: Count([]SliceConditions)
+    UserQuery-->UserService: total
+    UserService-->UserEndpoint: total
+end
+deactivate UserQuery
+deactivate UserService
+
+UserEndpoint->UserEndpoint: response := Response(users, paginateMetadata)
+UserEndpoint-->UserHTTPTransport: response
+deactivate UserEndpoint
+UserHTTPTransport-->Router: response
+deactivate UserHTTPTransport
+Router-->UserTableContainer: response
+deactivate Router
+UserTableContainer->UserTable: Render "User Table"
+UserTable-->UserTableContainer: rendered
+deactivate UserTable
+UserTableContainer-->UserPage: rendered
+deactivate UserTableContainer
+UserPage-->Admin: rendered
+deactivate UserPage
+
+deactivate Admin
+
+@enduml

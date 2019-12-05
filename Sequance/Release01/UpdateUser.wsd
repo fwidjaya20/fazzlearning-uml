@@ -1,0 +1,252 @@
+@startuml UpdateUser
+
+actor Admin
+participant "Page: Edit User" as EditUserPage
+participant "Container: Edit User Form" as EditUserFormContainer
+participant "Component: User Form" as UserFormComponent
+participant "Route" as Route
+participant "User: HTTP Transport" as UserHTTPTransport
+participant "Role: HTTP Transport" as RoleHTTPTransport
+participant "Division: HTTP Transport" as DivisionHTTPTransport
+participant "User: Endpoint" as UserEndpoint
+participant "Role: Endpoint" as RoleEndpoint
+participant "Division: Endpoint" as DivisionEndpoint
+participant "User: Service" as UserService
+participant "Role: Service" as RoleService
+participant "Division: Service" as DivisionService
+participant "Session: Command" as SessionCommand
+participant "User: Query" as UserQuery
+participant "User: Command" as UserCommand
+participant "Role: Query" as RoleQuery
+participant "Division: Query" as DivisionQuery
+
+activate Admin
+
+' Load Data
+Admin->EditUserPage: Open "Edit User" Page
+activate EditUserPage
+EditUserPage->EditUserFormContainer: Render "Edit User Form" Container
+activate EditUserFormContainer
+EditUserFormContainer->UserFormComponent: Render "Edit User Form"
+
+' Fetch Roles
+activate UserFormComponent
+UserFormComponent->Route: route("GET", "v2/roles")
+activate Route
+Route->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
+activate RoleHTTPTransport
+RoleHTTPTransport->RoleEndpoint: All(RoleService, withPaginate)
+activate RoleEndpoint
+RoleEndpoint->RoleService: All(params)
+activate RoleService
+activate RoleQuery
+
+alt "With Paginate"
+    RoleService->RoleQuery: All([]SliceConditions, PaginateModel)
+else
+    RoleService->RoleQuery: All([]SliceConditions, nil)
+end
+
+RoleQuery-->RoleService: roles
+RoleService-->RoleEndpoint: roles
+
+opt "With Paginate"
+    RoleEndpoint->RoleService: GetPaginateion(PaginateModel)
+    RoleService->RoleQuery: Count([]SliceConditions)
+    RoleQuery-->RoleService: total
+    RoleService-->RoleEndpoint: total
+end
+
+deactivate RoleQuery
+deactivate RoleService
+RoleEndpoint->RoleEndpoint: response := Response(roles, paginateMetadata)
+RoleEndpoint-->RoleHTTPTransport: response
+deactivate RoleEndpoint
+RoleHTTPTransport-->Route: response
+deactivate RoleHTTPTransport
+Route-->UserFormComponent: response
+deactivate Route
+UserFormComponent->UserFormComponent: binding repsonse to attribute
+' End Fetch Roles
+
+' Fetch Division
+UserFormComponent->Route: route("GET", "v2/divisions")
+activate Route
+Route->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
+activate DivisionHTTPTransport
+DivisionHTTPTransport->DivisionEndpoint: All(DivisionService)
+activate DivisionEndpoint
+DivisionEndpoint->DivisionService: All()
+activate DivisionService
+activate DivisionQuery
+
+alt "With Paginate"
+    DivisionService->DivisionQuery: All([]SliceConditions, PaginateModel)
+else
+    DivisionService->DivisionQuery: All([]SliceConditions, nil)
+end
+
+DivisionQuery-->DivisionService: divisions
+DivisionService-->DivisionEndpoint: divisions
+
+opt "With Paginate"
+    DivisionEndpoint->DivisionService: GetPaginateion(PaginateModel)
+    DivisionService->DivisionQuery: Count([]SliceConditions)
+    DivisionQuery-->DivisionService: total
+    DivisionService-->DivisionEndpoint: total
+end
+
+deactivate DivisionQuery
+deactivate DivisionService
+DivisionEndpoint->DivisionEndpoint: response := Response(divisions, nil)
+DivisionEndpoint-->DivisionHTTPTransport: response
+deactivate DivisionEndpoint
+DivisionHTTPTransport-->Route: response
+deactivate DivisionHTTPTransport
+Route-->UserFormComponent: response
+deactivate Route
+UserFormComponent->UserFormComponent: binding repsonse to attribute
+' End Fetch Division
+
+UserFormComponent-->EditUserFormContainer: rendered
+EditUserFormContainer-->EditUserPage: rendered
+EditUserPage-->Admin: rendered
+' End Load Data
+
+' Fill Data
+Admin->EditUserPage: Fill Form
+EditUserPage->EditUserFormContainer: Fill Form
+EditUserFormContainer->UserFormComponent: Fill Form
+
+
+opt "Do Search Role"
+    UserFormComponent->Route: route("GET", "v2/roles?search=role_to_search")
+    activate Route
+    Route->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
+    activate RoleHTTPTransport
+    RoleHTTPTransport->RoleEndpoint: All(RoleService, withPaginate)
+    activate RoleEndpoint
+    RoleEndpoint->RoleService: All(params)
+    activate RoleService
+    activate RoleQuery
+
+    alt "With Paginate"
+        RoleService->RoleQuery: All([]SliceConditions, PaginateModel)
+    else
+        RoleService->RoleQuery: All([]SliceConditions, nil)
+    end
+
+    RoleQuery-->RoleService: roles
+    RoleService-->RoleEndpoint: roles
+
+    opt "With Paginate"
+        RoleEndpoint->RoleService: GetPaginateion(PaginateModel)
+        RoleService->RoleQuery: Count([]SliceConditions)
+        RoleQuery-->RoleService: total
+        RoleService-->RoleEndpoint: total
+    end
+
+    deactivate RoleQuery
+    deactivate RoleService
+    RoleEndpoint->RoleEndpoint: response := Response(roles, paginateMetadata)
+    RoleEndpoint-->RoleHTTPTransport: response
+    deactivate RoleEndpoint
+    RoleHTTPTransport-->Route: response
+    deactivate RoleHTTPTransport
+    Route-->UserFormComponent: response
+    deactivate Route
+    UserFormComponent->UserFormComponent: binding repsonse to attribute
+end
+
+opt "Do Search Division"
+    UserFormComponent->Route: route("GET", "v2/divisions?search=division_to_search")
+    activate Route
+    Route->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
+    activate DivisionHTTPTransport
+    DivisionHTTPTransport->DivisionEndpoint: All(DivisionService)
+    activate DivisionEndpoint
+    DivisionEndpoint->DivisionService: All()
+    activate DivisionService
+    activate DivisionQuery
+
+    alt "With Paginate"
+        DivisionService->DivisionQuery: All([]SliceConditions, PaginateModel)
+    else
+        DivisionService->DivisionQuery: All([]SliceConditions, nil)
+    end
+
+    DivisionQuery-->DivisionService: divisions
+    DivisionService-->DivisionEndpoint: divisions
+
+    opt "With Paginate"
+        DivisionEndpoint->DivisionService: GetPaginateion(PaginateModel)
+        DivisionService->DivisionQuery: Count([]SliceConditions)
+        DivisionQuery-->DivisionService: total
+        DivisionService-->DivisionEndpoint: total
+    end
+
+    deactivate DivisionQuery
+    deactivate DivisionService
+    DivisionEndpoint->DivisionEndpoint: response := Response(divisions, nil)
+    DivisionEndpoint-->DivisionHTTPTransport: response
+    deactivate DivisionEndpoint
+    DivisionHTTPTransport-->Route: response
+    deactivate DivisionHTTPTransport
+    Route-->UserFormComponent: response
+    deactivate Route
+    UserFormComponent->UserFormComponent: binding repsonse to attribute
+end
+
+UserFormComponent-->EditUserFormContainer: form data
+deactivate UserFormComponent
+EditUserFormContainer-->EditUserPage: form data
+EditUserPage-->Admin: form data
+' End Fill Data
+
+Admin->EditUserPage: Click "Update User" Button
+EditUserPage->EditUserFormContainer: Click "Update User" Button
+EditUserFormContainer->Route: route("POST", "v2/user", formData)
+activate Route
+Route->UserHTTPTransport: UpdateUser(UserService, []ServerOption)
+activate UserHTTPTransport
+UserHTTPTransport->UserEndpoint: Update(UserService)
+activate UserEndpoint
+UserEndpoint->UserService: UpdateUser(payload)
+activate UserService
+UserService->UserService: Validate()
+
+alt "Data not valid"
+    UserService-->UserEndpoint: UnprocessableEntity
+    UserEndpoint-->UserHTTPTransport: UnprocessableEntity
+    UserHTTPTransport-->Route: UnprocessableEntity
+    Route-->EditUserFormContainer: UnprocessableEntity
+    EditUserFormContainer-->EditUserPage: UnprocessableEntity
+    EditUserPage-->Admin: UnprocessableEntity
+else
+    UserService->UserQuery: Find(uuid)
+    activate UserQuery
+    UserQuery-->UserService: user
+    deactivate UserQuery
+    UserService->UserService: binding user data
+    UserService->UserCommand: Update(user)
+    activate UserCommand
+    UserCommand-->UserService: uuid
+    deactivate UserCommand
+    UserService->UserEndpoint: user
+    deactivate UserService
+    UserEndpoint->UserEndpoint:  response := Response(user, nil)
+    UserEndpoint-->UserHTTPTransport: response
+    deactivate UserEndpoint
+    UserHTTPTransport-->Route: response
+    deactivate UserHTTPTransport
+    Route-->EditUserFormContainer: response
+    deactivate Route
+    EditUserFormContainer-->EditUserPage: response
+    deactivate EditUserFormContainer
+    EditUserPage-->Admin: response
+    deactivate EditUserPage
+end
+
+deactivate Admin
+
+@enduml
