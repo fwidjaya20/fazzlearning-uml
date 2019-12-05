@@ -1,0 +1,80 @@
+@startuml UpdateRole
+
+actor Admin
+participant "Page: Edit Role" as EditRolePage
+participant "Container: Edit Role Form" as EditRoleFormContainer
+participant "Component: Role Form" as RoleForm
+participant "Router" as Router
+participant "Role: HTTP Transport" as RoleHTTPTransport
+participant "Role: Endpoint" as RoleEndpoint
+participant "Role: Service" as RoleService
+participant "Role: RoleCommand" as RoleCommand
+participant "Role: RoleQuery" as RoleQuery
+
+activate Admin
+
+Admin->EditRolePage: Open "Add Role" Page
+activate EditRolePage
+EditRolePage->EditRoleFormContainer: Render "Add Role Form" Container
+activate EditRoleFormContainer
+EditRoleFormContainer->RoleForm: Render "Role Form"
+activate RoleForm
+RoleForm-->EditRoleFormContainer
+EditRoleFormContainer-->EditRolePage
+EditRolePage-->Admin
+
+Admin->EditRolePage: Fill Form
+EditRolePage->EditRoleFormContainer: Fill Form
+EditRoleFormContainer->RoleForm: Fill Form
+RoleForm-->EditRoleFormContainer: form data
+deactivate RoleForm
+EditRoleFormContainer-->EditRolePage: form data
+EditRolePage-->Admin: form data
+
+Admin->EditRolePage: Click "Update Role" Button
+EditRolePage->EditRoleFormContainer: Click "Update Role" Button
+EditRoleFormContainer->Router: route("PUT", "v2/role", formData)
+activate Router
+Router->RoleHTTPTransport: UpdateRole(RoleService, []ServerOption)
+activate RoleHTTPTransport
+RoleHTTPTransport->RoleEndpoint: Update(RoleService)
+activate RoleEndpoint
+RoleEndpoint->RoleService: UpdateRole(payload)
+activate RoleService
+RoleService->RoleService: Validate()
+
+alt "Data not valid"
+    RoleService-->RoleEndpoint: UnprocessableEntity
+    RoleEndpoint-->RoleHTTPTransport: UnprocessableEntity
+    RoleHTTPTransport-->Router: UnprocessableEntity
+    Router-->EditRoleFormContainer: UnprocessableEntity
+    EditRoleFormContainer-->EditRolePage: UnprocessableEntity
+    EditRolePage-->Admin: UnprocessableEntity
+else
+    RoleService->RoleQuery: Find(uuid)
+    activate RoleQuery
+    RoleQuery-->RoleService: role
+    deactivate RoleQuery
+    RoleService->RoleService: binding role data
+    RoleService->RoleCommand: Update(role)
+    activate RoleCommand
+    RoleCommand-->RoleService: isUpdated
+    deactivate RoleCommand
+    RoleService-->RoleEndpoint: role
+    deactivate RoleService
+    RoleEndpoint->RoleEndpoint: response := Response(role, nil)
+    RoleEndpoint-->RoleHTTPTransport: response
+    deactivate RoleEndpoint
+    RoleHTTPTransport-->Router: response
+    deactivate RoleHTTPTransport
+    Router-->EditRoleFormContainer: response
+    deactivate Router
+    EditRoleFormContainer-->EditRolePage: response
+    deactivate EditRoleFormContainer
+    EditRolePage-->Admin: response
+    deactivate EditRolePage
+end
+
+deactivate Admin
+
+@enduml
