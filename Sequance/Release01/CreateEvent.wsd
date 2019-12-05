@@ -1,0 +1,113 @@
+@startuml CreateEvent
+
+actor Admin
+participant "Page: Add Event" as AddEventPage
+participant "Container: Add Event Form" as AddEventFormContainer
+participant "Component: Event Form" as EventForm
+participant "Router" as Router
+participant "Event: HTTP Transport" as EventHTTPTransport
+participant "Event: Endpoint" as EventEndpoint
+participant "Event: Service" as EventService
+participant "Event: Command" as EventCommand
+participant "Event: Query" as EventQuery
+participant "Storage: GRPC Transport" as StorageGRPCTransport
+participant "Class: Service" as ClassService
+participant "Poster: Service" as PosterService
+
+activate Admin
+
+Admin->AddEventPage: Open "Add Event" Page
+activate AddEventPage
+AddEventPage->AddEventFormContainer: Render "Add Event Form" Container
+activate AddEventFormContainer
+AddEventFormContainer->EventForm: Render "Event Form"
+activate EventForm
+EventForm-->AddEventFormContainer
+AddEventFormContainer-->AddEventPage
+AddEventPage-->Admin
+
+Admin->AddEventPage: Fill Form
+AddEventPage->AddEventFormContainer: Fill Form
+AddEventFormContainer->EventForm: Fill Form
+EventForm-->AddEventFormContainer: form data
+deactivate EventForm
+AddEventFormContainer-->AddEventPage: form data
+AddEventPage-->Admin: form data
+
+Admin->AddEventPage: Click "Create Event" Button
+AddEventPage->AddEventFormContainer: Click "Create Event" Button
+AddEventFormContainer->Router: route("POST", "v2/event", formData)
+activate Router
+Router->EventHTTPTransport: CreateEvent(EventService, []ServerOption)
+activate EventHTTPTransport
+EventHTTPTransport->EventEndpoint: Create(EventService)
+activate EventEndpoint
+EventEndpoint->EventService: Create(payload)
+activate EventService
+EventService->EventService: Validate()
+
+alt "Data not valid"
+    EventService-->EventEndpoint: UnprocessableEntity
+    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
+    EventHTTPTransport-->Router: UnprocessableEntity
+    Router-->AddEventFormContainer: UnprocessableEntity
+    AddEventFormContainer-->AddEventPage: UnprocessableEntity
+    AddEventPage-->Admin: UnprocessableEntity
+else
+    EventService->EventQuery: GetPureModel([]SliceConditions)
+    activate EventQuery
+    EventQuery-->EventService: events
+    deactivate EventQuery
+
+    alt "there's any event"
+        EventService-->EventEndpoint: BadRequest
+        EventEndpoint-->EventHTTPTransport: BadRequest
+        EventHTTPTransport-->Router: BadRequest
+        Router-->AddEventFormContainer: BadRequest
+        AddEventFormContainer-->AddEventPage: BadRequest
+        AddEventPage-->Admin: BadRequest
+    else
+        EventService->EventService: event := EventModel()
+        EventService->EventCommand: Create(event)
+        activate EventCommand
+        EventCommand-->EventService: uuid
+        deactivate EventCommand
+
+        EventService->StorageGRPCTransport: Upload(ProtoBuffer)
+        activate StorageGRPCTransport
+        StorageGRPCTransport-->EventService: []url
+        deactivate StorageGRPCTransport
+
+        EventService->PosterService: Create(payload)
+        activate PosterService
+        PosterService-->EventService: isDeleted
+        deactivate PosterService
+
+        EventService->ClassService: CommitBooked(uuid)
+        activate ClassService
+        ClassService-->EventService: isCommitted
+        deactivate ClassService
+
+        EventService->EventQuery: Find(uuid)
+        activate EventQuery
+        EventQuery-->EventService: event
+        deactivate EventQuery
+        EventService-->EventEndpoint: event
+        deactivate EventService
+        EventEndpoint->EventEndpoint: response := Response(event, nil)
+        EventEndpoint-->EventHTTPTransport: response
+        deactivate EventEndpoint
+        EventHTTPTransport-->Router: response
+        deactivate EventHTTPTransport
+        Router-->AddEventFormContainer: response
+        deactivate Router
+        AddEventFormContainer-->AddEventPage: response
+        deactivate AddEventFormContainer
+        AddEventPage-->Admin: response
+        deactivate AddEventPage
+    end
+end
+
+deactivate Admin
+
+@enduml

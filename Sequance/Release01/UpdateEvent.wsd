@@ -1,0 +1,80 @@
+@startuml UpdateEvent
+
+actor Admin
+participant "Page: Edit Event" as EditEventPage
+participant "Container: Edit Event Form" as EditEventFormContainer
+participant "Component: Event Form" as EventForm
+participant "Router" as Router
+participant "Event: HTTP Transport" as EventHTTPTransport
+participant "Event: Endpoint" as EventEndpoint
+participant "Event: Service" as EventService
+participant "Event: Command" as EventCommand
+participant "Event: Query" as EventQuery
+
+activate Admin
+
+Admin->EditEventPage: Open "Edit Event" Page
+activate EditEventPage
+EditEventPage->EditEventFormContainer: Render "Edit Event Form" Container
+activate EditEventFormContainer
+EditEventFormContainer->EventForm: Render "Event Form"
+activate EventForm
+EventForm-->EditEventFormContainer
+EditEventFormContainer-->EditEventPage
+EditEventPage-->Admin
+
+Admin->EditEventPage: Fill Form
+EditEventPage->EditEventFormContainer: Fill Form
+EditEventFormContainer->EventForm: Fill Form
+EventForm-->EditEventFormContainer: form data
+deactivate EventForm
+EditEventFormContainer-->EditEventPage: form data
+EditEventPage-->Admin: form data
+
+Admin->EditEventPage: Click "Update Event" Button
+EditEventPage->EditEventFormContainer: Click "Update Event" Button
+EditEventFormContainer->Router: route("PATCH", "v2/event/{event_id}", formData)
+activate Router
+Router->EventHTTPTransport: UpdateEvent(EventService, []ServerOption)
+activate EventHTTPTransport
+EventHTTPTransport->EventEndpoint: Update(EventService)
+activate EventEndpoint
+EventEndpoint->EventService: Update(payload)
+activate EventService
+EventService->EventService: Validate()
+
+alt "Data not valid"
+    EventService-->EventEndpoint: UnprocessableEntity
+    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
+    EventHTTPTransport-->Router: UnprocessableEntity
+    Router-->EditEventFormContainer: UnprocessableEntity
+    EditEventFormContainer-->EditEventPage: UnprocessableEntity
+    EditEventPage-->Admin: UnprocessableEntity
+else
+    EventService->EventQuery: GetPureModel(uuid)
+    activate EventQuery
+    EventQuery-->EventService: event
+    deactivate EventQuery
+    EventService->EventService: binding event data
+    EventService->EventCommand: Update(event)
+    activate EventCommand
+    EventCommand-->EventService: isUpdated
+    deactivate EventCommand
+    EventService-->EventEndpoint: event
+    deactivate EventService
+    EventEndpoint->EventEndpoint: response := Response(event, nil)
+    EventEndpoint-->EventHTTPTransport: response
+    deactivate EventEndpoint
+    EventHTTPTransport-->Router: response
+    deactivate EventHTTPTransport
+    Router-->EditEventFormContainer: response
+    deactivate Router
+    EditEventFormContainer-->EditEventPage: response
+    deactivate EditEventFormContainer
+    EditEventPage-->Admin: response
+    deactivate EditEventPage
+end
+
+deactivate Admin
+
+@enduml

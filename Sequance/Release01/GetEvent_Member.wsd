@@ -1,0 +1,67 @@
+@startuml DeleteEvent_Member
+
+actor Admin
+participant "Page: Event" as EventPage
+participant "Container: Event Table" as EventTableContainer
+participant "Component: Event Table" as EventTable
+participant "Router" as Router
+participant "Event: HTTP Transport" as EventHTTPTransport
+participant "Event: Endpoint" as EventEndpoint
+participant "Event: Service" as EventService
+participant "Event: Command" as EventCommand
+participant "Event: Query" as EventQuery
+
+activate Admin
+
+Admin->EventPage: Open "Home" Page
+activate EventPage
+EventPage->EventTableContainer: Render "Event Group" Container
+activate EventTableContainer
+EventTableContainer->EventTable: Render "Event Card"
+activate EventTable
+EventTable-->EventTableContainer: rendered
+EventTableContainer->Router: route("GET", "v2/events")
+activate Router
+Router->EventHTTPTransport: FetchPaginatedEvents(EventService, []ServerOption)
+activate EventHTTPTransport
+EventHTTPTransport->EventEndpoint: All(EventService, withPaginated)
+activate EventEndpoint
+EventEndpoint->EventService: All(params)
+
+activate EventService
+activate EventQuery
+alt "With Paginate"
+    EventService->EventQuery: All([]SliceConditions, PaginateModel)
+else
+    EventService->EventQuery: All([]SliceConditions, nil)
+end
+EventQuery-->EventService: events
+EventService-->EventEndpoint: events
+
+opt "With Paginate"
+    EventEndpoint->EventService: GetPagination(PaginateModel)
+    EventService->EventQuery: Count([]SliceConditions)
+    EventQuery-->EventService: total
+    EventService-->EventEndpoint: total
+end
+deactivate EventQuery
+deactivate EventService
+
+EventEndpoint->EventEndpoint: response := Response(events, paginateMetadata)
+EventEndpoint-->EventHTTPTransport: response
+deactivate EventEndpoint
+EventHTTPTransport-->Router: response
+deactivate EventHTTPTransport
+Router-->EventTableContainer: response
+deactivate Router
+EventTableContainer->EventTable: Render "Event Card"
+deactivate EventTable
+EventTable-->EventTableContainer: rendered
+EventTableContainer-->EventPage: rendered
+deactivate EventTableContainer
+EventPage-->Admin: rendered
+deactivate EventPage
+
+deactivate Admin
+
+@enduml
