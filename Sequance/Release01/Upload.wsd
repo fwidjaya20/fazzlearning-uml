@@ -1,28 +1,37 @@
 @startuml Upload
 
 actor Caller
-participant "Storage: GRPC Transport" as Transport
-participant "Storage: Service" as Service
+participant "Storage: GRPC Transport" as StorageGRPCTransport
+participant "Storage: Service" as StorageService
+participant "AWS: S3" as AWSS3
 
 activate Caller
 
-Caller->Transport: Upload(ProtoBuffer)
-activate Transport
-Transport->Service: Upload(bytes)
-activate Service
-Service->Service: Validate()
+Caller->StorageGRPCTransport: Upload(ProtoBuffer)
+activate StorageGRPCTransport
+StorageGRPCTransport->StorageService: Upload(bytes)
+activate StorageService
+StorageService->StorageService: Validate()
 
 alt "Data not valid"
-    Service-->Transport: GRPC_PRECONDITION_FAILED
-    Transport->Caller: GRPC_PRECONDITION_FAILED
+    StorageService-->StorageGRPCTransport: GRPC_PRECONDITION_FAILED
+    StorageGRPCTransport->Caller: GRPC_PRECONDITION_FAILED
 else
     loop "For each file"
-        Service->Service: PutObject(PutObjectInput)
+        StorageService->AWSS3: PutObject(PutObjectInput)
+        activate AWSS3
+        AWSS3-->StorageService: key, error
+        deactivate AWSS3
+
+        break "Any error"
+            StorageService-->StorageGRPCTransport: GRPC_INTERNAL
+            StorageGRPCTransport-->Caller: GRPC_INTERNAL
+        end
     end
-    Service-->Transport: OK
-    deactivate Service
-    Transport-->Caller: OK
-    deactivate Transport
+    StorageService-->StorageGRPCTransport: OK
+    deactivate StorageService
+    StorageGRPCTransport-->Caller: OK
+    deactivate StorageGRPCTransport
 end
 
 deactivate Caller
