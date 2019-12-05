@@ -13,9 +13,9 @@ participant "Role: RoleQuery" as RoleQuery
 
 activate Admin
 
-Admin->EditRolePage: Open "Add Role" Page
+Admin->EditRolePage: Open "Edit Role" Page
 activate EditRolePage
-EditRolePage->EditRoleFormContainer: Render "Add Role Form" Container
+EditRolePage->EditRoleFormContainer: Render "Edit Role Form" Container
 activate EditRoleFormContainer
 EditRoleFormContainer->RoleForm: Render "Role Form"
 activate RoleForm

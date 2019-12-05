@@ -8,8 +8,8 @@ participant "Router" as Router
 participant "Role: HTTP Transport" as RoleHTTPTransport
 participant "Role: Endpoint" as RoleEndpoint
 participant "Role: Service" as RoleService
-participant "Role: RoleCommand" as RoleCommand
-' participant "Role: RoleQuery" as RoleQuery
+participant "Role: Command" as RoleCommand
+participant "Role: Query" as RoleQuery
 
 activate Admin
 
