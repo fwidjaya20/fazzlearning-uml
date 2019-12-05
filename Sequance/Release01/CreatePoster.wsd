@@ -1,0 +1,35 @@
+@startuml CreatePoster
+
+actor Caller
+participant "Poster: Service" as PosterService
+participant "Poster: Command" as PosterCommand
+participant "Poster: Query" as PosterQuery
+
+activate Caller
+
+Caller->PosterService: Create(payload)
+activate PosterService
+PosterService->PosterService: Validate()
+
+alt "Data not valid"
+    PosterService-->Caller: UnprocessableEntity
+else
+    loop "for each imageLink"
+        PosterService->PosterService: poster := PosterModel()
+        PosterService->PosterCommand: Create(poster)
+        activate PosterCommand
+        PosterCommand-->PosterService: imageLink
+        deactivate PosterCommand
+
+        PosterService->PosterQuery: Find(imageLink)
+        activate PosterQuery
+        PosterQuery-->PosterService: poster
+        deactivate PosterQuery
+    end
+    PosterService-->Caller: poster
+    deactivate PosterService
+end
+
+deactivate Caller
+
+@enduml
