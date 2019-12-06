@@ -1,0 +1,19 @@
+@startuml StorageSubSystem
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor Admin
+actor Member
+actor Caller
+
+rectangle "Storage System" {
+    Admin -- (Resolve)
+    
+    (Resolve) -- Member
+
+    Caller -- (Upload)
+    Caller -- (Compress)
+}
+
+@enduml

@@ -20,7 +20,7 @@ activate ClassTableContainer
 ClassTableContainer->ClassTable: Render "Class Table"
 activate ClassTable
 ClassTable-->ClassTableContainer: rendered
-ClassTableContainer->Router: route("GET", "v2/class")
+ClassTableContainer->Router: route("GET", "v2/event/{event_id}/classes")
 activate Router
 Router->ClassHTTPTransport: FetchPaginatedClasss(ClassService, []ServerOption)
 activate ClassHTTPTransport

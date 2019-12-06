@@ -1,0 +1,29 @@
+@startuml ClassSubSystem
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor Admin
+actor Member
+
+rectangle "Class System" {
+    Admin -- (Create Class)
+    Admin -- (Update Class)
+    Admin -- (Delete Class)
+    Admin -- (Get Class)
+    Admin -- (Booking Class)
+    Admin -- (Unbooking Class)
+
+    (Get Class) -- Member
+
+    (Create Class) .> (Upload) : extends
+    (Create Class) .> (Compress) : extends
+    (Create Class) .> (Create Material) : extends
+    
+    (Delete Class) .> (Delete Material) : extends
+
+    (Booking Class) .> (Create Class) : include
+    (Unbooking Class) .> (Delete Class) : include
+}
+
+@enduml

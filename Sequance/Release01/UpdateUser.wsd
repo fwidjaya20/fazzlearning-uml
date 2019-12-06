@@ -205,7 +205,7 @@ EditUserPage-->Admin: form data
 
 Admin->EditUserPage: Click "Update User" Button
 EditUserPage->EditUserFormContainer: Click "Update User" Button
-EditUserFormContainer->Route: route("POST", "v2/user", formData)
+EditUserFormContainer->Route: route("PUT", "v2/user/{email}", formData)
 activate Route
 Route->UserHTTPTransport: UpdateUser(UserService, []ServerOption)
 activate UserHTTPTransport

@@ -1,0 +1,13 @@
+@startuml PosterSubSystem
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor Caller
+
+rectangle "Poster System" {
+    Caller -- (Create Poster)
+    Caller -- (Delete Poster)
+}
+
+@enduml

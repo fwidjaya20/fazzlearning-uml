@@ -22,7 +22,7 @@ activate EventTableContainer
 EventTableContainer->EventTable: Render "Event Table"
 activate EventTable
 EventTable-->EventTableContainer: rendered
-EventTableContainer->Router: route("GET", "v2/Events")
+EventTableContainer->Router: route("GET", "v2/events")
 activate Router
 Router->EventHTTPTransport: FetchPaginatedEvents(EventService, []ServerOption)
 activate EventHTTPTransport

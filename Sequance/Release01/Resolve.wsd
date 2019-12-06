@@ -10,7 +10,7 @@ participant "AWS: S3" as AWSS3
 
 activate Caller
 
-Caller->Router: route("GET", "v2/resolve")
+Caller->Router: route("GET", "v2/resolve/{file_name}")
 Router->StorageHTTPTransport: ResolveURL(UploaderService, []ServerOption)
 StorageHTTPTransport->StorageEndpoint: ResolveURL(UploaderService, key)
 StorageEndpoint->StorageService: ResolveURL(key)
