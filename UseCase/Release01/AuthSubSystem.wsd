@@ -1,0 +1,20 @@
+@startuml AuthSubSystem
+
+left to right direction
+skinparam packageStyle rectangle
+actor Admin
+actor Member
+rectangle "Authentication System" {
+    Member -- (Login)
+    Member -- (Logout)
+    Member -- (Get Profile)
+
+    (Login) -- Admin
+    (Logout) -- Admin
+    (Get Profile) -- Admin
+
+    (Login) .> (Register) : extends
+    (Register) .> (Create User) : include
+}
+
+@enduml
