@@ -1,6 +1,9 @@
 @startuml StorageSubSystem
 
 left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
 skinparam packageStyle rectangle
 
 actor Admin
@@ -8,12 +11,12 @@ actor Member
 actor Caller
 
 rectangle "Storage System" {
-    Admin -- (Resolve)
+    Admin --> (Resolve)
     
-    (Resolve) -- Member
+    (Resolve) <-- Member
 
-    Caller -- (Upload)
-    Caller -- (Compress)
+    Caller --> (Upload)
+    Caller --> (Compress)
 }
 
 @enduml
