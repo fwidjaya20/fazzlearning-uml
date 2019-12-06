@@ -1,0 +1,16 @@
+@startuml Compress
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Zip;
+
+|System|
+:Build formatted Zip Name;
+:Do Zip Process;
+stop
+
+@enduml
