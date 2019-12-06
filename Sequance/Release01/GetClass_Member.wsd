@@ -20,7 +20,7 @@ activate ClassListViewContainer
 ClassListViewContainer->ClassCard: Render "Class Card"
 activate ClassCard
 ClassCard-->ClassListViewContainer: rendered
-ClassListViewContainer->Router: route("GET", "v2/class")
+ClassListViewContainer->Router: route("GET", "v2/event/{event_id}/classes")
 activate Router
 Router->ClassHTTPTransport: FetchPaginatedClasss(ClassService, []ServerOption)
 activate ClassHTTPTransport

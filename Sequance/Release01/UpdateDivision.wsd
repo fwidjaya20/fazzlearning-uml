@@ -33,7 +33,7 @@ EditDivisionPage-->Admin: form data
 
 Admin->EditDivisionPage: Click "Update Division" Button
 EditDivisionPage->EditDivisionFormContainer: Click "Update Division" Button
-EditDivisionFormContainer->Router: route("PUT", "v2/division", formData)
+EditDivisionFormContainer->Router: route("PUT", "v2/division/{division_id}", formData)
 activate Router
 Router->DivisionHTTPTransport: UpdateDivision(DivisionService, []ServerOption)
 activate DivisionHTTPTransport

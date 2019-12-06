@@ -33,7 +33,7 @@ EditRolePage-->Admin: form data
 
 Admin->EditRolePage: Click "Update Role" Button
 EditRolePage->EditRoleFormContainer: Click "Update Role" Button
-EditRoleFormContainer->Router: route("PUT", "v2/role", formData)
+EditRoleFormContainer->Router: route("PUT", "v2/role/{role_id}", formData)
 activate Router
 Router->RoleHTTPTransport: UpdateRole(RoleService, []ServerOption)
 activate RoleHTTPTransport
