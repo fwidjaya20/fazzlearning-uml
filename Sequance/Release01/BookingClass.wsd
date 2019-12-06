@@ -1,0 +1,138 @@
+@startuml BookingClass
+
+actor Admin
+participant "Page: Add Event" as AddEventPage
+participant "Container: Attach Class" as AttachClassListContainer
+participant "Component: Class Form" as ClassForm
+participant "Component: Class List View" as ClassListView
+participant "Router" as Router
+participant "Class: HTTP Transport" as ClassHTTPTransport
+participant "Class: Endpoint" as ClassEndpoint
+participant "Class: Service" as ClassService
+participant "Class: Command" as ClassCommand
+participant "Class: Query" as ClassQuery
+participant "Storage: GRPC Transport" as StorageGRPCTransport
+participant "Material: Service" as MaterialService
+
+activate Admin
+
+Admin->AddEventPage: Open "Add Event" Page
+activate AddEventPage
+AddEventPage->AttachClassListContainer: Render "Attach Class List" Container
+activate AttachClassListContainer
+AttachClassListContainer->Router: route("GET", "v2/bookings")
+activate Router
+Router->ClassHTTPTransport: FetchBookedRoomByUser(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: BookedByUser(ClassService, withPaginated)
+activate ClassEndpoint
+ClassEndpoint->ClassService: AllBooked(params)
+
+activate ClassService
+ClassService->ClassQuery: FindBooked([]SliceConditions)
+activate ClassQuery
+ClassQuery-->ClassService: classes
+deactivate ClassQuery
+ClassService-->ClassEndpoint: classes
+deactivate ClassService
+ClassEndpoint->ClassEndpoint: repsonse := Repsonse(classes, nil)
+ClassEndpoint-->ClassHTTPTransport: response
+deactivate ClassEndpoint
+ClassHTTPTransport-->Router: response
+deactivate ClassHTTPTransport
+Router-->AttachClassListContainer: response
+deactivate Router
+AttachClassListContainer->ClassListView: render "Class List View"
+activate ClassListView
+ClassListView-->AttachClassListContainer: rendered
+deactivate ClassListView
+AttachClassListContainer-->AddEventPage: rendered
+AddEventPage-->Admin: rendered
+
+Admin->AddEventPage: Click "Attach Class" Button
+AddEventPage->AttachClassListContainer: Click "Attach Class" Button
+AttachClassListContainer->ClassForm: Show "Class Form" Popup
+activate ClassForm
+ClassForm-->AttachClassListContainer
+AttachClassListContainer-->AddEventPage
+AddEventPage-->Admin
+
+Admin->AddEventPage: Fill Form
+AddEventPage->AttachClassListContainer: Fill Form
+AttachClassListContainer->ClassForm: Fill Form
+ClassForm-->AttachClassListContainer: form data
+deactivate ClassForm
+AttachClassListContainer-->AddEventPage: form data
+AddEventPage-->Admin: form data
+
+Admin->AddEventPage: Click "Create Class" Button
+AddEventPage->AttachClassListContainer: Click "Create Class" Button
+AttachClassListContainer->Router: route("POST", "v2/booking", formData)
+activate Router
+Router->ClassHTTPTransport: CreateClass(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: Create(ClassService)
+activate ClassEndpoint
+ClassEndpoint->ClassService: CreateMany(payload)
+
+loop "for each payload"
+    activate ClassService
+    ClassService->ClassService: Validate()
+
+    alt "Data not valid"
+        break
+            ClassService-->ClassEndpoint: UnprocessableEntity
+            ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+            ClassHTTPTransport-->Router: UnprocessableEntity
+            Router-->AttachClassListContainer: UnprocessableEntity
+            AttachClassListContainer-->AddEventPage: UnprocessableEntity
+            AddEventPage-->Admin: UnprocessableEntity
+        end
+    else
+        ClassService->ClassService: class := ClassModel()
+        ClassService->ClassService: Mark "Committed" attribute of class into false
+        ClassService->ClassCommand: Create(class)
+        activate ClassCommand
+        ClassCommand-->ClassService: uuid
+        deactivate ClassCommand
+
+        opt "has materials"
+            ClassService->StorageGRPCTransport: Zip()
+            activate StorageGRPCTransport
+            StorageGRPCTransport-->ClassService: zipName
+            deactivate StorageGRPCTransport
+
+            ClassService->MaterialService: Create(payload)
+            activate MaterialService
+            MaterialService-->ClassService: isCreated
+            deactivate MaterialService
+        end
+
+        ClassService->ClassQuery: Find(uuid)
+        activate ClassQuery
+        ClassQuery-->ClassService: booked_classes
+        deactivate ClassQuery
+    end
+
+    ClassService-->ClassEndpoint: booked_classes
+    deactivate ClassService
+    ClassEndpoint->ClassEndpoint: response := Response(booked_classes, nil)
+    ClassEndpoint-->ClassHTTPTransport: response
+    deactivate ClassEndpoint
+    ClassHTTPTransport-->Router: response
+    deactivate ClassHTTPTransport
+    Router-->ClassListView: response
+    deactivate Router
+    activate ClassListView
+    ClassListView->ClassListView: render "Class List View"
+    ClassListView-->AttachClassListContainer
+    deactivate ClassListView
+    AttachClassListContainer-->AddEventPage
+    deactivate AttachClassListContainer
+    AddEventPage-->Admin
+    deactivate AddEventPage
+end
+
+deactivate Admin
+
+@enduml
