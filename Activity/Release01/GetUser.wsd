@@ -1,0 +1,17 @@
+@startuml GetUser
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Manage User" Page;
+
+|System|
+:Get "User" data from Database;
+:Display then data to table;
+
+stop
+
+@enduml

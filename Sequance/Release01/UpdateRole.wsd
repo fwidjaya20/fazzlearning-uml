@@ -20,6 +20,29 @@ activate EditRoleFormContainer
 EditRoleFormContainer->RoleForm: Render "Role Form"
 activate RoleForm
 RoleForm-->EditRoleFormContainer
+EditRoleFormContainer->Router: route("GET", "v2/role/{role_id}")
+activate Router
+Router->RoleHTTPTransport: FetchRoleById(RoleService, []ServerOption)
+activate RoleHTTPTransport
+RoleHTTPTransport->RoleEndpoint: FindById(RoleService, roleId)
+activate RoleEndpoint
+RoleEndpoint->RoleService: FindById(roleId)
+activate RoleService
+RoleService->RoleQuery: Find(roleId)
+activate RoleQuery
+RoleQuery-->RoleService: role
+deactivate RoleQuery
+RoleService-->RoleEndpoint: role
+deactivate RoleService
+RoleEndpoint->RoleEndpoint: response := Response(role, nil)
+RoleEndpoint-->RoleHTTPTransport: response
+deactivate RoleEndpoint
+RoleHTTPTransport-->Router: response
+deactivate RoleHTTPTransport
+Router-->EditRoleFormContainer: response
+deactivate Router
+EditRoleFormContainer->RoleForm: display data to field
+RoleForm-->EditRoleFormContainer
 EditRoleFormContainer-->EditRolePage
 EditRolePage-->Admin
 
