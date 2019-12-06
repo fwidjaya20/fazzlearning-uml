@@ -1,5 +1,8 @@
 @startuml DeleteDivision
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Division" as DivisionPage
 participant "Container: Division Table" as DivisionTableContainer

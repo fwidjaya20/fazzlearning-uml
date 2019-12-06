@@ -1,5 +1,8 @@
 @startuml GetClass_Member
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Member
 participant "Page: Class" as ClassPage
 participant "Container: Class List View" as ClassListViewContainer

@@ -1,5 +1,8 @@
 @startuml GetEvent_Member
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Member
 participant "Page: Event" as EventPage
 participant "Container: Event Table" as EventTableContainer

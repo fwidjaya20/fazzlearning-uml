@@ -1,5 +1,8 @@
 @startuml UpdateUser
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Edit User" as EditUserPage
 participant "Container: Edit User Form" as EditUserFormContainer

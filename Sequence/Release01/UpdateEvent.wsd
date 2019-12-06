@@ -1,5 +1,8 @@
 @startuml UpdateEvent
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Edit Event" as EditEventPage
 participant "Container: Edit Event Form" as EditEventFormContainer

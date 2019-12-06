@@ -1,5 +1,8 @@
 @startuml CreatePoster
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Caller
 participant "Poster: Service" as PosterService
 participant "Poster: Command" as PosterCommand

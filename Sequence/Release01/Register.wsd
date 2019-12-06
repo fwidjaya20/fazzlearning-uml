@@ -1,5 +1,8 @@
 @startuml Register
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Member
 participant "Page: Register" as RegisterPage
 participant "Container: Fulfilment Form" as FulfilmentFormContainer

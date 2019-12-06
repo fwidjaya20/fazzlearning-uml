@@ -1,5 +1,8 @@
 @startuml BookingClass
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Add Event" as AddEventPage
 participant "Container: Attach Class" as AttachClassListContainer

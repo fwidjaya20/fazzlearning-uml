@@ -1,5 +1,8 @@
 @startuml CreateUser
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Create User" as CreateUserPage
 participant "Container: Add User Form" as AddUserFormContainer

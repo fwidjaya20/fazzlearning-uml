@@ -1,5 +1,8 @@
 @startuml UpdateDivision
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Edit Division" as EditDivisionPage
 participant "Container: Edit Division Form" as EditDivisionFormContainer

@@ -1,5 +1,8 @@
 @startuml DeleteMaterial
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Caller
 participant "Material: Service" as MaterialService
 participant "Material: Command" as MaterialCommand
