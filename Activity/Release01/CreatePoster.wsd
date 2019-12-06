@@ -1,0 +1,27 @@
+@startuml CreatePoster
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Create Poster;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    while (for each imageLink) is (has link)
+        :Insert "Poster" data to Database;
+        if (Is Created ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endwhile
+    stop
+else (No)
+    stop
+endif
+
+@enduml
