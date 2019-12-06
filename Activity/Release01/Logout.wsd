@@ -1,0 +1,24 @@
+@startuml Logout
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin,Member|
+start
+:Open "Profile" Page;
+:Hit "Logout" Button;
+
+|System|
+:Delete Session Data from Database;
+fork
+    |System|
+    if (Is Deleted ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+endfork
+stop
+
+@enduml

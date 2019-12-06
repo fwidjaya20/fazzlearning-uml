@@ -20,6 +20,29 @@ activate EditDivisionFormContainer
 EditDivisionFormContainer->DivisionForm: Render "Division Form"
 activate DivisionForm
 DivisionForm-->EditDivisionFormContainer
+EditDivisionFormContainer->Router: route("GET", "v2/division/{division_id}")
+activate Router
+Router->DivisionHTTPTransport: FetchDivisionById(DivisionService, []ServerOption)
+activate DivisionHTTPTransport
+DivisionHTTPTransport->DivisionEndpoint: FindById(DivisionService, divisionId)
+activate DivisionEndpoint
+DivisionEndpoint->DivisionService: FindById(divisionId)
+activate DivisionService
+DivisionService->DivisionQuery: Find(divisionId)
+activate DivisionQuery
+DivisionQuery-->DivisionService: division
+deactivate DivisionQuery
+DivisionService-->DivisionEndpoint: division
+deactivate DivisionService
+DivisionEndpoint->DivisionEndpoint: response := Response(division, nil)
+DivisionEndpoint-->DivisionHTTPTransport: response
+deactivate DivisionEndpoint
+DivisionHTTPTransport-->Router: response
+deactivate DivisionHTTPTransport
+Router-->EditDivisionFormContainer: response
+deactivate Router
+EditDivisionFormContainer->DivisionForm: display data to field
+DivisionForm-->EditDivisionFormContainer
 EditDivisionFormContainer-->EditDivisionPage
 EditDivisionPage-->Admin
 

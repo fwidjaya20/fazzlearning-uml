@@ -1,23 +1,26 @@
 @startuml EventSubSystem
 
 left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
 skinparam packageStyle rectangle
 
 actor Admin
 actor Member
 
 rectangle "Event System" {
-    Admin -- (Create Event)
-    Admin -- (Update Event)
-    Admin -- (Delete Event)
-    Admin -- (Get Event)
+    Admin --> (Create Event)
+    Admin --> (Update Event)
+    Admin --> (Delete Event)
+    Admin --> (Get Event)
 
-    (Get Event) -- Member
+    (Get Event) <-- Member
 
-    (Create Event) .> (Upload) : include
-    (Create Event) .> (Create Poster) : include
+    (Create Event) ..> (Upload) : include
+    (Create Event) ..> (Create Poster) : include
     
-    (Delete Event) .> (Delete Poster)
+    (Delete Event) ..> (Delete Poster)
 }
 
 @enduml

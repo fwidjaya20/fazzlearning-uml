@@ -1,0 +1,21 @@
+@startuml GetProfile
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin,Member|
+start
+:Open "Profile" Page;
+
+|System|
+:Process Token given;
+if (Valid Token ?) then (Yes)
+    :Parse Token;
+    :Get User Data from Database;
+    stop
+else (No)
+    stop
+endif
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml UpdateEvent
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Edit Event" Page;
+
+|System|
+:Get Selected "Event" data from Database;
+:Display then data to its field;
+
+|Admin|
+:Change "Event" Form;
+:Hit "Edit Event" Button;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    :Update "Event" data from Database;
+    fork
+        if (IsUpdated ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+else (No)
+    stop
+endif
+@enduml

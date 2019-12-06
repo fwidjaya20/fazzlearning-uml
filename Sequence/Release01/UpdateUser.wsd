@@ -4,7 +4,7 @@ actor Admin
 participant "Page: Edit User" as EditUserPage
 participant "Container: Edit User Form" as EditUserFormContainer
 participant "Component: User Form" as UserFormComponent
-participant "Route" as Route
+participant "Router" as Router
 participant "User: HTTP Transport" as UserHTTPTransport
 participant "Role: HTTP Transport" as RoleHTTPTransport
 participant "Division: HTTP Transport" as DivisionHTTPTransport
@@ -31,9 +31,9 @@ EditUserFormContainer->UserFormComponent: Render "Edit User Form"
 
 ' Fetch Roles
 activate UserFormComponent
-UserFormComponent->Route: route("GET", "v2/roles")
-activate Route
-Route->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
+UserFormComponent->Router: Router("GET", "v2/roles")
+activate Router
+Router->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
 activate RoleHTTPTransport
 RoleHTTPTransport->RoleEndpoint: All(RoleService, withPaginate)
 activate RoleEndpoint
@@ -62,17 +62,17 @@ deactivate RoleService
 RoleEndpoint->RoleEndpoint: response := Response(roles, paginateMetadata)
 RoleEndpoint-->RoleHTTPTransport: response
 deactivate RoleEndpoint
-RoleHTTPTransport-->Route: response
+RoleHTTPTransport-->Router: response
 deactivate RoleHTTPTransport
-Route-->UserFormComponent: response
-deactivate Route
+Router-->UserFormComponent: response
+deactivate Router
 UserFormComponent->UserFormComponent: binding repsonse to attribute
 ' End Fetch Roles
 
 ' Fetch Division
-UserFormComponent->Route: route("GET", "v2/divisions")
-activate Route
-Route->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
+UserFormComponent->Router: Router("GET", "v2/divisions")
+activate Router
+Router->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
 activate DivisionHTTPTransport
 DivisionHTTPTransport->DivisionEndpoint: All(DivisionService)
 activate DivisionEndpoint
@@ -101,14 +101,37 @@ deactivate DivisionService
 DivisionEndpoint->DivisionEndpoint: response := Response(divisions, nil)
 DivisionEndpoint-->DivisionHTTPTransport: response
 deactivate DivisionEndpoint
-DivisionHTTPTransport-->Route: response
+DivisionHTTPTransport-->Router: response
 deactivate DivisionHTTPTransport
-Route-->UserFormComponent: response
-deactivate Route
+Router-->UserFormComponent: response
+deactivate Router
 UserFormComponent->UserFormComponent: binding repsonse to attribute
 ' End Fetch Division
 
 UserFormComponent-->EditUserFormContainer: rendered
+EditUserFormContainer->Router: Router("GET", "v2/user/{user_id}")
+activate Router
+Router->UserHTTPTransport: FetchUserById(UserService, []ServerOption)
+activate UserHTTPTransport
+UserHTTPTransport->UserEndpoint: FindById(UserService, userId)
+activate UserEndpoint
+UserEndpoint->UserService: FindById(userId)
+activate UserService
+UserService->UserQuery: Find(userId)
+activate UserQuery
+UserQuery-->UserService: user
+deactivate UserQuery
+UserService-->UserEndpoint: user
+deactivate UserService
+UserEndpoint->UserEndpoint: response := Response(user, nil)
+UserEndpoint-->UserHTTPTransport: response
+deactivate UserEndpoint
+UserHTTPTransport-->Router: response
+deactivate UserHTTPTransport
+Router-->EditUserFormContainer: response
+deactivate Router
+EditUserFormContainer->UserFormComponent: display data to field
+UserFormComponent-->EditUserFormContainer
 EditUserFormContainer-->EditUserPage: rendered
 EditUserPage-->Admin: rendered
 ' End Load Data
@@ -120,9 +143,9 @@ EditUserFormContainer->UserFormComponent: Fill Form
 
 
 opt "Do Search Role"
-    UserFormComponent->Route: route("GET", "v2/roles?search=role_to_search")
-    activate Route
-    Route->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
+    UserFormComponent->Router: Router("GET", "v2/roles?search=role_to_search")
+    activate Router
+    Router->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
     activate RoleHTTPTransport
     RoleHTTPTransport->RoleEndpoint: All(RoleService, withPaginate)
     activate RoleEndpoint
@@ -151,17 +174,17 @@ opt "Do Search Role"
     RoleEndpoint->RoleEndpoint: response := Response(roles, paginateMetadata)
     RoleEndpoint-->RoleHTTPTransport: response
     deactivate RoleEndpoint
-    RoleHTTPTransport-->Route: response
+    RoleHTTPTransport-->Router: response
     deactivate RoleHTTPTransport
-    Route-->UserFormComponent: response
-    deactivate Route
+    Router-->UserFormComponent: response
+    deactivate Router
     UserFormComponent->UserFormComponent: binding repsonse to attribute
 end
 
 opt "Do Search Division"
-    UserFormComponent->Route: route("GET", "v2/divisions?search=division_to_search")
-    activate Route
-    Route->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
+    UserFormComponent->Router: Router("GET", "v2/divisions?search=division_to_search")
+    activate Router
+    Router->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
     activate DivisionHTTPTransport
     DivisionHTTPTransport->DivisionEndpoint: All(DivisionService)
     activate DivisionEndpoint
@@ -190,10 +213,10 @@ opt "Do Search Division"
     DivisionEndpoint->DivisionEndpoint: response := Response(divisions, nil)
     DivisionEndpoint-->DivisionHTTPTransport: response
     deactivate DivisionEndpoint
-    DivisionHTTPTransport-->Route: response
+    DivisionHTTPTransport-->Router: response
     deactivate DivisionHTTPTransport
-    Route-->UserFormComponent: response
-    deactivate Route
+    Router-->UserFormComponent: response
+    deactivate Router
     UserFormComponent->UserFormComponent: binding repsonse to attribute
 end
 
@@ -205,9 +228,9 @@ EditUserPage-->Admin: form data
 
 Admin->EditUserPage: Click "Update User" Button
 EditUserPage->EditUserFormContainer: Click "Update User" Button
-EditUserFormContainer->Route: route("PUT", "v2/user/{email}", formData)
-activate Route
-Route->UserHTTPTransport: UpdateUser(UserService, []ServerOption)
+EditUserFormContainer->Router: Router("PUT", "v2/user/{email}", formData)
+activate Router
+Router->UserHTTPTransport: UpdateUser(UserService, []ServerOption)
 activate UserHTTPTransport
 UserHTTPTransport->UserEndpoint: Update(UserService)
 activate UserEndpoint
@@ -218,8 +241,8 @@ UserService->UserService: Validate()
 alt "Data not valid"
     UserService-->UserEndpoint: UnprocessableEntity
     UserEndpoint-->UserHTTPTransport: UnprocessableEntity
-    UserHTTPTransport-->Route: UnprocessableEntity
-    Route-->EditUserFormContainer: UnprocessableEntity
+    UserHTTPTransport-->Router: UnprocessableEntity
+    Router-->EditUserFormContainer: UnprocessableEntity
     EditUserFormContainer-->EditUserPage: UnprocessableEntity
     EditUserPage-->Admin: UnprocessableEntity
 else
@@ -237,10 +260,10 @@ else
     UserEndpoint->UserEndpoint:  response := Response(user, nil)
     UserEndpoint-->UserHTTPTransport: response
     deactivate UserEndpoint
-    UserHTTPTransport-->Route: response
+    UserHTTPTransport-->Router: response
     deactivate UserHTTPTransport
-    Route-->EditUserFormContainer: response
-    deactivate Route
+    Router-->EditUserFormContainer: response
+    deactivate Router
     EditUserFormContainer-->EditUserPage: response
     deactivate EditUserFormContainer
     EditUserPage-->Admin: response

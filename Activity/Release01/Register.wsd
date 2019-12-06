@@ -1,0 +1,41 @@
+@startuml Register
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open "Fulfilment" Page;
+
+
+|System|
+fork
+    :Get "Roles" data from Database;
+forkagain
+    :Get "Division" data from Database;
+endfork
+:Display fetched data into its own field;
+
+|Member|
+:Fill "Fulfilment" Form;
+:Hit "Complete" Button;
+
+|System|
+:Validate;
+
+if (Valid ?) then (Yes)
+    :Insert User Data to Database;
+    fork
+        if (IsCreated ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+else (No)
+    stop
+endif
+
+@enduml

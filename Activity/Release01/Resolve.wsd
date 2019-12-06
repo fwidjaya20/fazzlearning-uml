@@ -1,0 +1,22 @@
+@startuml Resolve
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Resolve URL;
+
+|System|
+:Resolve URL Given;
+:GetObjectRequest to AWS S3;
+fork
+    if (Any Error ?) then (No)
+        :Adding Resolved URL Information;
+    else (Yes)
+        :Adding Error Information;
+    endif
+endfork
+stop
+@enduml

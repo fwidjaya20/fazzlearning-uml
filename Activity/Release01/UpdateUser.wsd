@@ -1,0 +1,57 @@
+@startuml UpdateUser
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Edit User" Page;
+
+|System|
+fork
+    :Get "Roles" data from Database;
+forkagain
+    :Get "Division" data from Database;
+endfork
+:Display fetched data into its own field;
+:Get selected "User" data from Database;
+
+|Admin|
+:Change "User" form;
+
+fork
+|Admin|
+if (Search Role ?) then (Yes)
+    |System|
+    :Get "Role" data from Database;
+    :Display fetched data into role field;
+endif
+forkagain
+|Admin|
+if (Search Division ?) then (Yes)
+    |System|
+    :Get "Division" data from Database;
+    :Display fetched data into division field;
+endif
+endfork
+
+|Admin|
+:Hit "Update User" Button;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    :Update "User" data from Database;
+    fork
+        if (IsUpdated ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+else (No)
+    stop
+endif
+@enduml

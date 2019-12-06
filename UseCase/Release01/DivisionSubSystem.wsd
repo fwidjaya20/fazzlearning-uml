@@ -1,15 +1,18 @@
 @startuml DivisionSubSystem
 
 left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
 skinparam packageStyle rectangle
 
 actor Admin
 
 rectangle "Division System" {
-    Admin -- (Create Division)
-    Admin -- (Update Division)
-    Admin -- (Delete Division)
-    Admin -- (Get Division)
+    Admin --> (Create Division)
+    Admin --> (Update Division)
+    Admin --> (Delete Division)
+    Admin --> (Get Division)
 }
 
 @enduml

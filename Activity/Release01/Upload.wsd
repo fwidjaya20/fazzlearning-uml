@@ -1,0 +1,25 @@
+@startuml Upload
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Upload File;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    while(For each file) is (Has file)
+        :PutObject into AWS S3;
+        if (Any Error) then (Yes)
+            stop
+        endif
+    endwhile
+    :Adding ObjectKey Information;
+    stop
+else (No)
+    stop
+endif
+@enduml
