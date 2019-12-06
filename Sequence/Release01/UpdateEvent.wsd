@@ -22,7 +22,7 @@ activate EventForm
 EventForm-->EditEventFormContainer
 EditEventFormContainer->Router: route("GET", "v2/event/{event_id}")
 activate Router
-Router->EventHTTPTransport: FetchEventById(EventService, []ServerOption)
+Router->EventHTTPTransport: FindByEventId(EventService, []ServerOption)
 activate EventHTTPTransport
 EventHTTPTransport->EventEndpoint: FindByEventId(EventService, eventId)
 activate EventEndpoint

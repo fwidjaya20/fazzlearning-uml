@@ -1,0 +1,48 @@
+@startuml BookingClass
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Attach Class List";
+
+|System|
+:Get Booked Room By Logged User;
+:Display the data to List View;
+
+|Admin|
+:Hit "Attach Class" Button;
+
+|System|
+:Show "Class Form" Popup;
+
+|Admin|
+:Fill "Class" Form;
+:Hit "Create Class" Button;
+
+|System|
+while (For each payload) is (has payload)
+    :Validate Data;
+
+    if (Valid ?) then (Yes)
+        :Mark "Committed" attribute of Class as False;
+        :Insert "Class" to Database;
+        if (IsCreated ?) then (Yes)
+            if (Has Material ?) then (Yes)
+                :Zip Materials;
+                :Upload Zipped Material;
+                :Insert "Material" data to Database;
+            endif
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    else (No)
+        stop
+    endif
+endwhile
+stop
+
+@enduml

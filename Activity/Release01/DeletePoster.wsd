@@ -1,0 +1,27 @@
+@startuml DeletePoster
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Delete Poster by Event;
+
+|System|
+:Validate Event Given;
+if (Valid ?) then (Yes)
+    while (for each poster) is (has poster)
+        :Delete "Poster" data from Database;
+        if (Is Created ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endwhile
+    stop
+else (No)
+    stop
+endif
+
+@enduml

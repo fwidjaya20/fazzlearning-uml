@@ -1,4 +1,4 @@
-@startuml DeleteEvent
+@startuml DeleteClass
 
 skinparam ConditionEndStyle hline
 skinparam Monochrome true
@@ -6,14 +6,14 @@ skinparam Shadowing false
 
 |Admin|
 start
-:Open "Manage Event" Page;
+:Open "Manage Class" Page;
 
 |System|
-:Get "Event" data from Database;
+:Get "Class" data from Database;
 :Display then data to table;
 
 |Admin|
-:Mark "Event" to Delete;
+:Mark "Class" to Delete;
 :Hit "Delete Selected" Button;
 
 |System|
@@ -25,12 +25,11 @@ if (Agree Delete ?) then (No)
 else (Yes)
     |System|
     while (For each uuid) is (uuid)
-        :Delete "Event" from Database;
+        :Delete "Class" from Database;
         fork
             |System|
             if (Is Deleted ?) then (Yes)
-                :Delete Related Poster if Exists;
-                :Delete Related Class if Exists;
+                :Delete Related Material if Exists;
                 :Adding Success Information;
             else (No)
                 :Adding Error Information;

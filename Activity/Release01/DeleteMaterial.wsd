@@ -1,0 +1,27 @@
+@startuml DeleteMaterial
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Delete Material by Class;
+
+|System|
+:Validate Class Given;
+if (Valid ?) then (Yes)
+    while (for each material) is (has material)
+        :Delete "Material" data from Database;
+        if (Is Created ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endwhile
+    stop
+else (No)
+    stop
+endif
+
+@enduml

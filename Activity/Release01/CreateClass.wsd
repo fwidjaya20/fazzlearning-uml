@@ -1,0 +1,32 @@
+@startuml CreateClass
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Add Class" Page;
+:Fill "Class" Form;
+:Hit "Create Class" Button;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    :Insert "Class" data to Database;
+    if (IsCreated ?) then (Yes)
+        if (Has Material ?) then (Yes)
+            :Zip Materials;
+            :Upload Zipped Material;
+            :Insert "Material" data to Database;
+        endif
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+    stop
+else (No)
+    stop
+endif
+
+@enduml

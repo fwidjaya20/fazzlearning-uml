@@ -20,6 +20,29 @@ activate EditClassFormContainer
 EditClassFormContainer->ClassForm: Render "Class Form"
 activate ClassForm
 ClassForm-->EditClassFormContainer
+EditClassFormContainer->Router: route("GET", "v2/event/{event_id}class/{class_id}")
+activate Router
+Router->ClassHTTPTransport: FindClassById(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: FindClassById(ClassService, divisionId)
+activate ClassEndpoint
+ClassEndpoint->ClassService: FindClassById(divisionId)
+activate ClassService
+ClassService->DivisionQuery: Find(divisionId)
+activate DivisionQuery
+DivisionQuery-->ClassService: division
+deactivate DivisionQuery
+ClassService-->ClassEndpoint: division
+deactivate ClassService
+ClassEndpoint->ClassEndpoint: response := Response(division, nil)
+ClassEndpoint-->ClassHTTPTransport: response
+deactivate ClassEndpoint
+ClassHTTPTransport-->Router: response
+deactivate ClassHTTPTransport
+Router-->EditClassFormContainer: response
+deactivate Router
+EditClassFormContainer->ClassForm: display data to field
+DivisionForm-->EditDivisionFormContainer
 EditClassFormContainer-->EditClassPage
 EditClassPage-->Admin
 
