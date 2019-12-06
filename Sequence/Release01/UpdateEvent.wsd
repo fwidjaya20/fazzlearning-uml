@@ -20,6 +20,29 @@ activate EditEventFormContainer
 EditEventFormContainer->EventForm: Render "Event Form"
 activate EventForm
 EventForm-->EditEventFormContainer
+EditEventFormContainer->Router: route("GET", "v2/event/{event_id}")
+activate Router
+Router->EventHTTPTransport: FetchEventById(EventService, []ServerOption)
+activate EventHTTPTransport
+EventHTTPTransport->EventEndpoint: FindByEventId(EventService, eventId)
+activate EventEndpoint
+EventEndpoint->EventService: FindByEventId(eventId)
+activate EventService
+EventService->EventQuery: Find(eventId)
+activate EventQuery
+EventQuery-->EventService: event
+deactivate EventQuery
+EventService-->EventEndpoint: event
+deactivate EventService
+EventEndpoint->EventEndpoint: response := Response(event, nil)
+EventEndpoint-->EventHTTPTransport: response
+deactivate EventEndpoint
+EventHTTPTransport-->Router: response
+deactivate EventHTTPTransport
+Router-->EditEventFormContainer: response
+deactivate Router
+EditEventFormContainer->EventForm: display data to field
+EventForm-->EditEventFormContainer
 EditEventFormContainer-->EditEventPage
 EditEventPage-->Admin
 
