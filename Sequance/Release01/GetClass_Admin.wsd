@@ -1,0 +1,67 @@
+@startuml DeleteClass_Admin
+
+actor Admin
+participant "Page: Class" as ClassPage
+participant "Container: Class Table" as ClassTableContainer
+participant "Component: Class Table" as ClassTable
+participant "Router" as Router
+participant "Class: HTTP Transport" as ClassHTTPTransport
+participant "Class: Endpoint" as ClassEndpoint
+participant "Class: Service" as ClassService
+participant "Class: Command" as ClassCommand
+participant "Class: Query" as ClassQuery
+
+activate Admin
+
+Admin->ClassPage: Open "Manage Class" Page
+activate ClassPage
+ClassPage->ClassTableContainer: Render "Class Table" Container
+activate ClassTableContainer
+ClassTableContainer->ClassTable: Render "Class Table"
+activate ClassTable
+ClassTable-->ClassTableContainer: rendered
+ClassTableContainer->Router: route("GET", "v2/class")
+activate Router
+Router->ClassHTTPTransport: FetchPaginatedClasss(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: All(ClassService, withPaginated)
+activate ClassEndpoint
+ClassEndpoint->ClassService: All(params)
+
+activate ClassService
+activate ClassQuery
+alt "With Paginate"
+    ClassService->ClassQuery: All([]SliceConditions, PaginateModel)
+else
+    ClassService->ClassQuery: All([]SliceConditions, nil)
+end
+ClassQuery-->ClassService: classes
+ClassService-->ClassEndpoint: classes
+
+opt "With Paginate"
+    ClassEndpoint->ClassService: GetPagination(PaginateModel)
+    ClassService->ClassQuery: Count([]SliceConditions)
+    ClassQuery-->ClassService: total
+    ClassService-->ClassEndpoint: total
+end
+deactivate ClassQuery
+deactivate ClassService
+
+ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
+ClassEndpoint-->ClassHTTPTransport: response
+deactivate ClassEndpoint
+ClassHTTPTransport-->Router: response
+deactivate ClassHTTPTransport
+Router-->ClassTableContainer: response
+deactivate Router
+ClassTableContainer->ClassTable: Render "Class Table"
+deactivate ClassTable
+ClassTable-->ClassTableContainer: rendered
+ClassTableContainer-->ClassPage: rendered
+deactivate ClassTableContainer
+ClassPage-->Admin: rendered
+deactivate ClassPage
+
+deactivate Admin
+
+@enduml
