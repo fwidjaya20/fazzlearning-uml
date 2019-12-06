@@ -67,6 +67,8 @@ loop "for each payload"
             ClassService->StorageGRPCTransport: Zip()
             activate StorageGRPCTransport
             StorageGRPCTransport-->ClassService: zipName
+            ClassService->StorageGRPCTransport: Upload(ProtoBuffer)
+            StorageGRPCTransport-->ClassService: link
             deactivate StorageGRPCTransport
 
             ClassService->MaterialService: Create(payload)
