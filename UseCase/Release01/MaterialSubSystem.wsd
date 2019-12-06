@@ -1,0 +1,13 @@
+@startuml MaterialSubSystem
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor Caller
+
+rectangle "Material System" {
+    Caller -- (Create Material)
+    Caller -- (Delete Material)
+}
+
+@enduml
