@@ -1,5 +1,8 @@
 @startuml Compress
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Caller
 participant "Storage: Service" as StorageService
 

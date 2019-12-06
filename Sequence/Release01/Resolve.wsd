@@ -1,5 +1,8 @@
 @startuml Resolve
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Caller
 participant "Router" as Router
 participant "Storage: HTTP Transport" as StorageHTTPTransport

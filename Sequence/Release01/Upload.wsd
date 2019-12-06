@@ -1,5 +1,8 @@
 @startuml Upload
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Caller
 participant "Storage: GRPC Transport" as StorageGRPCTransport
 participant "Storage: Service" as StorageService

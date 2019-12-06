@@ -1,5 +1,8 @@
 @startuml CreateRole
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Add Role" as AddRolePage
 participant "Container: Add Role Form" as AddRoleFormContainer

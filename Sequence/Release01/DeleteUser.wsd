@@ -1,5 +1,8 @@
 @startuml DeleteUser
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: User" as UserPage
 participant "Container: User Table" as UserTableContainer

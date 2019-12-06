@@ -1,5 +1,8 @@
 @startuml GetProfile
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Employee
 participant "Page: Profile" as ProfilePage
 participant "Route" as Route

@@ -1,5 +1,8 @@
 @startuml DeleteClass
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Class" as ClassPage
 participant "Container: Class Table" as ClassTableContainer

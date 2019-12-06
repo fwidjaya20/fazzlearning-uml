@@ -1,5 +1,8 @@
 @startuml UpdateClass
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Edit Class" as EditClassPage
 participant "Container: Edit Class Form" as EditClassFormContainer

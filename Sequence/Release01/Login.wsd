@@ -1,5 +1,8 @@
 @startuml Login
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Employee
 participant "Page: Login" as LoginPage
 participant "Route" as Route

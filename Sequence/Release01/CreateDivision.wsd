@@ -1,5 +1,8 @@
 @startuml CreateDivision
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Add Division" as AddDivisionPage
 participant "Container: Add Division Form" as AddDivisionFormContainer

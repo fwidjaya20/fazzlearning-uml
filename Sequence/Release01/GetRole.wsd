@@ -1,5 +1,8 @@
 @startuml GetRole
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Role" as RolePage
 participant "Container: Role Table" as RoleTableContainer

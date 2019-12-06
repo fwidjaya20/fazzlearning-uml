@@ -1,5 +1,8 @@
 @startuml Logout
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Employee
 participant "Page: Profile" as ProfilePage
 participant "Router" as Router

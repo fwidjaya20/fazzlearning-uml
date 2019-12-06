@@ -1,5 +1,8 @@
 @startuml CreateClass
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Add Class" as AddClassPage
 participant "Container: Add Class Form" as AddClassFormContainer

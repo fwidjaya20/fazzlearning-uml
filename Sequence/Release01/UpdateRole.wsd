@@ -1,5 +1,8 @@
 @startuml UpdateRole
 
+skinparam Monochrome true
+skinparam Shadowing false
+
 actor Admin
 participant "Page: Edit Role" as EditRolePage
 participant "Container: Edit Role Form" as EditRoleFormContainer
