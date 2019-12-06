@@ -29,6 +29,8 @@ else (Yes)
         fork
             |System|
             if (Is Deleted ?) then (Yes)
+                :Delete Related Poster if Exists;
+                :Delete Related Class if Exists;
                 :Adding Success Information;
             else (No)
                 :Adding Error Information;
