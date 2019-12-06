@@ -1,4 +1,4 @@
-@startuml DeleteEvent_Admin
+@startuml GetEvent_Admin
 
 actor Admin
 participant "Page: Event" as EventPage

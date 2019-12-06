@@ -1,4 +1,4 @@
-@startuml CreatePoster
+@startuml DeletePoster
 
 actor Caller
 participant "Poster: Service" as PosterService
@@ -7,7 +7,7 @@ participant "Poster: Query" as PosterQuery
 
 activate Caller
 
-Caller->PosterService: Create(payload)
+Caller->PosterService: DeleteByEvent(payload)
 activate PosterService
 PosterService->PosterQuery: Find([]SliceConditions)
 activate PosterQuery
@@ -18,11 +18,6 @@ alt "len(posters) < 1"
     PosterService-->Caller: false
 else
     loop "for each posters"
-        PosterService->PosterQuery: Find([]SliceConditions)
-        activate PosterQuery
-        PosterQuery-->PosterService: poster
-        deactivate PosterQuery
-
         PosterService->PosterCommand: Delete(poster)
         activate PosterCommand
         PosterCommand-->PosterService: isDeleted

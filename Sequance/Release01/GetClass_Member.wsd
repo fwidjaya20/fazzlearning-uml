@@ -1,0 +1,67 @@
+@startuml GetClass_Member
+
+actor Member
+participant "Page: Class" as ClassPage
+participant "Container: Class List View" as ClassListViewContainer
+participant "Component: Class Card" as ClassCard
+participant "Router" as Router
+participant "Class: HTTP Transport" as ClassHTTPTransport
+participant "Class: Endpoint" as ClassEndpoint
+participant "Class: Service" as ClassService
+participant "Class: Command" as ClassCommand
+participant "Class: Query" as ClassQuery
+
+activate Member
+
+Member->ClassPage: Open "Class List" Page
+activate ClassPage
+ClassPage->ClassListViewContainer: Render "Class List View" Container
+activate ClassListViewContainer
+ClassListViewContainer->ClassCard: Render "Class Card"
+activate ClassCard
+ClassCard-->ClassListViewContainer: rendered
+ClassListViewContainer->Router: route("GET", "v2/class")
+activate Router
+Router->ClassHTTPTransport: FetchPaginatedClasss(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: All(ClassService, withPaginated)
+activate ClassEndpoint
+ClassEndpoint->ClassService: All(params)
+
+activate ClassService
+activate ClassQuery
+alt "With Paginate"
+    ClassService->ClassQuery: All([]SliceConditions, PaginateModel)
+else
+    ClassService->ClassQuery: All([]SliceConditions, nil)
+end
+ClassQuery-->ClassService: classes
+ClassService-->ClassEndpoint: classes
+
+opt "With Paginate"
+    ClassEndpoint->ClassService: GetPagination(PaginateModel)
+    ClassService->ClassQuery: Count([]SliceConditions)
+    ClassQuery-->ClassService: total
+    ClassService-->ClassEndpoint: total
+end
+deactivate ClassQuery
+deactivate ClassService
+
+ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
+ClassEndpoint-->ClassHTTPTransport: response
+deactivate ClassEndpoint
+ClassHTTPTransport-->Router: response
+deactivate ClassHTTPTransport
+Router-->ClassListViewContainer: response
+deactivate Router
+ClassListViewContainer->ClassCard: Render "Class Card"
+deactivate ClassCard
+ClassCard-->ClassListViewContainer: rendered
+ClassListViewContainer-->ClassPage: rendered
+deactivate ClassListViewContainer
+ClassPage-->Member: rendered
+deactivate ClassPage
+
+deactivate Member
+
+@enduml

@@ -1,0 +1,35 @@
+@startuml CreateMaterial
+
+actor Caller
+participant "Material: Service" as MaterialService
+participant "Material: Command" as MaterialCommand
+participant "Material: Query" as MaterialQuery
+
+activate Caller
+
+Caller->MaterialService: Create(payload)
+activate MaterialService
+MaterialService->MaterialService: Validate()
+
+alt "Data not valid"
+    MaterialService-->Caller: UnprocessableEntity
+else
+    loop "for each imageLink"
+        MaterialService->MaterialService: material := MaterialModel()
+        MaterialService->MaterialCommand: Create(material)
+        activate MaterialCommand
+        MaterialCommand-->MaterialService: materialLink
+        deactivate MaterialCommand
+
+        MaterialService->MaterialQuery: Find(materialLink)
+        activate MaterialQuery
+        MaterialQuery-->MaterialService: material
+        deactivate MaterialQuery
+    end
+    MaterialService-->Caller: Material
+    deactivate MaterialService
+end
+
+deactivate Caller
+
+@enduml

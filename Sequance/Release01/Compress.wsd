@@ -1,0 +1,17 @@
+@startuml Compress
+
+actor Caller
+participant "Storage: Service" as StorageService
+
+activate Caller
+
+Caller->StorageService: Zip()
+activate StorageService
+StorageService->StorageService: zipName := build formatted file name
+StorageService->StorageService: Zip()
+StorageService-->Caller: zipName
+deactivate StorageService
+
+deactivate Caller
+
+@enduml
