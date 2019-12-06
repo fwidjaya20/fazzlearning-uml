@@ -1,0 +1,17 @@
+@startuml GetClass_Member
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Class List" Page;
+
+|System|
+:Get "Class" data from Database;
+:Display then data to table;
+
+stop
+
+@enduml

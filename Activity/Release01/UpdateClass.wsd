@@ -1,0 +1,34 @@
+@startuml UpdateClass
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Edit Class" Page;
+
+|System|
+:Get Selected "Class" data from Database;
+:Display then data to its field;
+
+|Admin|
+:Change "Class" Form;
+:Hit "Edit Class" Button;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    :Update "Class" data from Database;
+    fork
+        if (IsUpdated ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+else (No)
+    stop
+endif
+@enduml
