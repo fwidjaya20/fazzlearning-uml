@@ -1,6 +1,6 @@
 @startuml DeleteEvent_Member
 
-actor Admin
+actor Member
 participant "Page: Event" as EventPage
 participant "Container: Event Table" as EventTableContainer
 participant "Component: Event Table" as EventTable
@@ -11,9 +11,9 @@ participant "Event: Service" as EventService
 participant "Event: Command" as EventCommand
 participant "Event: Query" as EventQuery
 
-activate Admin
+activate Member
 
-Admin->EventPage: Open "Home" Page
+Member->EventPage: Open "Home" Page
 activate EventPage
 EventPage->EventTableContainer: Render "Event Group" Container
 activate EventTableContainer
@@ -59,9 +59,9 @@ deactivate EventTable
 EventTable-->EventTableContainer: rendered
 EventTableContainer-->EventPage: rendered
 deactivate EventTableContainer
-EventPage-->Admin: rendered
+EventPage-->Member: rendered
 deactivate EventPage
 
-deactivate Admin
+deactivate Member
 
 @enduml
