@@ -1,0 +1,40 @@
+@startuml DeleteEvent
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Manage Event" Page;
+
+|System|
+:Get "Event" data from Database;
+:Display then data to table;
+
+|Admin|
+:Mark "Event" to Delete;
+:Hit "Delete Selected" Button;
+
+|System|
+:Show Confirmation Dialog;
+
+|Admin|
+if (Agree Delete ?) then (No)
+    stop
+else (Yes)
+    |System|
+    while (For each uuid) is (uuid)
+        :Delete "Event" from Database;
+        fork
+            |System|
+            if (Is Deleted ?) then (Yes)
+                :Adding Success Information;
+            else (No)
+                :Adding Error Information;
+            endif
+        endfork
+    endwhile
+    stop
+endif
+@enduml
