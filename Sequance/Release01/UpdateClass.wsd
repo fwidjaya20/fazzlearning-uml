@@ -1,4 +1,4 @@
-@startuml EditClass
+@startuml UpdateClass
 
 actor Admin
 participant "Page: Edit Class" as EditClassPage

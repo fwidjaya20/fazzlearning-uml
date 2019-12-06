@@ -1,4 +1,4 @@
-@startuml GetProfile
+@startuml Logout
 
 actor Employee
 participant "Page: Profile" as ProfilePage

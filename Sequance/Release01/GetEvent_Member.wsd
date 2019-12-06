@@ -1,4 +1,4 @@
-@startuml DeleteEvent_Member
+@startuml GetEvent_Member
 
 actor Member
 participant "Page: Event" as EventPage

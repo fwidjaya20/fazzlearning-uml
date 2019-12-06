@@ -1,4 +1,4 @@
-@startuml DeleteClass_Member
+@startuml GetClass_Member
 
 actor Member
 participant "Page: Class" as ClassPage
