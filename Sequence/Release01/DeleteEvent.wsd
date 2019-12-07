@@ -5,8 +5,11 @@ skinparam Shadowing false
 
 actor Admin
 participant "Page: Event" as EventPage
+participant "Page: Detail Event" as DetailEventPage
 participant "Container: Event Table" as EventTableContainer
+participant "Container: Event Card" as EventCardContainer
 participant "Component: Event Table" as EventTable
+participant "Component: Event Card" as EventCard
 participant "Router" as Router
 participant "Event: HTTP Transport" as EventHTTPTransport
 participant "Event: Endpoint" as EventEndpoint
@@ -64,13 +67,43 @@ EventTable-->EventTableContainer: rendered
 EventTableContainer-->EventPage: rendered
 EventPage-->Admin: rendered
 
-Admin->EventPage: Mark "Event"
-EventPage->EventTableContainer: Mark "Event"
-EventTableContainer->EventTable: Mark "Event"
-EventTable-->EventTableContainer: marked
-deactivate EventTable
-EventTableContainer-->EventPage: marked
-EventPage-->Admin: marked
+' View Detail
+Admin->EventPage: Hit "View Detail" Button
+EventPage->DetailEventPage: Open "Event Detail" Page
+activate DetailEventPage
+DetailEventPage->EventCardContainer: Render "Event Card" Container
+activate EventCardContainer
+EventCardContainer->EventCard: Render "Event Card"
+activate EventCard
+EventCard-->EventCardContainer: rendered
+EventCardContainer->Router: route("GET", "v2/event/{event_id}")
+activate Router
+Router->EventHTTPTransport: FindByEventId(EventService, []ServerOption)
+activate EventHTTPTransport
+EventHTTPTransport->EventEndpoint: FindByEventId(EventService, withPaginated)
+activate EventEndpoint
+EventEndpoint->EventService: FindByEventId(eventId)
+
+activate EventService
+EventService->EventQuery: Find([]SliceConditions)
+activate EventQuery
+EventQuery-->EventService: event
+deactivate EventQuery
+EventService-->EventEndpoint: event
+deactivate EventService
+
+EventEndpoint->EventEndpoint: response := Response(event, nil)
+EventEndpoint-->EventHTTPTransport: response
+deactivate EventEndpoint
+EventHTTPTransport-->Router: response
+deactivate EventHTTPTransport
+Router-->EventCardContainer: response
+deactivate Router
+EventCardContainer->EventCard: Render "Event Card"
+EventCard-->EventCardContainer: rendered
+EventCardContainer-->DetailEventPage: rendered
+DetailEventPage-->Admin: rendered
+' End View Detail
 
 Admin->EventPage: Click "Delete Selected" Button
 EventPage->EventTableContainer: Click "Delete Selected" Button
