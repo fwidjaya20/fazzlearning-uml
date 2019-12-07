@@ -13,8 +13,14 @@ start
 :Display then data to table;
 
 |Admin|
-:Mark "Event" to Delete;
-:Hit "Delete Selected" Button;
+:Hit "View Detail" Button;
+
+|System|
+:Get selected "Event" data from Database;
+:Display then data to design given;
+
+|Admin|
+:Hit "Delete" Button;
 
 |System|
 :Show Confirmation Dialog;
@@ -24,19 +30,17 @@ if (Agree Delete ?) then (No)
     stop
 else (Yes)
     |System|
-    while (For each uuid) is (uuid)
-        :Delete "Event" from Database;
-        fork
-            |System|
-            if (Is Deleted ?) then (Yes)
-                :Delete Related Poster if Exists;
-                :Delete Related Class if Exists;
-                :Adding Success Information;
-            else (No)
-                :Adding Error Information;
-            endif
-        endfork
-    endwhile
+    :Delete "Event" from Database;
+    fork
+        |System|
+        if (Is Deleted ?) then (Yes)
+            :Delete Related Poster if Exists;
+            :Delete Related Class if Exists;
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
     stop
 endif
 @enduml

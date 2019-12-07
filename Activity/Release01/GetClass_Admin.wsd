@@ -6,7 +6,7 @@ skinparam Shadowing false
 
 |Admin|
 start
-:Open "Manage Class" Page;
+:Open "Event Detail" Page;
 
 |System|
 :Get "Class" data from Database;
