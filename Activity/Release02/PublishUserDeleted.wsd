@@ -1,0 +1,18 @@
+@startuml PublishUserDeleted
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Publish User Deleted;
+
+|Fazzlearning Kit|
+:Get Global Publisher;
+:Store;
+
+|Nats Streaming|
+:Publish;
+stop
+@enduml

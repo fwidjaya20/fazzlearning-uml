@@ -1,0 +1,18 @@
+@startuml PublishRoomTransactionDeleted
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Publish Room Transaction Deleted;
+
+|Fazzlearning Kit|
+:Get Global Publisher;
+:Store;
+
+|Nats Streaming|
+:Publish;
+stop
+@enduml
