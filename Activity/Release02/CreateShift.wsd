@@ -1,0 +1,28 @@
+@startuml CreateShift
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Add Shift" Page;
+:Fill "Shift" Form;
+:Hit "Create Shift" Button;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    :Insert "Shift" data to Database;
+    fork
+        if (IsCreated ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+else (No)
+    stop
+endif
+@enduml

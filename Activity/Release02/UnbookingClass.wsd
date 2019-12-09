@@ -1,0 +1,39 @@
+@startuml UnbookingClass
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Attach Class List";
+
+|System|
+:Get Booked Room By Logged User;
+:Display the data to List View;
+
+|Admin|
+:Hit "Delete" Button;
+
+|System|
+:Show Confirmation Dialog;
+
+|Admin|
+if (Agree Delete ?) then (No)
+    stop
+else (Yes)
+    |System|
+    :Delete "Class" from Database;
+    if (IsCreated ?) then (Yes)
+        if (Has Material ?) then (Yes)
+            :Delete "Material" from Database;
+        endif
+        :Adding Success Information;
+        :Publish Subject Based Message on Class Deleted;
+    else (No)
+        :Adding Error Information;
+    endif
+    stop
+endif
+
+@enduml

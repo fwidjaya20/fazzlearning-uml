@@ -1,0 +1,22 @@
+@startuml CreateUserETL
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+|Caller|
+start
+:Create Replica;
+
+|System|
+:Insert "User" data to Database;
+
+fork
+    if (IsCreated ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+endfork
+
+stop
+@enduml
