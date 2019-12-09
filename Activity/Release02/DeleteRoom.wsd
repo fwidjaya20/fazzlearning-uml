@@ -1,0 +1,38 @@
+@startuml DeleteRoom
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Manage Room" Page;
+
+|System|
+:Get "Room" data from Database;
+:Display then data to table;
+
+|Admin|
+:Mark "Room" to Delete;
+:Hit "Delete Selected" Button;
+
+|System|
+:Show Confirmation Dialog;
+
+|Admin|
+if (Agree Delete ?) then (No)
+    stop
+else (Yes)
+    |System|
+    :Delete "Room" from Database;
+    fork
+        |System|
+        if (Is Deleted ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+endif
+@enduml
