@@ -11,9 +11,14 @@ actor Admin
 rectangle "Class System" {
     Admin --> (Create Class)
     Admin --> (Delete Class)
+    Admin --> (Booking Class)
+    Admin --> (Unbooking Class)
 
     (Create Class) ..> (Publish Class Created) : include
     (Delete Class) ..> (Publish Class Deleted) : include
+
+    (Booking Class) ..> (Create Class) : include
+    (Unbooking Class) ..> (Delete Class) : include
 }
 
 @enduml
