@@ -4,7 +4,7 @@ skinparam Monochrome true
 skinparam Shadowing false
 
 actor Admin
-participant "Page: Class" as ClassPage
+participant "Page: Event Detail" as EventDetailPage
 participant "Container: Class Table" as ClassTableContainer
 participant "Component: Class Table" as ClassTable
 participant "Router" as Router
@@ -17,9 +17,9 @@ participant "Material: Service" as MaterialService
 
 activate Admin
 
-Admin->ClassPage: Open "Manage Class" Page
-activate ClassPage
-ClassPage->ClassTableContainer: Render "Class Table" Container
+Admin->EventDetailPage: Open "Event Detail" Page
+activate EventDetailPage
+EventDetailPage->ClassTableContainer: Render "Class Table" Container
 activate ClassTableContainer
 ClassTableContainer->ClassTable: Render "Class Table"
 activate ClassTable
@@ -60,24 +60,24 @@ Router-->ClassTableContainer: response
 deactivate Router
 ClassTableContainer->ClassTable: Render "Class Table"
 ClassTable-->ClassTableContainer: rendered
-ClassTableContainer-->ClassPage: rendered
-ClassPage-->Admin: rendered
+ClassTableContainer-->EventDetailPage: rendered
+EventDetailPage-->Admin: rendered
 
-Admin->ClassPage: Mark "Class"
-ClassPage->ClassTableContainer: Mark "Class"
+Admin->EventDetailPage: Mark "Class"
+EventDetailPage->ClassTableContainer: Mark "Class"
 ClassTableContainer->ClassTable: Mark "Class"
 ClassTable-->ClassTableContainer: marked
 deactivate ClassTable
-ClassTableContainer-->ClassPage: marked
-ClassPage-->Admin: marked
+ClassTableContainer-->EventDetailPage: marked
+EventDetailPage-->Admin: marked
 
-Admin->ClassPage: Click "Delete Selected" Button
-ClassPage->ClassTableContainer: Click "Delete Selected" Button
+Admin->EventDetailPage: Click "Delete Selected" Button
+EventDetailPage->ClassTableContainer: Click "Delete Selected" Button
 ClassTableContainer->ClassTableContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    ClassTableContainer-->ClassPage
-    ClassPage-->Admin
+    ClassTableContainer-->EventDetailPage
+    EventDetailPage-->Admin
 else
     ClassTableContainer->Router: route("DELETE", "v2/{event_id}/class", formData)
     activate Router
@@ -114,10 +114,10 @@ else
     deactivate ClassHTTPTransport
     Router-->ClassTableContainer: response
     deactivate Router
-    ClassTableContainer-->ClassPage: response
+    ClassTableContainer-->EventDetailPage: response
     deactivate ClassTableContainer
-    ClassPage-->Admin: response
-    deactivate ClassPage
+    EventDetailPage-->Admin: response
+    deactivate EventDetailPage
 end
 
 deactivate Admin

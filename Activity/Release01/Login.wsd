@@ -19,6 +19,7 @@ if (Valid ?) then (Yes)
         :Generate Session Token;
         if (Generated ?) then (Yes)
             :Insert Session Data to Database;
+            stop
         else (No)
             Stop
         endif

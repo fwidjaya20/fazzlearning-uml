@@ -41,7 +41,6 @@ if (Valid ?) then (Yes)
 else (No)
     stop
 endif
-
 stop
 
 @enduml
