@@ -1,0 +1,67 @@
+@startuml BookingClass
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Attach Class List";
+
+|System|
+:Get Booked Room By Logged User;
+:Display the data to List View;
+
+|Admin|
+:Hit "Attach Class" Button;
+
+|System|
+:Show "Class Form" Popup;
+
+|Admin|
+:Fill "Class" Form;
+:Fill "Date" Field;
+
+|System|
+:Get Available Shift;
+:Display the data to field;
+
+|Admin|
+:Fill "Shift" Field;
+
+|System|
+:Get Available Room;
+:Display the data to field;
+
+|Admin|
+:Hit "Create Class" Button;
+
+|System|
+:Validate Data;
+
+if (Valid ?) then (Yes)
+    :Check the Class is Valid on Transaction;
+
+    if (Valid ?) then (Yes)
+        :Mark "Committed" attribute of Class as False;
+        :Insert "Class" to Database;
+        if (IsCreated ?) then (Yes)
+            if (Has Material ?) then (Yes)
+                :Zip Materials;
+                :Upload Zipped Material;
+                :Insert "Material" data to Database;
+            endif
+            :Adding Success Information;
+            :Publish Subject Based Message on Class Created;
+        else (No)
+            :Adding Error Information;
+        endif
+    else (No)
+    endif
+else (No)
+    stop
+endif
+
+stop
+
+@enduml

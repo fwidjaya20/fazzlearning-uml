@@ -1,4 +1,4 @@
-@startuml BookingClass
+@startuml UnbookingClass
 
 skinparam ConditionEndStyle hline
 skinparam Monochrome true
@@ -13,35 +13,27 @@ start
 :Display the data to List View;
 
 |Admin|
-:Hit "Attach Class" Button;
+:Hit "Delete" Button;
 
 |System|
-:Show "Class Form" Popup;
+:Show Confirmation Dialog;
 
 |Admin|
-:Fill "Class" Form;
-:Hit "Create Class" Button;
-
-|System|
-:Validate Data;
-
-if (Valid ?) then (Yes)
-    :Mark "Committed" attribute of Class as False;
-    :Insert "Class" to Database;
+if (Agree Delete ?) then (No)
+    stop
+else (Yes)
+    |System|
+    :Delete "Class" from Database;
     if (IsCreated ?) then (Yes)
         if (Has Material ?) then (Yes)
-            :Zip Materials;
-            :Upload Zipped Material;
-            :Insert "Material" data to Database;
+            :Delete "Material" from Database;
         endif
         :Adding Success Information;
+        :Publish Subject Based Message on Class Deleted;
     else (No)
         :Adding Error Information;
     endif
-else (No)
     stop
 endif
-
-stop
 
 @enduml

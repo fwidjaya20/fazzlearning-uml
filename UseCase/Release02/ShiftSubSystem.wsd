@@ -1,0 +1,19 @@
+@startuml ShiftSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+
+rectangle "Shift System" {
+    Admin --> (Create Shift)
+    Admin --> (Update Shift)
+    Admin --> (Delete Shift)
+    Admin --> (Get Shift)
+    Admin --> (Get Availability)
+}
+
+@enduml

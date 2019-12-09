@@ -76,65 +76,61 @@ Router->ClassHTTPTransport: CreateClass(ClassService, []ServerOption)
 activate ClassHTTPTransport
 ClassHTTPTransport->ClassEndpoint: Create(ClassService)
 activate ClassEndpoint
-ClassEndpoint->ClassService: CreateMany(payload)
+ClassEndpoint->ClassService: Create(payload)
 
-loop "for each payload"
-    activate ClassService
-    ClassService->ClassService: Validate()
+activate ClassService
+ClassService->ClassService: Validate()
 
-    alt "Data not valid"
-        break
-            ClassService-->ClassEndpoint: UnprocessableEntity
-            ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
-            ClassHTTPTransport-->Router: UnprocessableEntity
-            Router-->AttachClassListContainer: UnprocessableEntity
-            AttachClassListContainer-->AddEventPage: UnprocessableEntity
-            AddEventPage-->Admin: UnprocessableEntity
-        end
-    else
-        ClassService->ClassService: class := ClassModel()
-        ClassService->ClassService: Mark "Committed" attribute of class into false
-        ClassService->ClassCommand: Create(class)
-        activate ClassCommand
-        ClassCommand-->ClassService: uuid
-        deactivate ClassCommand
+alt "Data not valid"
+    ClassService-->ClassEndpoint: UnprocessableEntity
+    ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+    ClassHTTPTransport-->Router: UnprocessableEntity
+    Router-->AttachClassListContainer: UnprocessableEntity
+    AttachClassListContainer-->AddEventPage: UnprocessableEntity
+    AddEventPage-->Admin: UnprocessableEntity
+else
+    ClassService->ClassService: class := ClassModel()
+    ClassService->ClassService: Mark "Committed" attribute of class into false
+    ClassService->ClassCommand: Create(class)
+    activate ClassCommand
+    ClassCommand-->ClassService: uuid
+    deactivate ClassCommand
 
-        opt "has materials"
-            ClassService->StorageGRPCTransport: Zip()
-            activate StorageGRPCTransport
-            StorageGRPCTransport-->ClassService: zipName
-            deactivate StorageGRPCTransport
+    opt "has materials"
+        ClassService->StorageGRPCTransport: Zip()
+        activate StorageGRPCTransport
+        StorageGRPCTransport-->ClassService: zipName
+        deactivate StorageGRPCTransport
 
-            ClassService->MaterialService: Create(payload)
-            activate MaterialService
-            MaterialService-->ClassService: isCreated
-            deactivate MaterialService
-        end
-
-        ClassService->ClassQuery: Find(uuid)
-        activate ClassQuery
-        ClassQuery-->ClassService: booked_classes
-        deactivate ClassQuery
+        ClassService->MaterialService: Create(payload)
+        activate MaterialService
+        MaterialService-->ClassService: isCreated
+        deactivate MaterialService
     end
 
-    ClassService-->ClassEndpoint: booked_classes
-    deactivate ClassService
-    ClassEndpoint->ClassEndpoint: response := Response(booked_classes, nil)
-    ClassEndpoint-->ClassHTTPTransport: response
-    deactivate ClassEndpoint
-    ClassHTTPTransport-->Router: response
-    deactivate ClassHTTPTransport
-    Router-->ClassListView: response
-    deactivate Router
-    activate ClassListView
-    ClassListView->ClassListView: render "Class List View"
-    ClassListView-->AttachClassListContainer
-    deactivate ClassListView
-    AttachClassListContainer-->AddEventPage
-    deactivate AttachClassListContainer
-    AddEventPage-->Admin
-    deactivate AddEventPage
+    ClassService->ClassQuery: Find(uuid)
+    activate ClassQuery
+    ClassQuery-->ClassService: booked_classes
+    deactivate ClassQuery
 end
+
+ClassService-->ClassEndpoint: booked_classes
+deactivate ClassService
+ClassEndpoint->ClassEndpoint: response := Response(booked_classes, nil)
+ClassEndpoint-->ClassHTTPTransport: response
+deactivate ClassEndpoint
+ClassHTTPTransport-->Router: response
+deactivate ClassHTTPTransport
+Router-->ClassListView: response
+deactivate Router
+activate ClassListView
+ClassListView->ClassListView: render "Class List View"
+ClassListView-->AttachClassListContainer
+deactivate ClassListView
+AttachClassListContainer-->AddEventPage
+deactivate AttachClassListContainer
+AddEventPage-->Admin
+deactivate AddEventPage
 
 deactivate Admin
 

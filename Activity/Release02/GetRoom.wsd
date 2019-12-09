@@ -1,0 +1,17 @@
+@startuml GetRoom
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Manage Room" Page;
+
+|System|
+:Get "Room" data from Database;
+:Display then data to table;
+
+stop
+
+@enduml

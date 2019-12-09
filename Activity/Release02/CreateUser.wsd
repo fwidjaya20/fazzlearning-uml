@@ -1,0 +1,57 @@
+@startuml CreateUser
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Add User" Page;
+
+|System|
+fork
+    :Get "Roles" data from Database;
+forkagain
+    :Get "Division" data from Database;
+endfork
+:Display fetched data into its own field;
+
+|Admin|
+:Fill "User" Form;
+
+fork
+|Admin|
+if (Search Role ?) then (Yes)
+    |System|
+    :Get "Role" data from Database;
+    :Display fetched data into role field;
+endif
+forkagain
+|Admin|
+if (Search Division ?) then (Yes)
+    |System|
+    :Get "Division" data from Database;
+    :Display fetched data into division field;
+endif
+endfork
+
+|Admin|
+:Hit "Create User" Button;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    :Insert "User" data to Database;
+    fork
+        if (IsCreated ?) then (Yes)
+            :Adding Success Information;
+            :Publish Subject Based Message on User Created;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+else (No)
+    stop
+endif
+@enduml

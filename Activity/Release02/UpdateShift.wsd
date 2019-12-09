@@ -1,0 +1,35 @@
+@startuml UpdateShift
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Edit Shift" Page;
+
+|System|
+:Get Selected "Shift" data from Database;
+:Display then data to its field;
+
+|Admin|
+:Change form data;
+:Hit "Edit Shift" Button;
+
+|System|
+:Validate;
+
+if (Valid ?) then (Yes)
+    :Update "Shift" data from Database;
+    fork
+        if (IsUpdated ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endfork
+    stop
+else (No)
+    stop
+endif
+@enduml
