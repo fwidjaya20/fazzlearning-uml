@@ -1,0 +1,42 @@
+U   A   S   FEATURE
+V   V       CreateClass
+V   V       DeleteClass
+V   V       BookingClass
+V   V       UnbookingClass
+
+V   V       CreateShift
+V   V       UpdateShift
+V   V       DeleteShift
+V   V       GetShift
+V   V       GetAvailableShift
+
+V   V       CreateRoom
+V   V       UpdateRoom
+V   V       DeleteRoom
+V   V       GetRoom
+V   V       GetAvailableRoom
+
+V   V       CreateUser
+V   V       DeleteUser
+V   V       CreateReplica
+V   V       DeleteReplica
+
+V   V       CreateTransaction
+V   V       DeleteTransaction
+V   V       CheckValidityOfTransaction
+V   V       CreateReplica
+V   V       DeleteReplilca
+
+V   V       PublishClassCreated
+V   V       PublishClassDeleted
+V   V       PublishUserCreated
+V   V       PublishUserDeleted
+V   V       PublishRoomTransactionCreated
+V   V       PublishRoomTransactionDeleted
+
+V           SubscribeClassCreated
+V           SubscribeClassDeleted
+V           SubscribeUserCreated
+V           SubscribeUserDeleted
+V           SubscribeRoomTransactionCreated
+V           SubscribeRoomTransactionDeleted

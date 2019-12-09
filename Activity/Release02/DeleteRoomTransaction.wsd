@@ -1,0 +1,33 @@
+@startuml DeleteRoomTransaction
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Delete Room Transaction;
+
+|System|
+:Validate;
+
+if (Valid ?) then (Yes)
+    :Get related Room Transaction;
+
+    while("For each roomTrns") is (Has Transaction)
+        :Delete "Room Transaction" from Database;
+
+        if (Is Deleted ?) then (Yes)
+            :Adding Success Information;
+            :Publish Subject Based Message on Room Transaction Deleted;
+        else (No)
+            :Adding Error Information;
+        endif
+    endwhile
+
+    stop
+else (No)
+    stop
+endif
+
+@enduml

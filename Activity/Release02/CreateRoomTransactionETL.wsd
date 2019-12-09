@@ -1,0 +1,26 @@
+@startuml CreateRoomTransactionETL
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+
+start
+
+:Create Replica;
+
+|System|
+while(For each roomTrans) is (Has Transaction)
+    :Insert "Room Transaction" data to Database;
+
+    if (IsCreated ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+endwhile
+
+stop
+
+@enduml
