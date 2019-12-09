@@ -8,6 +8,21 @@ skinparam Shadowing false
 start
 :Open "Add Class" Page;
 :Fill "Class" Form;
+
+:Fill "Date" Field;
+
+|System|
+:Get Available Shift;
+:Display the data to field;
+
+|Admin|
+:Fill "Shift" Field;
+
+|System|
+:Get Available Room;
+:Display the data to field;
+
+|Admin|
 :Hit "Create Class" Button;
 
 |System|
