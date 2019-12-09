@@ -15,6 +15,9 @@ rectangle "Room Transaction System" {
 
     (Create Transaction) ..> (Publish Transaction Created) : include
     (Delete Transaction) ..> (Publish Transaction Updated) : include
+
+    (Subscribe Class Created) ..> (Create Transaction) : include
+    (Subscribe Class Deleted) ..> (Delete Transaction) : include
 }
 
 @enduml
