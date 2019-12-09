@@ -1,0 +1,27 @@
+@startuml TRANSACTION_SubscribeClassDeleted
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+
+:Subscribe Class.ClassDeleted;
+
+|System|
+:Parsing Event Message;
+
+if (Valid ?) then (Yes)
+    :Delete Room Transaction;
+
+    if (Is Error ?) then (Yes)
+        :Adding Error Information;
+    endif
+    
+    stop
+else (No)
+    stop
+endif
+
+@enduml
