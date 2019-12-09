@@ -23,26 +23,25 @@ start
 :Hit "Create Class" Button;
 
 |System|
-while (For each payload) is (has payload)
-    :Validate Data;
+:Validate Data;
 
-    if (Valid ?) then (Yes)
-        :Mark "Committed" attribute of Class as False;
-        :Insert "Class" to Database;
-        if (IsCreated ?) then (Yes)
-            if (Has Material ?) then (Yes)
-                :Zip Materials;
-                :Upload Zipped Material;
-                :Insert "Material" data to Database;
-            endif
-            :Adding Success Information;
-        else (No)
-            :Adding Error Information;
+if (Valid ?) then (Yes)
+    :Mark "Committed" attribute of Class as False;
+    :Insert "Class" to Database;
+    if (IsCreated ?) then (Yes)
+        if (Has Material ?) then (Yes)
+            :Zip Materials;
+            :Upload Zipped Material;
+            :Insert "Material" data to Database;
         endif
+        :Adding Success Information;
     else (No)
-        stop
+        :Adding Error Information;
     endif
-endwhile
+else (No)
+    stop
+endif
+
 stop
 
 @enduml
