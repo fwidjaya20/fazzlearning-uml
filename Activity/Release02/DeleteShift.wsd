@@ -24,15 +24,17 @@ if (Agree Delete ?) then (No)
     stop
 else (Yes)
     |System|
-    :Delete "Shift" from Database;
-    fork
-        |System|
-        if (Is Deleted ?) then (Yes)
-            :Adding Success Information;
-        else (No)
-            :Adding Error Information;
-        endif
-    endfork
+    while(For each shift) is (Has Shift)
+        :Delete "Shift" from Database;
+        fork
+            |System|
+            if (Is Deleted ?) then (Yes)
+                :Adding Success Information;
+            else (No)
+                :Adding Error Information;
+            endif
+        endfork
+    endwhile
     stop
 endif
 @enduml
