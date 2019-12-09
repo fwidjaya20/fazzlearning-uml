@@ -1,0 +1,19 @@
+@startuml RoomSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+
+rectangle "Room System" {
+    Admin --> (Create Room)
+    Admin --> (Update Room)
+    Admin --> (Delete Room)
+    Admin --> (Get Room)
+    Admin --> (Get Availability)
+}
+
+@enduml

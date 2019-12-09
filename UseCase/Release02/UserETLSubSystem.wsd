@@ -1,0 +1,19 @@
+@startuml UserETLSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor System
+
+rectangle "User System" {
+    System --> (Subscribe User Created)
+    System --> (Subscribe User Deleted)
+
+    (Subscribe User Created) ..> (Create Replica) : include
+    (Subscribe User Deleted) ..> (Delete Replica) : include
+}
+
+@enduml

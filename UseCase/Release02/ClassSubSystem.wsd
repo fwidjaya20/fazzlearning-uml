@@ -1,0 +1,19 @@
+@startuml ClassSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+
+rectangle "Class System" {
+    Admin --> (Create Class)
+    Admin --> (Delete Class)
+
+    (Create Class) ..> (Publish Class Created) : include
+    (Delete Class) ..> (Publish Class Deleted) : include
+}
+
+@enduml
