@@ -1,0 +1,30 @@
+@startuml CreateRoomTransaction
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Create Room Transaction;
+
+|System|
+:Validate;
+
+if (Valid ?) then (Yes)
+    while("For each shift given") is (Has Shift)
+        :Insert "Room Transaction" to Database;
+
+        if (Is Created ?) then (Yes)
+            :Adding Success Information;
+            :Publish Subject Based Message on Room Transaction Created;
+        else (No)
+            :Adding Error Information;
+        endif
+    endwhile
+    stop
+else (No)
+    stop
+endif
+
+@enduml

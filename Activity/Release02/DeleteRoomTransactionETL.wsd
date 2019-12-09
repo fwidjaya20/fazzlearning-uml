@@ -1,0 +1,24 @@
+@startuml DeleteRoomTransactionETL
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+
+start
+
+:Delete Replica;
+
+|System|
+:Delete "Room Transaction" data from Database;
+
+if (IsDeleted ?) then (Yes)
+    :Adding Success Information;
+else (No)
+    :Adding Error Information;
+endif
+
+stop
+
+@enduml
