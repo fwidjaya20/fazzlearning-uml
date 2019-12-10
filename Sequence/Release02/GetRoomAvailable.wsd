@@ -1,0 +1,49 @@
+@startuml GetRoomAvailable
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Component: Room Table" as RoomTable
+participant "Router" as Router
+participant "Room: HTTP Transport" as RoomHTTPTransport
+participant "Room: Endpoint" as RoomEndpoint
+participant "Room: Service" as RoomService
+participant "Room: Query" as RoomQuery
+
+activate Admin
+
+Admin->RoomTable: Render "Room Table"
+activate RoomTable
+RoomTable-->Admin: rendered
+RoomTable->RoomTable: Choose Shift
+RoomTable->Router: route("GET", "v2/shift/available?date=YOUR_DATE&shift=YOUR_SHIFTS")
+activate Router
+Router->RoomHTTPTransport: FindAvailableRoom(RoomService, []ServerOption)
+activate RoomHTTPTransport
+RoomHTTPTransport->RoomEndpoint: FindAvailableRoom(RoomService)
+activate RoomEndpoint
+RoomEndpoint->RoomService: Available(params)
+
+activate RoomService
+RoomService->RoomQuery: Available(date, shiftId)
+activate RoomQuery
+RoomQuery-->RoomService: rooms
+deactivate RoomQuery
+RoomService-->RoomEndpoint: rooms
+deactivate RoomService
+
+RoomEndpoint->RoomEndpoint: response := Response(rooms, nil)
+RoomEndpoint-->RoomHTTPTransport: response
+deactivate RoomEndpoint
+RoomHTTPTransport-->Router: response
+deactivate RoomHTTPTransport
+Router-->RoomTable: response
+deactivate Router
+RoomTable->RoomTable: display rooms options to field
+RoomTable-->Admin
+deactivate RoomTable
+
+deactivate Admin
+
+@enduml

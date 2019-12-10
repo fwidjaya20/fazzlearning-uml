@@ -1,0 +1,26 @@
+@startuml PublishUserDeleted
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "Fazzlearning Kit: Event" as FazzlearningKitEvent
+participant "Nats Streaming" as NatsStreaming
+
+activate Caller
+
+Caller->FazzlearningKitEvent: GetGlobalPublisher()
+activate FazzlearningKitEvent
+FazzlearningKitEvent-->Caller: publisher
+Caller->FazzlearningKitEvent: Store(StoreDetail)
+FazzlearningKitEvent->NatsStreaming: Publish(User.UserDeleted, []byte)
+activate NatsStreaming
+NatsStreaming-->FazzlearningKitEvent
+deactivate NatsStreaming
+deactivate FazzlearningKitEvent
+FazzlearningKitEvent-->Caller
+
+deactivate Caller
+
+@enduml

@@ -1,0 +1,69 @@
+@startuml GetRoom
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Room" as RoomPage
+participant "Container: Room Table" as RoomTableContainer
+participant "Component: Room Table" as RoomTable
+participant "Router" as Router
+participant "Room: HTTP Transport" as RoomHTTPTransport
+participant "Room: Endpoint" as RoomEndpoint
+participant "Room: Service" as RoomService
+participant "Room: Query" as RoomQuery
+
+activate Admin
+
+Admin->RoomPage: Open "Manage Room" Page
+activate RoomPage
+RoomPage->RoomTableContainer: Render "Room Table" Container
+activate RoomTableContainer
+RoomTableContainer->RoomTable: Render "Room Table"
+activate RoomTable
+RoomTable-->RoomTableContainer: rendered
+RoomTableContainer->Router: route("GET", "v2/rooms")
+activate Router
+Router->RoomHTTPTransport: FetchPaginatedRooms(RoomService, []ServerOption)
+activate RoomHTTPTransport
+RoomHTTPTransport->RoomEndpoint: All(RoomService, withPaginated)
+activate RoomEndpoint
+RoomEndpoint->RoomService: All(params)
+
+activate RoomService
+activate RoomQuery
+alt "With Paginate"
+    RoomService->RoomQuery: All([]SliceConditions, PaginateModel)
+else
+    RoomService->RoomQuery: All([]SliceConditions, nil)
+end
+RoomQuery-->RoomService: rooms
+RoomService-->RoomEndpoint: rooms
+
+opt "With Paginate"
+    RoomEndpoint->RoomService: GetPagination(PaginateModel)
+    RoomService->RoomQuery: Count([]SliceConditions)
+    RoomQuery-->RoomService: total
+    RoomService-->RoomEndpoint: total
+end
+deactivate RoomQuery
+deactivate RoomService
+
+RoomEndpoint->RoomEndpoint: response := Response(Rooms, paginateMetadata)
+RoomEndpoint-->RoomHTTPTransport: response
+deactivate RoomEndpoint
+RoomHTTPTransport-->Router: response
+deactivate RoomHTTPTransport
+Router-->RoomTableContainer: response
+deactivate Router
+RoomTableContainer->RoomTable: Render "Room Table"
+RoomTable-->RoomTableContainer: rendered
+deactivate RoomTable
+RoomTableContainer-->RoomPage: rendered
+deactivate RoomTableContainer
+RoomPage-->Admin: rendered
+deactivate RoomPage
+
+deactivate Admin
+
+@enduml

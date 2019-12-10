@@ -1,0 +1,119 @@
+@startuml CreateClass
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Add Class" as AddClassPage
+participant "Container: Add Class Form" as AddClassFormContainer
+participant "Component: Class Form" as ClassForm
+participant "Router" as Router
+participant "Class: HTTP Transport" as ClassHTTPTransport
+participant "Class: Endpoint" as ClassEndpoint
+participant "Class: Service" as ClassService
+participant "Class: Command" as ClassCommand
+participant "Class: Query" as ClassQuery
+participant "Class: GRPC Transport" as ClassGRPCTransport
+participant "Storage: GRPC Transport" as StorageGRPCTransport
+participant "Material: Service" as MaterialService
+participant "Nats Streaming" as NatsStreaming
+
+activate Admin
+
+Admin->AddClassPage: Open "Add Class" Page
+activate AddClassPage
+AddClassPage->AddClassFormContainer: Render "Add Class Form" Container
+activate AddClassFormContainer
+AddClassFormContainer->ClassForm: Render "Class Form"
+activate ClassForm
+ClassForm-->AddClassFormContainer
+AddClassFormContainer-->AddClassPage
+AddClassPage-->Admin
+
+Admin->AddClassPage: Fill Form
+AddClassPage->AddClassFormContainer: Fill Form
+AddClassFormContainer->ClassForm: Fill Form
+ClassForm-->AddClassFormContainer: form data
+deactivate ClassForm
+AddClassFormContainer-->AddClassPage: form data
+AddClassPage-->Admin: form data
+
+Admin->AddClassPage: Click "Create Class" Button
+AddClassPage->AddClassFormContainer: Click "Create Class" Button
+AddClassFormContainer->Router: route("POST", "v2/{event_id}/class", formData)
+activate Router
+Router->ClassHTTPTransport: CreateClass(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: Create(ClassService)
+activate ClassEndpoint
+ClassEndpoint->ClassService: CreateMany(payload)
+
+loop "for each payload"
+    activate ClassService
+    ClassService->ClassService: Validate()
+
+    alt "Data not valid"
+        break
+            ClassService-->ClassEndpoint: UnprocessableEntity
+            ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+            ClassHTTPTransport-->Router: UnprocessableEntity
+            Router-->AddClassFormContainer: UnprocessableEntity
+            AddClassFormContainer-->AddClassPage: UnprocessableEntity
+            AddClassPage-->Admin: UnprocessableEntity
+        end
+    else
+        ClassService->ClassGRPCTransport: IsValidTransaction(ProtoBuffer)
+        activate ClassGRPCTransport
+        ClassGRPCTransport-->ClassService: isValid
+        deactivate ClassGRPCTransport
+        alt "Is Valid Transaction"
+            ClassService->ClassService: class := ClassModel()
+            ClassService->ClassCommand: Create(class)
+            activate ClassCommand
+            ClassCommand-->ClassService: uuid
+            deactivate ClassCommand
+
+            opt "has materials"
+                ClassService->StorageGRPCTransport: Zip()
+                activate StorageGRPCTransport
+                StorageGRPCTransport-->ClassService: zipName
+                ClassService->StorageGRPCTransport: Upload(ProtoBuffer)
+                StorageGRPCTransport-->ClassService: link
+                deactivate StorageGRPCTransport
+
+                ClassService->MaterialService: Create(payload)
+                activate MaterialService
+                MaterialService-->ClassService: isCreated
+                deactivate MaterialService
+            end
+
+            ClassService->ClassQuery: Find(uuid)
+            activate ClassQuery
+            ClassQuery-->ClassService: classes
+            deactivate ClassQuery
+
+            ClassService->NatsStreaming: Publish Event Subject Class.ClassCreated
+            activate NatsStreaming
+            NatsStreaming-->ClassService
+            deactivate NatsStreaming
+        end
+    end
+
+    ClassService-->ClassEndpoint: classes
+    deactivate ClassService
+    ClassEndpoint->ClassEndpoint: response := Response(classes, nil)
+    ClassEndpoint-->ClassHTTPTransport: response
+    deactivate ClassEndpoint
+    ClassHTTPTransport-->Router: response
+    deactivate ClassHTTPTransport
+    Router-->AddClassFormContainer: response
+    deactivate Router
+    AddClassFormContainer-->AddClassPage: response
+    deactivate AddClassFormContainer
+    AddClassPage-->Admin: response
+    deactivate AddClassPage
+end
+
+deactivate Admin
+
+@enduml

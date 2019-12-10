@@ -1,0 +1,24 @@
+@startuml CreateUserETL
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "UserETL: Service" as UserETLService
+participant "UserETL: Command" as UserETLCommand
+
+activate Caller
+
+Caller->UserETLService: CreatePersistance()
+activate UserETLService
+UserETLService->UserETLCommand: Create(payload)
+activate UserETLCommand
+UserETLCommand-->UserETLService: Is Created
+deactivate UserETLCommand
+UserETLService-->Caller: Is Created
+deactivate UserETLService
+
+deactivate Caller
+
+@enduml

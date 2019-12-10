@@ -1,0 +1,30 @@
+@startuml CreateRoomTransactionETL
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "RoomTransactionETL: Service" as RoomTransactionETLService
+participant "RoomTransactionETL: Command" as RoomTransactionETLCommand
+
+activate Caller
+
+Caller->RoomTransactionETLService: ReplicaPersistance()
+activate RoomTransactionETLService
+
+loop "for each payload"
+    RoomTransactionETLService->RoomTransactionETLService: m := RoomTransactionETLModel()
+    RoomTransactionETLService->RoomTransactionETLService: etls := append(etls, m)
+end
+
+RoomTransactionETLService->RoomTransactionETLCommand: CreateBulk(etls)
+activate RoomTransactionETLCommand
+RoomTransactionETLCommand-->RoomTransactionETLService: Is Creataed
+deactivate RoomTransactionETLCommand
+RoomTransactionETLService-->Caller: Is Created
+deactivate RoomTransactionETLService
+
+deactivate Caller
+
+@enduml

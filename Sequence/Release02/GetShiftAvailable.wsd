@@ -1,0 +1,49 @@
+@startuml GetShiftAvailable
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Component: Shift Table" as ShiftTable
+participant "Router" as Router
+participant "Shift: HTTP Transport" as ShiftHTTPTransport
+participant "Shift: Endpoint" as ShiftEndpoint
+participant "Shift: Service" as ShiftService
+participant "Shift: Query" as ShiftQuery
+
+activate Admin
+
+Admin->ShiftTable: Render "Shift Table"
+activate ShiftTable
+ShiftTable-->Admin: rendered
+ShiftTable->ShiftTable: Choose Shift
+ShiftTable->Router: route("GET", "v2/shift/available?date=YOUR_DATE")
+activate Router
+Router->ShiftHTTPTransport: FindAvailableShift(ShiftService, []ServerOption)
+activate ShiftHTTPTransport
+ShiftHTTPTransport->ShiftEndpoint: FindAvailableShift(ShiftService)
+activate ShiftEndpoint
+ShiftEndpoint->ShiftService: Available(params)
+
+activate ShiftService
+ShiftService->ShiftQuery: Available(date)
+activate ShiftQuery
+ShiftQuery-->ShiftService: shifts
+deactivate ShiftQuery
+ShiftService-->ShiftEndpoint: shifts
+deactivate ShiftService
+
+ShiftEndpoint->ShiftEndpoint: response := Response(shifts, nil)
+ShiftEndpoint-->ShiftHTTPTransport: response
+deactivate ShiftEndpoint
+ShiftHTTPTransport-->Router: response
+deactivate ShiftHTTPTransport
+Router-->ShiftTable: response
+deactivate Router
+ShiftTable->ShiftTable: display Shifts options to field
+ShiftTable-->Admin
+deactivate ShiftTable
+
+deactivate Admin
+
+@enduml
