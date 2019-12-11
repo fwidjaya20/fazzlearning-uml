@@ -1,0 +1,24 @@
+@startuml ConversationSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+actor Member
+
+rectangle "Conversation System" {
+    Admin --> (Post)
+    Admin --> (View)
+    Admin --> (Reply)
+    Admin --> (Delete)
+
+    (Post) <-- Member
+    (View) <-- Member
+    (Reply) <-- Member
+    (Delete) <-- Member
+}
+
+@enduml
