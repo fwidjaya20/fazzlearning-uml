@@ -1,0 +1,17 @@
+@startuml FavouriteSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Member
+
+rectangle "Favourite System" {
+    Member --> (Like)
+    Member --> (Unlike)
+    Member --> (Get Liked)
+}
+
+@enduml

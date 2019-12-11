@@ -1,0 +1,21 @@
+@startuml MessageSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+actor Caller
+
+rectangle "Message System" {
+    Admin --> (Create Message)
+    Admin --> (Update Message)
+    Admin --> (Get Message)
+    Admin --> (Compile Message)
+
+    (Compile Message) <-- Caller
+}
+
+@enduml

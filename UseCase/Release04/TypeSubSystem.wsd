@@ -1,0 +1,15 @@
+@startuml TypeSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+
+rectangle "Type System" {
+    Admin --> (Get Type)
+}
+
+@enduml
