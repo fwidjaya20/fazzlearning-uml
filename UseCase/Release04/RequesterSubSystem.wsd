@@ -1,0 +1,15 @@
+@startuml RequesterSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Caller
+
+rectangle "Requester System" {
+    Caller --> (Publish Subject Based Message on Commit Request)
+}
+
+@enduml

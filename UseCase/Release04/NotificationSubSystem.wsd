@@ -1,0 +1,17 @@
+@startuml NotificationSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Caller
+actor Member
+
+rectangle "Notification System" {
+    Caller --> (Post Notification)
+    Member --> (Get Notification)
+}
+
+@enduml

@@ -1,0 +1,15 @@
+@startuml EventSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Caller
+
+rectangle "Event System" {
+    Caller --> (Publish Subject Based Message on Event Created)
+}
+
+@enduml
