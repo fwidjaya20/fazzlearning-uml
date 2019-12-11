@@ -1,0 +1,43 @@
+@startuml DeleteRoomTransaction
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "RoomTransaction: Service" as RoomTransactionService
+participant "RoomTransaction: Command" as RoomTransactionCommand
+participant "RoomTransaction: Query" as RoomTransactionQuery
+participant "Nats Streaming" as NatsStreaming
+
+activate Caller
+
+Caller->RoomTransactionService: Delete(payload)
+activate RoomTransactionService
+RoomTransactionService->RoomTransactionService: Validate()
+alt "Data Not Valid"
+    RoomTransactionService-->Caller: UnprocessableEntity
+else
+    RoomTransactionService->RoomTransactionQuery: Find([]SliceCondition)
+    activate RoomTransactionQuery
+    RoomTransactionQuery-->RoomTransactionService: roomTrans
+    deactivate RoomTransactionQuery
+    
+    loop "For each roomTrans"
+        RoomTransactionService->RoomTransactionCommand: Delete(roomTransaction)
+        activate RoomTransactionCommand
+        RoomTransactionCommand-->RoomTransactionService: boolean
+        deactivate RoomTransactionCommand
+    end
+
+    RoomTransactionService->NatsStreaming: Publish Event Subject Transaction.TransactionDeleted
+    activate NatsStreaming
+    NatsStreaming-->RoomTransactionService
+    deactivate NatsStreaming
+    RoomTransactionService-->Caller
+    deactivate RoomTransactionService
+end
+
+deactivate Caller
+
+@enduml

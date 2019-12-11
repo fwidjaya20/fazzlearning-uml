@@ -1,0 +1,25 @@
+@startuml SubscribeRTCreated
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "RoomTransactionETL: NATS Transport" as RoomTransactionETLNATSTransport
+participant "RoomTransactionETL: Service" as RoomTransactionETLService
+
+activate Caller
+
+Caller->RoomTransactionETLNATSTransport: replicaRoomTransctionSubscriber
+activate RoomTransactionETLNATSTransport
+RoomTransactionETLNATSTransport->RoomTransactionETLNATSTransport: parse message
+RoomTransactionETLNATSTransport->RoomTransactionETLService: ReplicaPersistance()
+activate RoomTransactionETLService
+RoomTransactionETLService-->RoomTransactionETLNATSTransport
+deactivate RoomTransactionETLService
+RoomTransactionETLNATSTransport-->Caller
+deactivate RoomTransactionETLNATSTransport
+
+deactivate Caller
+
+@enduml

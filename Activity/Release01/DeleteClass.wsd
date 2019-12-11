@@ -6,15 +6,14 @@ skinparam Shadowing false
 
 |Admin|
 start
-:Open "Detail Event" Page;
+:Open "Detail Class" Page;
 
 |System|
 :Get "Class" data from Database;
 :Display then data to table;
 
 |Admin|
-:Mark "Class" to Delete;
-:Hit "Delete Selected" Button;
+:Hit "Delete" Button;
 
 |System|
 :Show Confirmation Dialog;

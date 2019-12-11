@@ -1,0 +1,130 @@
+@startuml DeleteClass
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Event Detail" as EventDetailPage
+participant "Container: Class Table" as ClassTableContainer
+participant "Component: Class Table" as ClassTable
+participant "Router" as Router
+participant "Class: HTTP Transport" as ClassHTTPTransport
+participant "Class: Endpoint" as ClassEndpoint
+participant "Class: Service" as ClassService
+participant "Class: Command" as ClassCommand
+participant "Class: Query" as ClassQuery
+participant "Material: Service" as MaterialService
+participant "Nats Streaming" as NatsStreaming
+
+activate Admin
+
+Admin->EventDetailPage: Open "Event Detail" Page
+activate EventDetailPage
+EventDetailPage->ClassTableContainer: Render "Class Table" Container
+activate ClassTableContainer
+ClassTableContainer->ClassTable: Render "Class Table"
+activate ClassTable
+ClassTable-->ClassTableContainer: rendered
+ClassTableContainer->Router: route("GET", "v2/event/{event_id}/class")
+activate Router
+Router->ClassHTTPTransport: FetchPaginatedClass(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: All(ClassService, withPaginated)
+activate ClassEndpoint
+ClassEndpoint->ClassService: All(params)
+
+activate ClassService
+activate ClassQuery
+alt "With Paginate"
+    ClassService->ClassQuery: All([]SliceConditions, PaginateModel)
+else
+    ClassService->ClassQuery: All([]SliceConditions, nil)
+end
+ClassQuery-->ClassService: classes
+ClassService-->ClassEndpoint: classes
+
+opt "With Paginate"
+    ClassEndpoint->ClassService: GetPagination(PaginateModel)
+    ClassService->ClassQuery: Count([]SliceConditions)
+    ClassQuery-->ClassService: total
+    ClassService-->ClassEndpoint: total
+end
+deactivate ClassQuery
+deactivate ClassService
+
+ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
+ClassEndpoint-->ClassHTTPTransport: response
+deactivate ClassEndpoint
+ClassHTTPTransport-->Router: response
+deactivate ClassHTTPTransport
+Router-->ClassTableContainer: response
+deactivate Router
+ClassTableContainer->ClassTable: Render "Class Table"
+ClassTable-->ClassTableContainer: rendered
+ClassTableContainer-->EventDetailPage: rendered
+EventDetailPage-->Admin: rendered
+
+Admin->EventDetailPage: Mark "Class"
+EventDetailPage->ClassTableContainer: Mark "Class"
+ClassTableContainer->ClassTable: Mark "Class"
+ClassTable-->ClassTableContainer: marked
+deactivate ClassTable
+ClassTableContainer-->EventDetailPage: marked
+EventDetailPage-->Admin: marked
+
+Admin->EventDetailPage: Click "Delete Selected" Button
+EventDetailPage->ClassTableContainer: Click "Delete Selected" Button
+ClassTableContainer->ClassTableContainer: Show Dialod Confirmation
+
+alt "Cancel Delete"
+    ClassTableContainer-->EventDetailPage
+    EventDetailPage-->Admin
+else
+    ClassTableContainer->Router: route("DELETE", "v2/{event_id}/class", formData)
+    activate Router
+    Router->ClassHTTPTransport: DeleteClass(ClassService, []ServerOption)
+    activate ClassHTTPTransport
+    ClassHTTPTransport->ClassEndpoint: Delete(ClassService)
+    activate ClassEndpoint
+    ClassEndpoint->ClassService: DeleteMany(payload)
+
+    activate ClassService
+    loop "for each uuid"
+        ClassService->ClassQuery: GetPureModel([]SliceConditions)
+        activate ClassQuery
+        ClassQuery-->ClassService: class
+        deactivate ClassQuery
+
+        ClassService->ClassCommand: Delete(class)
+        activate ClassCommand
+        ClassCommand-->ClassService: isDeleted
+        deactivate ClassCommand
+
+        ClassService->MaterialService: DeleteByClass(uuid)
+        activate MaterialService
+        MaterialService-->ClassService: isDeleted
+        deactivate MaterialService
+        ClassService->NatsStreaming: Publish Event Subject Class.ClassDeleted
+        activate NatsStreaming
+        NatsStreaming-->ClassService
+        deactivate NatsStreaming
+    end
+    deactivate ClassService
+    
+    ClassService-->ClassEndpoint: isDeleted
+    ClassEndpoint->ClassEndpoint: response := Response(isDeleted, nil)
+    ClassEndpoint-->ClassHTTPTransport: response
+    deactivate ClassEndpoint
+    ClassHTTPTransport-->Router: response
+    deactivate ClassHTTPTransport
+    Router-->ClassTableContainer: response
+    deactivate Router
+    ClassTableContainer-->EventDetailPage: response
+    deactivate ClassTableContainer
+    EventDetailPage-->Admin: response
+    deactivate EventDetailPage
+end
+
+deactivate Admin
+
+@enduml

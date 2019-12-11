@@ -1,0 +1,25 @@
+@startuml SubscribeUserDeleted
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "UserETL: NATS Transport" as UserETLNATSTransport
+participant "UserETL: Service" as UserETLService
+
+activate Caller
+
+Caller->UserETLNATSTransport: userDeletedSubscriber
+activate UserETLNATSTransport
+UserETLNATSTransport->UserETLNATSTransport: parse message
+UserETLNATSTransport->UserETLService: DeletePersistance()
+activate UserETLService
+UserETLService-->UserETLNATSTransport
+deactivate UserETLService
+UserETLNATSTransport-->Caller
+deactivate UserETLNATSTransport
+
+deactivate Caller
+
+@enduml

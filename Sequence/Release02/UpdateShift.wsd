@@ -1,0 +1,106 @@
+@startuml UpdateShift
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Edit Shift" as EditShiftPage
+participant "Container: Edit Shift Form" as EditShiftFormContainer
+participant "Component: Shift Form" as ShiftForm
+participant "Router" as Router
+participant "Shift: HTTP Transport" as ShiftHTTPTransport
+participant "Shift: Endpoint" as ShiftEndpoint
+participant "Shift: Service" as ShiftService
+participant "Shift: ShiftCommand" as ShiftCommand
+participant "Shift: ShiftQuery" as ShiftQuery
+
+activate Admin
+
+Admin->EditShiftPage: Open "Edit Shift" Page
+activate EditShiftPage
+EditShiftPage->EditShiftFormContainer: Render "Edit Shift Form" Container
+activate EditShiftFormContainer
+EditShiftFormContainer->ShiftForm: Render "Shift Form"
+activate ShiftForm
+ShiftForm-->EditShiftFormContainer
+EditShiftFormContainer->Router: route("GET", "v2/shift/{shift_id}")
+activate Router
+Router->ShiftHTTPTransport: FetchShiftById(ShiftService, []ServerOption)
+activate ShiftHTTPTransport
+ShiftHTTPTransport->ShiftEndpoint: FindById(ShiftService, ShiftId)
+activate ShiftEndpoint
+ShiftEndpoint->ShiftService: FindById(ShiftId)
+activate ShiftService
+ShiftService->ShiftQuery: Find(ShiftId)
+activate ShiftQuery
+ShiftQuery-->ShiftService: shift
+deactivate ShiftQuery
+ShiftService-->ShiftEndpoint: shift
+deactivate ShiftService
+ShiftEndpoint->ShiftEndpoint: response := Response(shift, nil)
+ShiftEndpoint-->ShiftHTTPTransport: response
+deactivate ShiftEndpoint
+ShiftHTTPTransport-->Router: response
+deactivate ShiftHTTPTransport
+Router-->EditShiftFormContainer: response
+deactivate Router
+EditShiftFormContainer->ShiftForm: display data to field
+ShiftForm-->EditShiftFormContainer
+EditShiftFormContainer-->EditShiftPage
+EditShiftPage-->Admin
+
+Admin->EditShiftPage: Fill Form
+EditShiftPage->EditShiftFormContainer: Fill Form
+EditShiftFormContainer->ShiftForm: Fill Form
+ShiftForm-->EditShiftFormContainer: form data
+deactivate ShiftForm
+EditShiftFormContainer-->EditShiftPage: form data
+EditShiftPage-->Admin: form data
+
+Admin->EditShiftPage: Click "Update Shift" Button
+EditShiftPage->EditShiftFormContainer: Click "Update Shift" Button
+EditShiftFormContainer->Router: route("PUT", "v2/shift/{shift_id}", formData)
+activate Router
+Router->ShiftHTTPTransport: UpdateShift(ShiftService, []ServerOption)
+activate ShiftHTTPTransport
+ShiftHTTPTransport->ShiftEndpoint: Update(ShiftService)
+activate ShiftEndpoint
+ShiftEndpoint->ShiftService: Update(payload)
+activate ShiftService
+ShiftService->ShiftService: Validate()
+
+alt "Data not valid"
+    ShiftService-->ShiftEndpoint: UnprocessableEntity
+    ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+    ShiftHTTPTransport-->Router: UnprocessableEntity
+    Router-->EditShiftFormContainer: UnprocessableEntity
+    EditShiftFormContainer-->EditShiftPage: UnprocessableEntity
+    EditShiftPage-->Admin: UnprocessableEntity
+else
+    ShiftService->ShiftQuery: Find(uuid)
+    activate ShiftQuery
+    ShiftQuery-->ShiftService: shift
+    deactivate ShiftQuery
+    ShiftService->ShiftService: binding Shift data
+    ShiftService->ShiftCommand: Update(shift)
+    activate ShiftCommand
+    ShiftCommand-->ShiftService: isUpdated
+    deactivate ShiftCommand
+    ShiftService-->ShiftEndpoint: shift
+    deactivate ShiftService
+    ShiftEndpoint->ShiftEndpoint: response := Response(shift, nil)
+    ShiftEndpoint-->ShiftHTTPTransport: response
+    deactivate ShiftEndpoint
+    ShiftHTTPTransport-->Router: response
+    deactivate ShiftHTTPTransport
+    Router-->EditShiftFormContainer: response
+    deactivate Router
+    EditShiftFormContainer-->EditShiftPage: response
+    deactivate EditShiftFormContainer
+    EditShiftPage-->Admin: response
+    deactivate EditShiftPage
+end
+
+deactivate Admin
+
+@enduml

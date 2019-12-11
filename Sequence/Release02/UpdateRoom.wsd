@@ -1,0 +1,106 @@
+@startuml UpdateRoom
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Edit Room" as EditRoomPage
+participant "Container: Edit Room Form" as EditRoomFormContainer
+participant "Component: Room Form" as RoomForm
+participant "Router" as Router
+participant "Room: HTTP Transport" as RoomHTTPTransport
+participant "Room: Endpoint" as RoomEndpoint
+participant "Room: Service" as RoomService
+participant "Room: RoomCommand" as RoomCommand
+participant "Room: RoomQuery" as RoomQuery
+
+activate Admin
+
+Admin->EditRoomPage: Open "Edit Room" Page
+activate EditRoomPage
+EditRoomPage->EditRoomFormContainer: Render "Edit Room Form" Container
+activate EditRoomFormContainer
+EditRoomFormContainer->RoomForm: Render "Room Form"
+activate RoomForm
+RoomForm-->EditRoomFormContainer
+EditRoomFormContainer->Router: route("GET", "v2/room/{room_id}")
+activate Router
+Router->RoomHTTPTransport: FetchRoomById(RoomService, []ServerOption)
+activate RoomHTTPTransport
+RoomHTTPTransport->RoomEndpoint: FindById(RoomService, RoomId)
+activate RoomEndpoint
+RoomEndpoint->RoomService: FindById(RoomId)
+activate RoomService
+RoomService->RoomQuery: Find(RoomId)
+activate RoomQuery
+RoomQuery-->RoomService: room
+deactivate RoomQuery
+RoomService-->RoomEndpoint: room
+deactivate RoomService
+RoomEndpoint->RoomEndpoint: response := Response(room, nil)
+RoomEndpoint-->RoomHTTPTransport: response
+deactivate RoomEndpoint
+RoomHTTPTransport-->Router: response
+deactivate RoomHTTPTransport
+Router-->EditRoomFormContainer: response
+deactivate Router
+EditRoomFormContainer->RoomForm: display data to field
+RoomForm-->EditRoomFormContainer
+EditRoomFormContainer-->EditRoomPage
+EditRoomPage-->Admin
+
+Admin->EditRoomPage: Fill Form
+EditRoomPage->EditRoomFormContainer: Fill Form
+EditRoomFormContainer->RoomForm: Fill Form
+RoomForm-->EditRoomFormContainer: form data
+deactivate RoomForm
+EditRoomFormContainer-->EditRoomPage: form data
+EditRoomPage-->Admin: form data
+
+Admin->EditRoomPage: Click "Update Room" Button
+EditRoomPage->EditRoomFormContainer: Click "Update Room" Button
+EditRoomFormContainer->Router: route("PUT", "v2/room/{room_id}", formData)
+activate Router
+Router->RoomHTTPTransport: UpdateRoom(RoomService, []ServerOption)
+activate RoomHTTPTransport
+RoomHTTPTransport->RoomEndpoint: Update(RoomService)
+activate RoomEndpoint
+RoomEndpoint->RoomService: Update(payload)
+activate RoomService
+RoomService->RoomService: Validate()
+
+alt "Data not valid"
+    RoomService-->RoomEndpoint: UnprocessableEntity
+    RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
+    RoomHTTPTransport-->Router: UnprocessableEntity
+    Router-->EditRoomFormContainer: UnprocessableEntity
+    EditRoomFormContainer-->EditRoomPage: UnprocessableEntity
+    EditRoomPage-->Admin: UnprocessableEntity
+else
+    RoomService->RoomQuery: Find(uuid)
+    activate RoomQuery
+    RoomQuery-->RoomService: room
+    deactivate RoomQuery
+    RoomService->RoomService: binding Room data
+    RoomService->RoomCommand: Update(room)
+    activate RoomCommand
+    RoomCommand-->RoomService: isUpdated
+    deactivate RoomCommand
+    RoomService-->RoomEndpoint: room
+    deactivate RoomService
+    RoomEndpoint->RoomEndpoint: response := Response(room, nil)
+    RoomEndpoint-->RoomHTTPTransport: response
+    deactivate RoomEndpoint
+    RoomHTTPTransport-->Router: response
+    deactivate RoomHTTPTransport
+    Router-->EditRoomFormContainer: response
+    deactivate Router
+    EditRoomFormContainer-->EditRoomPage: response
+    deactivate EditRoomFormContainer
+    EditRoomPage-->Admin: response
+    deactivate EditRoomPage
+end
+
+deactivate Admin
+
+@enduml

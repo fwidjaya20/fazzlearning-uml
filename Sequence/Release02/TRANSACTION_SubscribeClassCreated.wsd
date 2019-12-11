@@ -1,0 +1,25 @@
+@startuml SubscribeClassCreated
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "RoomTransaction: NATS Transport" as RoomTransactionNATSTransport
+participant "RoomTransaction: Service" as RoomTransactionService
+
+activate Caller
+
+Caller->RoomTransactionNATSTransport: classCreatedSubscriber
+activate RoomTransactionNATSTransport
+RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message
+RoomTransactionNATSTransport->RoomTransactionService: ReplicaPersistance()
+activate RoomTransactionService
+RoomTransactionService-->RoomTransactionNATSTransport
+deactivate RoomTransactionService
+RoomTransactionNATSTransport-->Caller
+deactivate RoomTransactionNATSTransport
+
+deactivate Caller
+
+@enduml
