@@ -1,0 +1,15 @@
+@startuml ClassSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Member
+
+rectangle "Class System" {
+    Member --> (Get Class based on User Availability)
+}
+
+@enduml
