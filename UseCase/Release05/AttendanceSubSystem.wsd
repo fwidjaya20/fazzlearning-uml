@@ -1,0 +1,20 @@
+@startuml AttendanceSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+actor Member
+actor (Caller)
+
+rectangle "Attendance System" {
+    Admin --> (Generate QR Code)
+    Member --> (Scan QR Code)
+
+    (Scan QR Code) ..> (Update IsAttend Status) : include
+}
+
+@enduml
