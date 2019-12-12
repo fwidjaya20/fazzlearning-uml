@@ -1,0 +1,18 @@
+@startuml GetCalendar
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Dashboard" Page;
+
+|System|
+:Get Class from Database;
+:Mapping data to Calendar View;
+:Display the data to database;
+
+stop
+
+@enduml

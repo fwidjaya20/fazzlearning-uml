@@ -1,0 +1,53 @@
+@startuml GetRequested
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Member
+participant "Page: Ticket" as TicketPage
+participant "Container: Ticket List View" as TicketListViewContainer
+participant "Component: Card" as Ticket
+participant "Router" as Router
+participant "Requester: HTTP Transport" as RequestHTTPTransport
+participant "Requester: Endpoint" as RequestEndpoint
+participant "Requester: Service" as RequestService
+participant "Requester: Query" as RequestQuery
+
+activate Member
+
+Member->TicketPage: Open "Ticket" Page
+activate TicketPage
+TicketPage->TicketListViewContainer: render "Ticket" List
+activate TicketListViewContainer
+TicketListViewContainer->Ticket: render "Ticket" component
+activate Ticket
+Ticket-->TicketListViewContainer: rendered
+TicketListViewContainer->Router: route("GET", "v2/tickets")
+activate Router
+Router->TicketHTTPTransport: GetTickets(RequestService, []ServerOption)
+activate TicketHTTPTransport
+TicketHTTPTransport->TicketEndpoint: GetTickets(RequestService)
+activate TicketEndpoint
+TicketEndpoint->TicketService: GetTicket(payload)
+activate TicketService
+TicketService->TicketQuery: FindTicket([]SliceCondition)
+activate TicketQuery
+TicketQuery-->TicketService: tickets
+deactivate TicketQuery
+TicketService-->TicketEndpoint: tickets
+deactivate TicketService
+TicketEndpoint->TicketEndpoint: response := Response(tickets, nil)
+TicketEndpoint-->TicketHTTPTransport: response
+deactivate TicketEndpoint
+TicketHTTPTransport-->Router: response
+deactivate TicketHTTPTransport
+Router-->TicketListViewContainer: response
+deactivate Router
+TicketListViewContainer->Ticket: render "Ticket"
+Ticket-->TicketListViewContainer: rendered
+TicketListViewContainer-->TicketPage: display data as list view
+TicketPage-->Member: rendered
+
+deactivate Member
+
+@enduml

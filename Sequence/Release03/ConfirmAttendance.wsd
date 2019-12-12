@@ -1,0 +1,95 @@
+@startuml ConfirmAttendance
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Member
+participant "Page: Ticket Detail" as TicketDetailPage
+participant "Router" as Router
+participant "Attendance: HTTP Transport" as AttendanceHTTPTransport
+participant "Attendance: Endpoint" as AttendanceEndpoint
+participant "Attendance: Service" as AttendanceService
+participant "Requester: Service" as RequesterService
+participant "Attendance: Command" as AttendanceCommand
+participant "Attendance: Query" as AttendanceQuery
+
+activate Member
+
+Member->TicketDetailPage: Open "Ticket Detail" Page
+activate TicketDetailPage
+TicketDetailPage->Router: route("GET", "v2/class/{class_id}/ticket")
+activate Router
+Router->AttendanceHTTPTransport: TicketDetail(AttendanceService, []ServerOption)
+activate AttendanceHTTPTransport
+AttendanceHTTPTransport->AttendanceEndpoint: FindTicketDetails(AttendanceService)
+activate AttendanceEndpoint
+AttendanceEndpoint->AttendanceService: TicketDetail(payload)
+activate AttendanceService
+AttendanceService->AttendanceQuery: FindTicketDetail([]SliceCondition)
+activate AttendanceQuery
+AttendanceQuery-->AttendanceService: ticket
+deactivate AttendanceQuery
+AttendanceService-->AttendanceEndpoint: ticket
+deactivate AttendanceService
+AttendanceEndpoint->AttendanceEndpoint: response := Response(ticket, nil)
+AttendanceEndpoint-->AttendanceHTTPTransport: response
+deactivate AttendanceEndpoint
+AttendanceHTTPTransport-->Router: response
+deactivate AttendanceHTTPTransport
+Router-->TicketDetailPage: response
+deactivate Router
+TicketDetailPage-->Member: rendered
+
+Member->TicketDetailPage: Click "Confirm" Button
+TicketDetailPage->TicketDetailPage: Open Dialog Confirmation
+deactivate Ticket
+
+
+alt "Decline Confirm"
+    TicketDetailPage-->Member
+else
+    TicketDetailPage->Router: route("PATCH", "v2/class/{class_id}/attendance/confirmation")
+    activate Router
+    Router->AttendanceHTTPTransport: Confirmation(AttendanceService, []ServerOption)
+    activate AttendanceHTTPTransport
+    AttendanceHTTPTransport->AttendanceEndpoint: Confirmation(AttendanceService)
+    activate AttendanceEndpoint
+    AttendanceEndpoint->AttendanceService: Confirmation(params)
+    activate AttendanceService
+    AttendanceService->AttendanceService: Validate()
+    
+    alt "Data Not Valid"
+        AttendanceService-->AttendanceEndpoint: UnprocessableEntity
+        AttendanceEndpoint-->AttendanceHTTPTransport: UnprocessableEntity
+        AttendanceHTTPTransport-->Router: UnprocessableEntity
+        Router-->TicketDetailPage: UnprocessableEntity
+        TicketDetailPage-->Member: UnprocessableEntity
+    else
+        AttendanceService->AttendanceQuery: GetPureModel([]SliceCondition)
+        activate AttendanceQuery
+        AttendanceQuery-->AttendanceService: ticket
+
+        alt "Ticket Status is Accepted"
+            AttendanceService->AttendanceCommand: Create(ticket)
+            activate AttendanceCommand
+            AttendanceCommand-->AttendanceService: uuid
+            deactivate AttendanceCommand
+        else 
+            AttendanceService->RequesterService: UpdateRequestStatus(ticket)
+            activate RequesterService
+            RequesterService-->AttendanceService: is updated
+            deactivate AttendanceService
+        end 
+
+        AttendanceService-->AttendanceEndpoint: boolean
+        AttendanceEndpoint-->Endpoint: response := Response(boolean, nil)
+        AttendanceEndpoint-->AttendanceHTTPTransport: response
+        AttendanceHTTPTransport-->Router: response
+        Router-->TicketDetailPage: response
+        TicketDetailPage-->Member: response
+        deactivate TicketDetailPage
+    end
+end
+deactivate Member
+
+@enduml

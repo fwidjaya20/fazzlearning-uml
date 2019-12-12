@@ -1,0 +1,36 @@
+@startuml RegisterClass
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open "Class List" Page;
+:Click "Register" Button;
+
+|System|
+:Open "Class Detail" Page;
+
+|Member|
+:Fill "Reason" field (Opt);
+:Hit "Register" Button;
+
+|System|
+:Validate;
+
+if (Data Valid ?) then (Yes)
+    :Insert "Requester" data to Database;
+
+    if (Valid ?) then (Yes)
+        :Add Success Information;
+    else (No)
+        :Add Error Information;
+    endif
+
+    stop
+else (No)
+    stop
+endif
+
+@enduml

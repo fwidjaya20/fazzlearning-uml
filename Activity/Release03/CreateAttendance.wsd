@@ -1,0 +1,27 @@
+@startuml CreateAttendance
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Migrate "Approved" requester to Attendance;
+
+|System|
+:Validate Data;
+
+if (Valid ?) then (Yes)
+    :Insert "Attendance" data to Database;
+    
+    if (Is Created ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+else (No)
+    stop
+endif
+stop
+
+@enduml

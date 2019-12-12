@@ -1,0 +1,38 @@
+@startuml ConfirmAttendance
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open "Approved" Request;
+:Click Confirmation Button;
+
+|System|
+:Validate Data;
+
+if (Valid ?) then (Yes)
+    if (Confirmation Status) then (Accept)
+        :Insert "Requester" data as Attendance on Database;
+
+        if (Is Created ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    else (Decline)
+        :Set "Requester" status into "Declined" on Database;
+
+        if (Is Updated ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
+    endif
+    stop
+else (No)
+    stop
+endif
+
+@enduml

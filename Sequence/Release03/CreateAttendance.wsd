@@ -1,0 +1,38 @@
+@startuml CreateAttendance
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "Attendance: Service" as AttendanceService
+participant "Attendance: Command" as AttendanceCommand
+
+activate Caller
+
+Caller->AttendanceService: Register(payload)
+
+loop "for each payload"
+    activate AttendanceService
+    AttendanceService->AttendanceService: Validate()
+
+    alt "Data not valid"
+        break
+            AttendanceService-->Caller: UnprocessableEntity
+        end
+    else
+        AttendanceService->AttendanceService: class := AttendanceModel()
+        AttendanceService->AttendanceService: classes = append(classes, class)
+    end
+end
+
+AttendanceService->AttendanceCommand: CreateBulk(classes)
+activate AttendanceCommand
+AttendanceCommand-->AttendanceService: is created
+deactivate AttendanceCommand
+
+AttendanceService-->Caller: response
+deactivate AttendanceService
+
+deactivate Caller
+
+@enduml

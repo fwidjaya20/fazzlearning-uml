@@ -17,7 +17,7 @@ rectangle "Requester System" {
     Admin --> (Commit Request)
     Member --> (Get Requested)
 
-    (Commit Request) ..> (Create Attendance) : extends
+    (Register) ..> (Get Class) : include
 }
 
 @enduml
