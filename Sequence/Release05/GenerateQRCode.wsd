@@ -1,0 +1,48 @@
+@startuml GenerateQRCode
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Class Detail" as ClassDetailPage
+participant "Router" as Router
+participant "Class: HTTP Transport" as ClassHTTPTransport
+participant "Class: Endpoint" as ClassEndpoint
+participant "Class: Service" as ClassService
+participant "Class: Query" as ClassQuery
+
+activate Admin
+
+Admin->ClassDetailPage: Open "Class Detail" Page
+activate ClassDetailPage
+ClassDetailPage-->Admin
+Admin->ClassDetailPage: Hit "Generate QR Code" Button
+ClassDetailPage->Router: route("GET", "v2/class/{class_id}/qrcode")
+activate Router
+Router->ClassHTTPTransport: GenerateQRCode(ClassService, []ServerOption)
+activate ClassHTTPTransport
+ClassHTTPTransport->ClassEndpoint: GenerateQRCode(ClassService)
+activate ClassEndpoint
+ClassEndpoint->ClassService: GenerateQRCode(ClassService, classId)
+activate ClassService
+ClassService->ClassQuery: Find([]SliceCondition)
+activate ClassQuery
+ClassQuery-->ClassService: class
+deactivate ClassQuery
+ClassService->ClassService: GenerateQRCode
+ClassService-->ClassEndpoint: qrCode
+deactivate ClassService
+ClassEndpoint->ClassEndpoint: response := Response(qrCode, nil)
+ClassEndpoint-->ClassHTTPTransport: response
+deactivate ClassEndpoint
+ClassHTTPTransport-->Router: response
+deactivate ClassHTTPTransport
+Router-->ClassDetailPage: response
+deactivate Router
+ClassDetailPage->ClassDetailPage: display QR Code
+ClassDetailPage-->Admin: display QR Code
+deactivate ClassDetailPage
+
+deactivate Admin
+
+@enduml
