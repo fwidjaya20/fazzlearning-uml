@@ -1,0 +1,24 @@
+@startuml ScanQRCode
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Click "Scanner" Button;
+:Scan the QR Code given;
+
+|System|
+:Parse QR Code data;
+:Update Member Attendance status;
+
+if (Is Updated ?) then (Yes)
+    :Add Success Information;
+else (No)
+    :Add Delete Information;
+endif
+
+stop
+
+@enduml
