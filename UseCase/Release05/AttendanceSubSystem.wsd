@@ -8,7 +8,6 @@ skinparam packageStyle rectangle
 
 actor Admin
 actor Member
-actor (Caller)
 
 rectangle "Attendance System" {
     Admin --> (Generate QR Code)
