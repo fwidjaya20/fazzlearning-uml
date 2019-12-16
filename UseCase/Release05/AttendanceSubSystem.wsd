@@ -13,7 +13,7 @@ rectangle "Attendance System" {
     Admin --> (Generate QR Code)
     Member --> (Scan QR Code)
 
-    (Scan QR Code) ..> (Update IsAttend Status) : include
+    (Scan QR Code) ..> (Update Attendance) : include
 }
 
 @enduml
