@@ -1,0 +1,27 @@
+@startuml Attend
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "Attendance: Service" as AttendanceService
+participant "Attendance: Query" as AttendanceQuery
+participant "Attendance: Command" as AttendanceCommand
+
+activate Caller
+Caller->AttendanceService: AttendClass(AttendanceService, classId)
+activate AttendanceService
+AttendanceService->AttendanceQuery: PureModel([]SliceCondition)
+activate AttendanceQuery
+AttendanceQuery-->AttendanceService: attendance
+deactivate AttendanceQuery
+AttendanceService->AttendanceService: binding attendance data
+AttendanceService->AttendanceCommand: Update(attendance)
+activate AttendanceCommand
+AttendanceCommand-->AttendanceService: is updated
+deactivate AttendanceCommand
+AttendanceService-->Caller: is updated
+deactivate AttendanceService
+deactivate Caller
+
+@enduml
