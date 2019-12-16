@@ -22,8 +22,10 @@ rectangle "Class System" {
 
     (Create Class) ..> (Get Available Shift) : include
     (Create Class) ..> (Get Available Room) : include
+    (Create Class) ..> (Check Validity of Room Transaction) : include
     (Booking Class) ..> (Get Available Shift) : include
     (Booking Class) ..> (Get Available Room) : include
+    (Booking Class) ..> (Check Validity of Room Transaction) : include
 }
 
 @enduml

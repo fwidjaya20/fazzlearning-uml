@@ -1,0 +1,38 @@
+@startuml DeleteConversation
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member,Admin|
+start
+:Open "Event Detail" Page;
+
+|System|
+:Get Thread related on Event;
+:Display the data on Post Card;
+if (For the conversation owner or admin) then (Yes)
+    :Show Delete Button;
+endif
+
+|Member,Admin|
+:Hit "Delete" Button;
+
+|System|
+:Validate;
+
+if (Data able to delete ?) then (Yes)
+    :Delete the conversation from database;
+
+    if (Is Deleted ?) then (Yes)
+        :Add Success Information;
+    else (No)
+        :Add Delete Information;
+    endif
+
+    stop
+else (No)
+    stop
+endif
+
+@enduml

@@ -1,0 +1,38 @@
+@startuml ReplyConversation
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member,Admin|
+start
+:Open "Event Detail" Page;
+
+|System|
+:Get Thread related on Event;
+:Display the data on Post Card;
+
+|Member,Admin|
+:Click "Reply" Button;
+
+|System|
+:Show reply field;
+
+|Member,Admin|
+:Fill "Reply" Field;
+:Hit "Enter" Button;
+
+|System|
+:Validate Data;
+if (Valid ?) then (Yes)
+    :Insert "Reply" data to Database;
+    if (IsCreated ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+    stop
+else (No)
+    stop
+endif
+@enduml

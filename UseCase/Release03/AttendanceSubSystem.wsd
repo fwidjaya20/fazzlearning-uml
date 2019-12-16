@@ -6,13 +6,12 @@ skinparam Monochrome true
 skinparam Shadowing false
 skinparam packageStyle rectangle
 
-actor Caller
 actor Member
 
 rectangle "Attendance System" {
-    Caller --> (Create Attendance)
+    Member --> (Confirm Attendance)
 
-    (Confirm Attendance) <-- Member
+    (Confirm Attendance) ..> (Create Attendance) : extends
 }
 
 @enduml

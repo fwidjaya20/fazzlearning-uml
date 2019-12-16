@@ -1,0 +1,58 @@
+@startuml GetBenchmark
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Dashboard" as Dashboard
+participant "Container: Benchmark Container" as BenchmarkContainer
+participant "Component: Card" as Card
+participant "Router" as Router
+participant "Statistic: HTTP Transport" as StatisticHTTPTransport
+participant "Statistic: Endpoint" as StatisticEndpoint
+participant "Statistic: Service" as StatisticService
+participant "Statistic: Query" as StatisticQuery
+
+activate Admin
+
+Admin->Dashboard: Open "Dashboard" Page
+activate Dashboard
+Dashboard->BenchmarkContainer: Render "Benchmark" Container
+activate BenchmarkContainer
+BenchmarkContainer->Card: Render "Total Event" Card
+activate Card
+Card-->BenchmarkContainer: rendered
+BenchmarkContainer->Card: Render "Total Class" Card
+Card-->BenchmarkContainer: rendered
+BenchmarkContainer->Router: route("GET", "v2/statistic/benchmark")
+activate Router
+Router->StatisticHTTPTransport: FetchBenchmark(StatisticService, []ServerOption)
+activate StatisticHTTPTransport
+StatisticHTTPTransport->StatisticEndpoint: GetBenchmark(StatisticService)
+activate StatisticEndpoint
+StatisticEndpoint->StatisticService: Benchmark()
+activate StatisticService
+StatisticService->StatisticQuery: GetBenchmark()
+activate StatisticQuery
+StatisticQuery-->StatisticService: benchmark
+deactivate StatisticQuery
+StatisticService-->StatisticEndpoint: benchmark
+deactivate StatisticService
+StatisticEndpoint->StatisticEndpoint: response := Response(benchmark, nil)
+StatisticEndpoint-->StatisticHTTPTransport: response
+deactivate StatisticEndpoint
+StatisticHTTPTransport-->Router: response
+deactivate StatisticHTTPTransport
+Router-->BenchmarkContainer: response
+deactivate Router
+BenchmarkContainer->Card: Render "Benchmark"
+Card-->BenchmarkContainer: rendered
+deactivate Card
+BenchmarkContainer-->Dashboard: rendered
+deactivate BenchmarkContainer
+Dashboard-->Admin: rendered
+deactivate Dashboard
+
+deactivate Admin
+
+@enduml

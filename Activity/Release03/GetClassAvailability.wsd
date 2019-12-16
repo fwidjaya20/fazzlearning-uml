@@ -1,4 +1,4 @@
-@startuml GetClass_Member
+@startuml GetClassAvailability
 
 skinparam ConditionEndStyle hline
 skinparam Monochrome true
@@ -9,8 +9,8 @@ start
 :Open "Class List" Page;
 
 |System|
-:Get "Class" data from Database;
-:Display then data to table;
+:Get Available data of "Class" from Database;
+:Display the data from card;
 
 stop
 

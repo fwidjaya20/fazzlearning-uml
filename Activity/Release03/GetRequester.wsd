@@ -1,0 +1,17 @@
+@startuml GetRequester
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Class Detail" Page;
+
+|System|
+:Get "Requester" data from Database;
+:Display the data to table;
+
+stop
+
+@enduml

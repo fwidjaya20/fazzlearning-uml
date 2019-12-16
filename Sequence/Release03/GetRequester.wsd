@@ -1,0 +1,53 @@
+@startuml GetRequester
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Admin
+participant "Page: Class Detail" as ClassDetailPage
+participant "Container: Requester Table" as RequesterTableContainer
+participant "Component: Table" as RequesterTable
+participant "Router" as Router
+participant "Requester: HTTP Transport" as RequestHTTPTransport
+participant "Requester: Endpoint" as RequestEndpoint
+participant "Requester: Service" as RequestService
+participant "Requester: Query" as RequestQuery
+
+activate Admin
+
+Admin->ClassDetailPage: Open "Class Detail" Page
+activate ClassDetailPage
+ClassDetailPage->RequesterTableContainer: render "Requester Table"
+activate RequesterTableContainer
+RequesterTableContainer->RequesterTable: render "RequesterTable" component
+activate RequesterTable
+RequesterTable-->RequesterTableContainer: rendered
+RequesterTableContainer->Router: route("GET", "v2/class/{class_id}/requester")
+activate Router
+Router->RequesterTableHTTPTransport: GetByClass(RequestService, []ServerOption)
+activate RequesterTableHTTPTransport
+RequesterTableHTTPTransport->RequesterTableEndpoint: GetByClass(RequestService)
+activate RequesterTableEndpoint
+RequesterTableEndpoint->RequesterTableService: GetByClassId(classId)
+activate RequesterTableService
+RequesterTableService->RequesterTableQuery: Find([]SliceCondition)
+activate RequesterTableQuery
+RequesterTableQuery-->RequesterTableService: requester
+deactivate RequesterTableQuery
+RequesterTableService-->RequesterTableEndpoint: requester
+deactivate RequesterTableService
+RequesterTableEndpoint->RequesterTableEndpoint: response := Response(requester, nil)
+RequesterTableEndpoint-->RequesterTableHTTPTransport: response
+deactivate RequesterTableEndpoint
+RequesterTableHTTPTransport-->Router: response
+deactivate RequesterTableHTTPTransport
+Router-->RequesterTableContainer: response
+deactivate Router
+RequesterTableContainer->RequesterTable: render "Requester Table"
+RequesterTable-->RequesterTableContainer: rendered
+RequesterTableContainer-->ClassDetailPage: display data as list view
+ClassDetailPage-->Admin: rendered
+
+deactivate Admin
+
+@enduml

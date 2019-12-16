@@ -1,0 +1,16 @@
+@startuml ViewConversation
+
+skinparam ConditionEndStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member,Admin|
+start
+:Open "Event Detail" Page;
+
+|System|
+:Get Thread related on Event;
+:Display the data on Post Card;
+stop
+
+@enduml

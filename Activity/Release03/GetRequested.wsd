@@ -1,4 +1,4 @@
-@startuml GetEvent_Member
+@startuml GetRequested
 
 skinparam ConditionEndStyle hline
 skinparam Monochrome true
@@ -6,11 +6,11 @@ skinparam Shadowing false
 
 |Member|
 start
-:Open "Home" Page;
+:Open "Ticket" Page;
 
 |System|
-:Get "Event" data from Database;
-:Display then data to table;
+:Get "Requested Class" of User from Database;
+:Display the data to Card;
 
 stop
 
