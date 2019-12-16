@@ -1,4 +1,4 @@
-@startuml ScanQRCode
+@startuml Attend
 
 skinparam ConditionEndStyle hline
 skinparam Monochrome true

@@ -11,7 +11,7 @@ actor Member
 
 rectangle "Attendance System" {
     Admin --> (Generate QR Code)
-    Member --> (Scan QR Code)
+    Member --> (Attend)
 
     (Scan QR Code) ..> (Update Attendance) : include
 }
