@@ -6,10 +6,12 @@ skinparam Monochrome true
 skinparam Shadowing false
 skinparam packageStyle rectangle
 
-actor Caller
+actor Admin
 
 rectangle "Requester System" {
-    Caller --> (Publish Subject Based Message on Commit Request)
+    Admin --> (Commit Request)
+    
+    (Commit Request) ..> (Publish Subject Based Message on Commit Request) : include
 }
 
 @enduml
