@@ -1,0 +1,25 @@
+@startuml NOTIFICATION_SubscribeCommitRequest
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Subscribe Requests.RequestUpdated;
+
+|System|
+:Parsing Event Message;
+
+if (Valid ?) then (Yes)
+    :Grouping Requester per Status;
+    :Post Notification;
+    
+    if (Is Error ?) then (Yes)
+        :Adding Error Information;
+    endif
+endif
+stop
+
+@enduml

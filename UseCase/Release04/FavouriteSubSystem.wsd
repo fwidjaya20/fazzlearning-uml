@@ -11,7 +11,7 @@ actor Member
 rectangle "Favourite System" {
     Member --> (Like)
     Member --> (Unlike)
-    Member --> (Get Liked)
+    Member --> (Get Favourite)
 }
 
 @enduml

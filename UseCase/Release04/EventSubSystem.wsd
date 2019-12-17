@@ -6,10 +6,12 @@ skinparam Monochrome true
 skinparam Shadowing false
 skinparam packageStyle rectangle
 
-actor Caller
+actor Admin
 
 rectangle "Event System" {
-    Caller --> (Publish Subject Based Message on Event Created)
+    Admin --> (Create Event)
+    
+    (Create Event) ..> (Publish Subject Based Message on Event Created) : include
 }
 
 @enduml

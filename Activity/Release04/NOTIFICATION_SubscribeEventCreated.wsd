@@ -1,4 +1,4 @@
-@startuml DeleteUserETL
+@startuml NOTIFICATION_SubscribeEventCreated
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
@@ -7,19 +7,18 @@ skinparam Shadowing false
 
 |Caller|
 start
-:Delete Replica;
+:Subscribe Event.EventCreated;
 
 |System|
-:Delete "User" ETL from Database;
+:Parsing Event Message;
 
-fork
-    |System|
-    if (Is Deleted ?) then (Yes)
-        :Adding Success Information;
-    else (No)
+if (Valid ?) then (Yes)
+    :Post Notifaction;
+
+    if (Is Error ?) then (Yes)
         :Adding Error Information;
     endif
-endfork
-
+endif
 stop
+
 @enduml

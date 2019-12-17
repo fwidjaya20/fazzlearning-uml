@@ -11,8 +11,12 @@ actor Caller
 rectangle "Mailer System" {
     Caller --> (Subscribe Event Created)
     Caller --> (Subscribe Commit Request)
-    (Subscribe Event Created) ..> (Send Email) : include
-    (Subscribe Commit Request) ..> (Send Email) : include
+
+    (Subscribe Event Created) ..> (Announce Event Created) : include
+    (Subscribe Commit Request) ..> (Announce Request) : include
+    
+    (Announce Event Created) ..> (Send Email) : include
+    (Announce Request) ..> (Send Email) : include
 }
 
 @enduml

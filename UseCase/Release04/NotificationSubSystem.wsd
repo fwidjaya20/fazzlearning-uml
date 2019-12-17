@@ -10,7 +10,14 @@ actor Caller
 actor Member
 
 rectangle "Notification System" {
-    Caller --> (Post Notification)
+    Caller --> (Subscribe Event Created)
+    Caller --> (Subscribe Commit Request)
+    
+    (Subscribe Event Created) ..> (Post Notification) : include
+    (Subscribe Commit Request) ..> (Post Notification) : include
+
+    Member --> (Unread Notification)
+    Member --> (Read Notification)
     Member --> (Get Notification)
 }
 

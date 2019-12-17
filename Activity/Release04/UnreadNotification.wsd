@@ -1,0 +1,20 @@
+@startuml UnreadNotification
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Any Page;
+
+|System|
+:Get "Count of Unread Notification" from Database;
+
+if (More than 0) then (Yes)
+    :Display New Notification Indicator;
+endif
+stop
+
+@enduml

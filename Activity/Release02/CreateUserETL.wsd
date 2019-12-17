@@ -9,7 +9,7 @@ start
 :Create Replica;
 
 |System|
-:Insert "User" data to Database;
+:Insert "User" ETL data to Database;
 
 fork
     if (IsCreated ?) then (Yes)

@@ -1,0 +1,31 @@
+@startuml CreateEvent
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Add Event" Page;
+:Fill "Event" Form;
+:Hit "Create Event" Button;
+
+|System|
+:Validate Data;
+
+if (Valid ?) then (Yes)
+    :Insert "Event" data to Database;
+    if (IsCreated ?) then (Yes)
+        :Create Related Poster;
+        :Create Related Booked Class;
+        :Adding Success Information;
+        :Publish Subject Based Message on Event Created;
+    else (No)
+        :Adding Error Information;
+    endif
+endif
+
+stop
+
+@enduml

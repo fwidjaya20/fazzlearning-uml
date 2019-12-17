@@ -1,4 +1,4 @@
-@startuml DeleteUserETL
+@startuml PostNotification
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
@@ -6,20 +6,21 @@ skinparam Monochrome true
 skinparam Shadowing false
 
 |Caller|
+
 start
-:Delete Replica;
+:Post Notification;
 
 |System|
-:Delete "User" ETL from Database;
+while(For each notification) is (Has Notification)
+    :Insert "Notification" data to Database;
 
-fork
-    |System|
-    if (Is Deleted ?) then (Yes)
+    if (IsCreated ?) then (Yes)
         :Adding Success Information;
     else (No)
         :Adding Error Information;
     endif
-endfork
+endwhile
 
 stop
+
 @enduml
