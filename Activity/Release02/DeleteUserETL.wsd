@@ -10,7 +10,7 @@ start
 :Delete Replica;
 
 |System|
-:Delete "User" from Database;
+:Delete "User" ETL from Database;
 
 fork
     |System|

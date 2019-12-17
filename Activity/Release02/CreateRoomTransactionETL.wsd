@@ -13,7 +13,7 @@ start
 
 |System|
 while(For each roomTrans) is (Has Transaction)
-    :Insert "Room Transaction" data to Database;
+    :Insert "Room Transaction" ETL data to Database;
 
     if (IsCreated ?) then (Yes)
         :Adding Success Information;

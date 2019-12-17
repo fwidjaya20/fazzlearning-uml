@@ -12,7 +12,7 @@ start
 :Delete Replica;
 
 |System|
-:Delete "Room Transaction" data from Database;
+:Delete "Room Transaction" ETL data from Database;
 
 if (IsDeleted ?) then (Yes)
     :Adding Success Information;
