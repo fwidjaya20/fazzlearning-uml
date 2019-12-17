@@ -31,7 +31,6 @@ while (For each requester) is (Has Requester)
             :Add Error Information;
         endif
     else (No)
-        stop
     endif
 endwhile
 stop

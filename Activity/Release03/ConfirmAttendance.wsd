@@ -31,9 +31,8 @@ if (Valid ?) then (Yes)
             :Adding Error Information;
         endif
     endif
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

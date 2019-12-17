@@ -6,9 +6,7 @@ skinparam Monochrome true
 skinparam Shadowing false
 
 |Caller|
-
 start
-
 :Delete Replica;
 
 |System|
@@ -19,7 +17,6 @@ if (IsDeleted ?) then (Yes)
 else (No)
     :Adding Error Information;
 endif
-
 stop
 
 @enduml

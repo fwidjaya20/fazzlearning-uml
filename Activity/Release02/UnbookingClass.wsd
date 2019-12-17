@@ -21,7 +21,6 @@ start
 
 |Admin|
 if (Agree Delete ?) then (No)
-    stop
 else (Yes)
     |System|
     :Delete "Class" from Database;
@@ -34,7 +33,7 @@ else (Yes)
     else (No)
         :Adding Error Information;
     endif
-    stop
 endif
+stop
 
 @enduml

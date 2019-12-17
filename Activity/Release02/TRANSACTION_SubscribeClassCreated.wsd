@@ -7,7 +7,6 @@ skinparam Shadowing false
 
 |Caller|
 start
-
 :Subscribe Class.ClassCreated;
 
 |System|
@@ -19,10 +18,8 @@ if (Valid ?) then (Yes)
     if (Is Error ?) then (Yes)
         :Adding Error Information;
     endif
-    
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

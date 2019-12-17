@@ -27,21 +27,19 @@ start
 :Show Confirmation Dialog;
 
 |Admin|
-if (Agree Delete ?) then (No)
-    stop
-else (Yes)
+if (Agree Delete ?) then (Yes)
     |System|
     :Delete "Event" from Database;
-    fork
-        |System|
-        if (Is Deleted ?) then (Yes)
-            :Delete Related Poster if Exists;
-            :Delete Related Class if Exists;
-            :Adding Success Information;
-        else (No)
-            :Adding Error Information;
-        endif
-    endfork
-    stop
+    |System|
+    if (Is Deleted ?) then (Yes)
+        :Delete Related Poster if Exists;
+        :Delete Related Class if Exists;
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+else (No)
 endif
+stop
+
 @enduml

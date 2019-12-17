@@ -20,9 +20,8 @@ if (Valid ?) then (Yes)
             :Adding Error Information;
         endif
     endwhile
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

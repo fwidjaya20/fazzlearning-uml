@@ -12,14 +12,12 @@ start
 
 |System|
 :Delete Session Data from Database;
-fork
-    |System|
-    if (Is Deleted ?) then (Yes)
-        :Adding Success Information;
-    else (No)
-        :Adding Error Information;
-    endif
-endfork
+|System|
+if (Is Deleted ?) then (Yes)
+    :Adding Success Information;
+else (No)
+    :Adding Error Information;
+endif
 stop
 
 @enduml

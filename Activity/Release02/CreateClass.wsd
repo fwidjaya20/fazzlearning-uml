@@ -47,9 +47,8 @@ if (Valid ?) then (Yes)
         endif
     else (No)
     endif
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

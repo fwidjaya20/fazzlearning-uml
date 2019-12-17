@@ -28,10 +28,8 @@ if (Data Valid ?) then (Yes)
     else (No)
         :Add Error Information;
     endif
-
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

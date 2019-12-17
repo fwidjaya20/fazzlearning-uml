@@ -15,15 +15,13 @@ start
 :Validate Data;
 if (Valid ?) then (Yes)
     :Insert "Role" data to Database;
-    fork
-        if (IsCreated ?) then (Yes)
-            :Adding Success Information;
-        else (No)
-            :Adding Error Information;
-        endif
-    endfork
-    stop
+    if (IsCreated ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
 else (No)
-    stop
 endif
+stop
+
 @enduml

@@ -22,19 +22,16 @@ start
 
 |Admin|
 if (Agree Delete ?) then (No)
-    stop
 else (Yes)
     |System|
     :Delete "User" from Database;
-    fork
-        |System|
-        if (Is Deleted ?) then (Yes)
-            :Adding Success Information;
-            :Publish Subject Based Message on User Deleted;
-        else (No)
-            :Adding Error Information;
-        endif
-    endfork
-    stop
+    if (Is Deleted ?) then (Yes)
+        :Adding Success Information;
+        :Publish Subject Based Message on User Deleted;
+    else (No)
+        :Adding Error Information;
+    endif
 endif
+stop
+
 @enduml

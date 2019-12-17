@@ -15,17 +15,15 @@ start
 :Validate Data;
 if (Valid ?) then (Yes)
     :Insert "Event" data to Database;
-    fork
-        if (IsCreated ?) then (Yes)
-            :Create Related Poster;
-            :Create Related Booked Class;
-            :Adding Success Information;
-        else (No)
-            :Adding Error Information;
-        endif
-    endfork
-    stop
+    if (IsCreated ?) then (Yes)
+        :Create Related Poster;
+        :Create Related Booked Class;
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
 else (No)
-    stop
 endif
+stop
+
 @enduml

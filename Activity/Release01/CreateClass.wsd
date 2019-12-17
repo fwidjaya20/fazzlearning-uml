@@ -25,9 +25,8 @@ if (Valid ?) then (Yes)
     else (No)
         :Adding Error Information;
     endif
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

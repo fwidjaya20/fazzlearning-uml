@@ -22,20 +22,18 @@ start
 
 |Admin|
 if (Agree Delete ?) then (No)
-    stop
 else (Yes)
     |System|
     while(For each room) is (Has Room)
         :Delete "Room" from Database;
-        fork
-            |System|
-            if (Is Deleted ?) then (Yes)
-                :Adding Success Information;
-            else (No)
-                :Adding Error Information;
-            endif
-        endfork
+        |System|
+        if (Is Deleted ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
     endwhile
-    stop
 endif
+stop
+
 @enduml

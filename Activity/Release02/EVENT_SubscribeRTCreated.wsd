@@ -7,7 +7,6 @@ skinparam Shadowing false
 
 |Caller|
 start
-
 :Subscribe Transaction.TransactionCreated;
 
 |System|
@@ -15,14 +14,11 @@ start
 
 if (Valid ?) then (Yes)
     :Create Replica Room Transaction to RoomTransactionETL;
-
     if (Is Error ?) then (Yes)
         :Adding Error Information;
     endif
-    
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

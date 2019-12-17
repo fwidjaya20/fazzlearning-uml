@@ -22,15 +22,13 @@ start
 
 if (Valid ?) then (Yes)
     :Update "Shift" data from Database;
-    fork
-        if (IsUpdated ?) then (Yes)
-            :Adding Success Information;
-        else (No)
-            :Adding Error Information;
-        endif
-    endfork
-    stop
+    if (IsUpdated ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
 else (No)
-    stop
 endif
+stop
+
 @enduml

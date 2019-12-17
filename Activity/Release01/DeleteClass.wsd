@@ -20,22 +20,20 @@ start
 :Show Confirmation Dialog;
 
 |Admin|
-if (Agree Delete ?) then (No)
-    stop
-else (Yes)
+if (Agree Delete ?) then (Yes)
     |System|
     while (For each uuid) is (uuid)
         :Delete "Class" from Database;
-        fork
-            |System|
-            if (Is Deleted ?) then (Yes)
-                :Delete Related Material if Exists;
-                :Adding Success Information;
-            else (No)
-                :Adding Error Information;
-            endif
-        endfork
+        |System|
+        if (Is Deleted ?) then (Yes)
+            :Delete Related Material if Exists;
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
     endwhile
-    stop
+else (No)
 endif
+stop
+
 @enduml

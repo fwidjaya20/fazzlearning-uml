@@ -30,10 +30,8 @@ if (Data able to delete ?) then (Yes)
     else (No)
         :Add Delete Information;
     endif
-
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

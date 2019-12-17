@@ -14,9 +14,8 @@ start
 if (Valid Token ?) then (Yes)
     :Parse Token;
     :Get User Data from Database;
-    stop
 else (No)
-    stop
 endif
+stop
 
 @enduml

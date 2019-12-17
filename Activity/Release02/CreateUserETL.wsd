@@ -4,6 +4,7 @@ skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
+
 |Caller|
 start
 :Create Replica;
@@ -11,13 +12,11 @@ start
 |System|
 :Insert "User" ETL data to Database;
 
-fork
-    if (IsCreated ?) then (Yes)
-        :Adding Success Information;
-    else (No)
-        :Adding Error Information;
-    endif
-endfork
-
+if (IsCreated ?) then (Yes)
+    :Adding Success Information;
+else (No)
+    :Adding Error Information;
+endif
 stop
+
 @enduml

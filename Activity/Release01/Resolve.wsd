@@ -12,12 +12,11 @@ start
 |System|
 :Resolve URL Given;
 :GetObjectRequest to AWS S3;
-fork
-    if (Any Error ?) then (No)
-        :Adding Resolved URL Information;
-    else (Yes)
-        :Adding Error Information;
-    endif
-endfork
+if (Any Error ?) then (No)
+    :Adding Resolved URL Information;
+else (Yes)
+    :Adding Error Information;
+endif
 stop
+
 @enduml

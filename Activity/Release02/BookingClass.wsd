@@ -60,7 +60,6 @@ if (Valid ?) then (Yes)
     else (No)
     endif
 else (No)
-    stop
 endif
 
 stop
