@@ -1,6 +1,7 @@
 @startuml GetClass_Admin
 
 skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 

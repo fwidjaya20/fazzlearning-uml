@@ -1,6 +1,7 @@
 @startuml GetEvent_Member
 
 skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 
