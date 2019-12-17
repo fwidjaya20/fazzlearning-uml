@@ -1,0 +1,26 @@
+@startuml PostNotification
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+
+start
+:Post Notification;
+
+|System|
+while(For each notification) is (Has Notification)
+    :Insert "Notification" data to Database;
+
+    if (IsCreated ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+endwhile
+
+stop
+
+@enduml

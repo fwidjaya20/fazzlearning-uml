@@ -1,0 +1,19 @@
+@startuml PublishEventCreated
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Publish Event Created;
+
+|Fazzlearning Kit|
+:Get Global Publisher;
+:Store;
+
+|Nats Streaming|
+:Publish;
+stop
+@enduml

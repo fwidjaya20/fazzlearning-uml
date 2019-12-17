@@ -1,0 +1,39 @@
+@startuml CommitRequest
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Class Detail" Page;
+
+|System|
+:Get "Requester" List from Database;
+:Show the data on the table;
+
+|Admin|
+:Change requester status;
+:Hit "Submit" Button;
+
+|System|
+while (For each requester) is (Has Requester)
+    :Validate;
+
+    if (Data Valid ?) then (Yes)
+        :Update "Requester" new status from Database;
+
+        if (Valid ?) then (Yes)
+            :Add Success Information;
+            :Publish Subject Based Message on Request Updated;
+        else (No)
+            :Add Error Information;
+        endif
+    else (No)
+        stop
+    endif
+endwhile
+stop
+
+@enduml

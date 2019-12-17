@@ -1,0 +1,22 @@
+@startuml AnnounceEventCreated
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Announce Event Created;
+
+|System|
+:Build Template Tag Payload;
+
+|Template Tag CMS|
+:Compile Message;
+
+|System|
+:Send Email;
+stop
+
+@enduml

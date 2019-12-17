@@ -1,0 +1,16 @@
+@startuml SendEmail
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Send Email;
+
+|Payfazz Messenger|
+:Send Email;
+stop
+
+@enduml

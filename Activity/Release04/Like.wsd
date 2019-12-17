@@ -1,0 +1,28 @@
+@startuml Like
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open "Class List" Page;
+
+|System|
+:Get Available data of "Class" from Database;
+:Display the data from card;
+
+|Member|
+:Click Empty "Love" Button;
+
+|System|
+:Insert "Favourite" data to Database;
+if (IsCreated ?) then (Yes)
+    :Adding Success Information;
+else (No)
+    :Adding Error Information;
+endif
+stop
+
+@enduml

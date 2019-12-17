@@ -1,0 +1,28 @@
+@startuml AnnounceRequest
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Announce Request;
+
+|System|
+fork
+:Build Template Tag Payload for "Accepted" Status;
+forkagain
+:Build Template Tag Payload for "Low Priority" Status;
+forkagain
+:Build Template Tag Payload for "Rejected" Status;
+endfork
+
+|Template Tag CMS|
+:Compile Message;
+
+|System|
+:Send Email;
+stop
+
+@enduml
