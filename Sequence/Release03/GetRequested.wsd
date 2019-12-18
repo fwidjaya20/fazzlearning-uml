@@ -24,23 +24,23 @@ activate Ticket
 Ticket-->TicketListViewContainer: rendered
 TicketListViewContainer->Router: route("GET", "v2/tickets")
 activate Router
-Router->TicketHTTPTransport: GetTickets(RequestService, []ServerOption)
-activate TicketHTTPTransport
-TicketHTTPTransport->TicketEndpoint: GetTickets(RequestService)
-activate TicketEndpoint
-TicketEndpoint->TicketService: GetTicket(payload)
-activate TicketService
-TicketService->TicketQuery: FindTicket([]SliceCondition)
-activate TicketQuery
-TicketQuery-->TicketService: tickets
-deactivate TicketQuery
-TicketService-->TicketEndpoint: tickets
-deactivate TicketService
-TicketEndpoint->TicketEndpoint: response := Response(tickets, nil)
-TicketEndpoint-->TicketHTTPTransport: response
-deactivate TicketEndpoint
-TicketHTTPTransport-->Router: response
-deactivate TicketHTTPTransport
+Router->RequestHTTPTransport: GetTickets(RequestService, []ServerOption)
+activate RequestHTTPTransport
+RequestHTTPTransport->RequestEndpoint: GetTickets(RequestService)
+activate RequestEndpoint
+RequestEndpoint->RequestService: GetTicket(payload)
+activate RequestService
+RequestService->RequestQuery: FindTicket([]SliceCondition)
+activate RequestQuery
+RequestQuery-->RequestService: tickets
+deactivate RequestQuery
+RequestService-->RequestEndpoint: tickets
+deactivate RequestService
+RequestEndpoint->RequestEndpoint: response := Response(tickets, nil)
+RequestEndpoint-->RequestHTTPTransport: response
+deactivate RequestEndpoint
+RequestHTTPTransport-->Router: response
+deactivate RequestHTTPTransport
 Router-->TicketListViewContainer: response
 deactivate Router
 TicketListViewContainer->Ticket: render "Ticket"
