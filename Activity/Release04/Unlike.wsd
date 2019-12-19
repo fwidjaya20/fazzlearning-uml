@@ -7,13 +7,6 @@ skinparam Shadowing false
 
 |Member|
 start
-:Open "Class List" Page;
-
-|System|
-:Get Available data of "Class" from Database;
-:Display the data from card;
-
-|Member|
 :Click Filled "Love" Button;
 
 |System|

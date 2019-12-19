@@ -1,0 +1,56 @@
+@startuml GetNotification
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Member
+participant "Page: Notification" as NotificationPage
+participant "Container: Notification List" as NotificationListContainer
+participant "Component: Notification" as NotificationComponent
+participant "Router" as Router
+participant "Notification: HTTP Transport" as NotificationHTTPTransport
+participant "Notification: Endpoint" as NotificationEndpoint
+participant "Notification: Service" as NotificationService
+participant "Notification: Query" as NotificationQuery
+
+activate Member
+
+Member->NotificationPage: Open "Notification" Pages
+activate NotificationPage
+NotificationPage->NotificationListContainer: render notification list container
+activate NotificationListContainer
+NotificationListContainer->NotificationComponent: render notification
+activate NotificationComponent
+NotificationComponent-->NotificationListContainer: rendered
+NotificationListContainer->Router: router("GET", "v2/notifications")
+activate Router
+Router->NotificationHTTPTransport: All(NotificationService, []ServerOption)
+activate NotificationHTTPTransport
+NotificationHTTPTransport->NotificationEndpoint: All(NotificationService)
+activate NotificationEndpoint
+NotificationEndpoint->NotificationService: All()
+activate NotificationService
+NotificationService->NotificationQuery: Find([]SliceCondition)
+activate NotificationQuery
+NotificationQuery-->NotificationService: notifications
+deactivate NotificationQuery
+NotificationService-->NotificationEndpoint: notifications
+deactivate NotificationService
+NotificationEndpoint->NotificationEndpoint: response := Response(notifications, nil)
+NotificationEndpoint-->NotificationHTTPTransport: response
+deactivate NotificationEndpoint
+NotificationHTTPTransport-->Router: response
+deactivate NotificationHTTPTransport
+Router-->NotificationListContainer: response
+deactivate Router
+NotificationListContainer->NotificationComponent: render notification
+NotificationComponent-->NotificationListContainer: rendered
+deactivate NotificationComponent
+NotificationListContainer-->NotificationPage: rendered
+deactivate NotificationListContainer
+NotificationPage-->Member
+deactivate NotificationPage
+
+deactivate Member
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml NOTIFICATION_SubscribeEventCreated
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor "Caller" as Caller
+participant "Notification: NATS Transport" as NotificationNATSTransport
+participant "Notification: Service" as NotificationService
+participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
+participant "User: GRPC Transport" as UserGRPCTransport
+participant "Notification: Command" as NotificationCommand
+
+activate Caller
+
+Caller->NotificationNATSTransport: Subscribe Event.EventCreated
+activate NotificationNATSTransport
+NotificationNATSTransport->NotificationNATSTransport: Parse Event Message
+
+alt "Data Not Valid"
+    NotificationNATSTransport-->Caller: panic
+else
+    NotificationNATSTransport->NotificationNATSTransport: build template tag payload
+    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
+    activate TTCMSHTTPTransport
+    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
+    deactivate TTCMSHTTPTransport
+    NotificationNATSTransport->NotificationService: Post(payload)
+    activate NotificationService
+    NotificationService-->NotificationNATSTransport
+    deactivate NotificationService
+    NotificationNATSTransport-->Caller
+    deactivate NotificationNATSTransport
+end
+
+deactivate Caller
+
+@enduml

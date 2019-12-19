@@ -1,0 +1,54 @@
+@startuml Unlike
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Member
+participant "Component: Class Card" as ClassCard
+participant "Router" as Router
+participant "Favourite: HTTP Transport" as FavouriteHTTPTransport
+participant "Favourite: Endpoint" as FavouriteEndpoint
+participant "Favourite: Service" as FavouriteService
+participant "Favourite: Command" as FavouriteCommand
+
+activate Member
+
+Member->ClassCard: Click "Filled Love" Button
+activate ClassCard
+ClassCard->Router: route("POST", "v2/class/{class_id}/unlike")
+activate Router
+Router->FavouriteHTTPTransport: Unlike(FavouriteService, []ServerOption)
+activate FavouriteHTTPTransport
+FavouriteHTTPTransport->FavouriteEndpoint: Unlike(FavouriteService)
+activate FavouriteEndpoint
+FavouriteEndpoint->FavouriteService: Unlike(payload)
+activate FavouriteService
+FavouriteService->FavouriteService: Validate()
+
+alt "Data Not Valid"
+    FavouriteService-->FavouriteEndpoint: UnprocessableEntity
+    FavouriteEndpoint-->FavouriteHTTPTransport: UnprocessableEntity
+    FavouriteHTTPTransport-->Router: UnprocessableEntity
+    Router-->ClassCard: UnprocessableEntity
+    ClassCard-->Member: UnprocessableEntity
+else
+    FavouriteService->FavouriteCommand: Delete(payload)
+    activate FavouriteCommand
+    FavouriteCommand-->FavouriteService: isDeleted
+    deactivate FavouriteCommand
+    FavouriteService-->FavouriteEndpoint: isDeleted
+    deactivate FavouriteService
+    FavouriteEndpoint->FavouriteEndpoint: response := Response(isDeleted, nil)
+    FavouriteEndpoint-->FavouriteHTTPTransport: response
+    deactivate FavouriteEndpoint
+    FavouriteHTTPTransport-->Router: response
+    deactivate FavouriteHTTPTransport
+    Router-->ClassCard: resopnse
+    deactivate Router
+    ClassCard-->Member: response
+    deactivate ClassCard
+end
+
+deactivate Member
+
+@enduml
