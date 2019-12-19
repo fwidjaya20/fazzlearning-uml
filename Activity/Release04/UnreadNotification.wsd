@@ -7,7 +7,7 @@ skinparam Shadowing false
 
 |Member|
 start
-:Open Any Page;
+:Render Header Component;
 
 |System|
 :Get "Count of Unread Notification" from Database;

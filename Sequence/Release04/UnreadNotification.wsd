@@ -1,0 +1,44 @@
+@startuml UnreadNotification
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Member
+participant "Component: Header" as Header
+participant "Router" as Router
+participant "Notification: HTTP Transport" as NotificationHTTPTransport
+participant "Notification: Endpoint" as NotificationEndpoint
+participant "Notification: Service" as NotificationService
+participant "Notification: Query" as NotificationQuery
+
+activate Member
+
+Member->Header: render "Header" Component
+activate Header
+Header->Router: router("GET", "v2/notification/indicator")
+activate Router
+Router->NotificationHTTPTransport: UnreadStatus(NotificationService, []ServerOption)
+activate NotificationHTTPTransport
+NotificationHTTPTransport->NotificationEndpoint: AnyUnread(NotificationService)
+activate NotificationEndpoint
+NotificationEndpoint->NotificationService: AnyUnread()
+activate NotificationService
+NotificationService->NotificationQuery: Count([]SliceCondition)
+activate NotificationQuery
+NotificationQuery-->NotificationService: total unread notification
+deactivate NotificationQuery
+NotificationService-->NotificationEndpoint: total unread notification
+deactivate NotificationService
+NotificationEndpoint->NotificationEndpoint: response := Response(total unread notification, nil)
+NotificationEndpoint-->NotificationHTTPTransport: response
+deactivate NotificationEndpoint
+NotificationHTTPTransport-->Router: response
+deactivate NotificationHTTPTransport
+Router-->Header: response
+deactivate Router
+Header-->Member: response
+deactivate Header
+
+deactivate Member
+
+@enduml

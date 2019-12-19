@@ -1,0 +1,48 @@
+@startuml NOTIFICATION_SubscribeCommitRequest
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor "Caller" as Caller
+participant "Notification: NATS Transport" as NotificationNATSTransport
+participant "Notification: Service" as NotificationService
+participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
+
+activate Caller
+
+Caller->NotificationNATSTransport: Subscribe Requests.RequestUpdated
+activate NotificationNATSTransport
+NotificationNATSTransport->NotificationNATSTransport: Parse Event Message
+
+alt "Data Not Valid"
+    NotificationNATSTransport-->Caller: panic
+else
+    NotificationNATSTransport->NotificationNATSTransport: Filter each requester by status
+    NotificationNATSTransport->NotificationNATSTransport: build template tag payload "Accepted" Status
+    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
+    activate TTCMSHTTPTransport
+    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
+    NotificationNATSTransport->NotificationService: Post(payload)
+    activate NotificationService
+
+    NotificationNATSTransport->NotificationNATSTransport: Filter each requester by status
+    NotificationNATSTransport->NotificationNATSTransport: build template tag payload "Low Priority" Status
+    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
+    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
+    NotificationNATSTransport->NotificationService: Post(payload)
+
+    NotificationNATSTransport->NotificationNATSTransport: Filter each requester by status
+    NotificationNATSTransport->NotificationNATSTransport: build template tag payload "Rejected" Status
+    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
+    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
+    deactivate TTCMSHTTPTransport
+    NotificationNATSTransport->NotificationService: Post(payload)
+    
+    NotificationService-->NotificationNATSTransport
+    deactivate NotificationService
+    NotificationNATSTransport-->Caller
+end
+
+deactivate Caller
+
+@enduml

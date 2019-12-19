@@ -1,0 +1,29 @@
+@startuml AnnounceEventCreated
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor "Caller" as Caller
+participant "Mailer: Mailer Service" as MailerService
+participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
+participant "Messenger: HTTP Transport" as MessengerHTTPTransport
+
+activate Caller
+
+Caller->MailerService: AnnounceEventCreated()
+activate MailerService
+MailerService->MailerService: build template tag payload
+MailerService->TTCMSHTTPTransport: GetCompileMessage(payload)
+activate TTCMSHTTPTransport
+TTCMSHTTPTransport-->MailerService: compiled message
+deactivate TTCMSHTTPTransport
+MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
+activate MessengerHTTPTransport
+MessengerHTTPTransport-->MailerService
+deactivate MessengerHTTPTransport
+MailerService-->Caller
+deactivate MailerService
+
+deactivate Caller
+
+@enduml

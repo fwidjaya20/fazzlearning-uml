@@ -1,0 +1,25 @@
+@startuml SendEmail
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Caller
+participant "Messenger: Service" as MessengerService
+participant "Payfazz Messenger" as PayfazzMessenger
+
+activate Caller
+
+Caller->MessengerService: SendEmail(receiver, subject, message)
+activate MessengerService
+MessengerService->MessengerService: get message sender
+MessengerService->PayfazzMessenger: SendEmail(sender, receiver, subject, message)
+activate PayfazzMessenger
+PayfazzMessenger-->MessengerService
+deactivate PayfazzMessenger
+MessengerService-->Caller
+deactivate MessengerService
+
+deactivate Caller
+
+@enduml
