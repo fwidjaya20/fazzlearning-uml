@@ -14,7 +14,7 @@ rectangle "Room Transaction System" {
     (Caller) --> (Check Validity of Transaction)
 
     (Create Transaction) ..> (Publish Transaction Created) : include
-    (Delete Transaction) ..> (Publish Transaction Updated) : include
+    (Delete Transaction) ..> (Publish Transaction Deleted) : include
 
     (Subscribe Class Created) ..> (Create Transaction) : include
     (Subscribe Class Deleted) ..> (Delete Transaction) : include
