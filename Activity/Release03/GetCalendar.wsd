@@ -12,7 +12,7 @@ start
 |System|
 :Get Class from Database;
 :Mapping data to Calendar View;
-:Display the data to database;
+:Display the data to calendar;
 
 stop
 
