@@ -13,7 +13,7 @@ activate Caller
 Caller->RoomTransactionNATSTransport: classCreatedSubscriber
 activate RoomTransactionNATSTransport
 RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message
-RoomTransactionNATSTransport->RoomTransactionService: ReplicaPersistance()
+RoomTransactionNATSTransport->RoomTransactionService: Create(TransactionClass)
 activate RoomTransactionService
 RoomTransactionService-->RoomTransactionNATSTransport
 deactivate RoomTransactionService

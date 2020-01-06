@@ -13,7 +13,7 @@ activate Caller
 Caller->RoomTransactionETLNATSTransport: replicaRoomTransctionSubscriber
 activate RoomTransactionETLNATSTransport
 RoomTransactionETLNATSTransport->RoomTransactionETLNATSTransport: parse message
-RoomTransactionETLNATSTransport->RoomTransactionETLService: ReplicaPersistance()
+RoomTransactionETLNATSTransport->RoomTransactionETLService: CreatePersistance()
 activate RoomTransactionETLService
 RoomTransactionETLService-->RoomTransactionETLNATSTransport
 deactivate RoomTransactionETLService
