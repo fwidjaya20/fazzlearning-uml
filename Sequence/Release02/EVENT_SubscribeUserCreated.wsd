@@ -13,7 +13,7 @@ activate Caller
 Caller->UserETLNATSTransport: userCreatedSubscriber
 activate UserETLNATSTransport
 UserETLNATSTransport->UserETLNATSTransport: parse message
-UserETLNATSTransport->UserETLService: ReplicaPersistance()
+UserETLNATSTransport->UserETLService: Create(User)
 activate UserETLService
 UserETLService-->UserETLNATSTransport
 deactivate UserETLService
