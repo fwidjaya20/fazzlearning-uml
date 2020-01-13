@@ -2,6 +2,7 @@
 
 skinparam Monochrome true
 skinparam Shadowing false
+hide footbox
 
 actor Employee
 participant "Page: Login" as LoginPage

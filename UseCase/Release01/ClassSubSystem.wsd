@@ -19,11 +19,11 @@ rectangle "Class System" {
 
     (Get Class) <-- Member
 
-    (Create Class) ..> (Upload) : extends
-    (Create Class) ..> (Compress) : extends
-    (Create Class) ..> (Create Material) : extends
+    (Create Class) ..> (Upload) : include
+    (Create Class) ..> (Compress) : include
+    (Create Class) ..> (Create Material) : include
     
-    (Delete Class) ..> (Delete Material) : extends
+    (Delete Class) ..> (Delete Material) : include
 
     (Booking Class) ..> (Create Class) : include
     (Unbooking Class) ..> (Delete Class) : include

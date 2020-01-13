@@ -2,6 +2,7 @@
 
 skinparam Monochrome true
 skinparam Shadowing false
+hide footbox
 
 actor Member
 participant "Page: Event" as EventPage

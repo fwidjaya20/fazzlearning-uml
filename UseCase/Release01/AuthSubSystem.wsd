@@ -18,7 +18,7 @@ rectangle "Authentication System" {
     (Logout) <-- Admin
     (Get Profile) <-- Admin
 
-    (Login) ..> (Register) : extends
+    (Login) ..> (Register) : include
     (Register) ..> (Create User) : include
 }
 

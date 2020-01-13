@@ -10,31 +10,26 @@ start
 :Open "Add User" Page;
 
 |System|
-fork
-    :Get "Roles" data from Database;
-forkagain
-    :Get "Division" data from Database;
-endfork
+:Get "Roles" data from Database;
+:Get "Division" data from Database;
 :Display fetched data into its own field;
 
 |Admin|
 :Fill "User" Form;
 
-fork
 |Admin|
 if (Search Role ?) then (Yes)
     |System|
     :Get "Role" data from Database;
     :Display fetched data into role field;
 endif
-forkagain
+
 |Admin|
 if (Search Division ?) then (Yes)
     |System|
     :Get "Division" data from Database;
     :Display fetched data into division field;
 endif
-endfork
 
 |Admin|
 :Hit "Create User" Button;

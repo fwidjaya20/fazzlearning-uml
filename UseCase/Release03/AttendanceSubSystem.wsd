@@ -11,7 +11,7 @@ actor Member
 rectangle "Attendance System" {
     Member --> (Confirm Attendance)
 
-    (Confirm Attendance) ..> (Create Attendance) : extends
+    (Confirm Attendance) ..> (Create Attendance) : include
 }
 
 @enduml

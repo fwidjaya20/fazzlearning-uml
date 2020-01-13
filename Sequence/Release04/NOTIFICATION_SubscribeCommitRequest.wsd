@@ -2,6 +2,7 @@
 
 skinparam Monochrome true
 skinparam Shadowing false
+hide footbox
 
 actor "Caller" as Caller
 participant "Notification: NATS Transport" as NotificationNATSTransport

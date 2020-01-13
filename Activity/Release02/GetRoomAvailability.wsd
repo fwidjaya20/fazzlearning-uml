@@ -12,7 +12,7 @@ start
 
 |System|
 :Get "Available Room" data from Database;
-:Display then data to room field;
+:Display the data to room field;
 
 stop
 

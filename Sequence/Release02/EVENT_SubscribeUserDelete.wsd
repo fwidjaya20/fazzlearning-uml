@@ -3,6 +3,7 @@
 skinparam ConditionStyle hline
 skinparam Monochrome true
 skinparam Shadowing false
+hide footbox
 
 actor Caller
 participant "UserETL: NATS Transport" as UserETLNATSTransport

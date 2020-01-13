@@ -12,7 +12,7 @@ start
 
 |System|
 :Get "Available Shift" data from Database;
-:Display then data to Shift field;
+:Display the data to Shift field;
 
 stop
 
