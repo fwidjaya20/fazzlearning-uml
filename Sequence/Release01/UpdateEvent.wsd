@@ -2,6 +2,7 @@
 
 skinparam Monochrome true
 skinparam Shadowing false
+hide footbox
 
 actor Admin
 participant "Page: Edit Event" as EditEventPage

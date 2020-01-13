@@ -11,7 +11,7 @@ start
 
 |System|
 :Get Selected "Class" data from Database;
-:Display then data to its field;
+:Display the data to its field;
 
 |Admin|
 :Change "Class" Form;

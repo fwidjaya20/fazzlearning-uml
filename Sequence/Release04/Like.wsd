@@ -10,6 +10,7 @@ participant "Favourite: HTTP Transport" as FavouriteHTTPTransport
 participant "Favourite: Endpoint" as FavouriteEndpoint
 participant "Favourite: Service" as FavouriteService
 participant "Favourite: Command" as FavouriteCommand
+hide footbox
 
 activate Member
 

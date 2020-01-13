@@ -11,7 +11,7 @@ start
 
 |System|
 :Get "Room" data from Database;
-:Display then data to table;
+:Display the data to table;
 
 stop
 
