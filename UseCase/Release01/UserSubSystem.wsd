@@ -21,8 +21,6 @@ rectangle "User System" {
 
     (Update User) ..> (Get Role) : include
     (Update User) ..> (Get Division) : include
-    (Update User) ..> (Search Role) : include
-    (Update User) ..> (Search Division) : include
 }
 
 @enduml
