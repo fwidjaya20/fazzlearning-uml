@@ -58,8 +58,8 @@ deactivate Ticket
 
 
 alt "Decline Cancel Register"
-    TicketListContainer-->TicketPage
-    TicketPage-->Member
+    TicketListContainer-->TicketPage: close dialog
+    TicketPage-->Member: close dialog
 else
     TicketListContainer->Router: route("DELETE", "v2/class/{class_id}/unregister")
     activate Router

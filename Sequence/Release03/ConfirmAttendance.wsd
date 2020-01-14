@@ -47,7 +47,7 @@ deactivate Ticket
 
 
 alt "Decline Confirm"
-    TicketDetailPage-->Member
+    TicketDetailPage-->Member: close dialog
 else
     TicketDetailPage->Router: route("PATCH", "v2/class/{class_id}/attendance/confirmation")
     activate Router
