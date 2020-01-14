@@ -14,18 +14,28 @@ start
 :Validate;
 
 if (Valid ?) then (Yes)
-    :Get User based on Account given;
-
-    if (Data Found ?) then (Yes)
-        :Generate Session Token;
-        if (Generated ?) then (Yes)
-            :Insert Session Data to Database;
-        else (No)
-        endif
+    if (Source is WEB ?) then (Yes)
+        :Get "User" from Database;
     else (No)
+        :Get "User" from Database;
+
+        if (DeletedAt of User is not empty) then (Yes)
+            :Set DeletedAt of "User" into NULL;
+            :Update "User" from Database;
+        else (No)
+            :Register the "User" to Database;
+        endif
     endif
 else (No)
 endif
+
+if (User Not Found) then (Yes)
+    :Adding "Error" Information;
+else (No)
+    :Generate User Token;
+    :Create "Session" data to the Database;
+endif
+
 stop
 
 @enduml

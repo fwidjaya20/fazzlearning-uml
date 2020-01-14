@@ -1,17 +1,17 @@
-@startuml Compress
+@startuml SearchDivision
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 
-|Caller|
+|Admin|
 start
-:Zip;
+:Search Division by Keyword;
 
 |System|
-:Build formatted Zip Name;
-:Do Zip Process;
+:Get "Division" data by Keyword from Database;
+:Display the data to its field;
 stop
 
 @enduml
