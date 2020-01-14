@@ -11,15 +11,12 @@ participant "Storage: Endpoint" as StorageEndpoint
 participant "Storage: Service" as StorageService
 participant "AWS: S3" as AWSS3
 
-
-activate Caller
-
 Caller->Router: route("GET", "v2/resolve/{file_name}")
 Router->StorageHTTPTransport: ResolveURL(UploaderService, []ServerOption)
 StorageHTTPTransport->StorageEndpoint: ResolveURL(UploaderService, key)
-StorageEndpoint->StorageService: ResolveURL(key)
-StorageService->AWSS3: GetObjectRequest(GetObjectInput)
-AWSS3-->StorageService: url, error
+StorageEndpoint->StorageService: ResolveURL(context, key)
+StorageService->AWSS3: GetResourceURL(key)
+AWSS3-->StorageService: link, error
 
 alt "AWS Error"
     StorageService-->StorageEndpoint: InternalServerError
@@ -27,12 +24,10 @@ alt "AWS Error"
     StorageHTTPTransport-->Router: InternalServerError
     Router-->Caller: InternalServerError
 else
-    StorageService-->StorageEndpoint: url
-    StorageEndpoint-->StorageHTTPTransport: url
-    StorageHTTPTransport-->Router: url
-    Router-->Caller: url
+    StorageService-->StorageEndpoint: link
+    StorageEndpoint-->StorageHTTPTransport: link
+    StorageHTTPTransport-->Router: link
+    Router-->Caller: link
 end
-
-deactivate Caller
 
 @enduml

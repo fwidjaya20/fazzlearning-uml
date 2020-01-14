@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Add Event" as AddEventPage
 participant "Container: Add Event Form" as AddEventFormContainer
 participant "Component: Event Form" as EventForm
+participant "Service: Event Service" as FEEventService
 participant "Router" as Router
 participant "Event: HTTP Transport" as EventHTTPTransport
 participant "Event: Endpoint" as EventEndpoint
@@ -18,14 +19,9 @@ participant "Storage: GRPC Transport" as StorageGRPCTransport
 participant "Class: Service" as ClassService
 participant "Poster: Service" as PosterService
 
-activate Admin
-
 Admin->AddEventPage: Open "Add Event" Page
-activate AddEventPage
 AddEventPage->AddEventFormContainer: Render "Add Event Form" Container
-activate AddEventFormContainer
 AddEventFormContainer->EventForm: Render "Event Form"
-activate EventForm
 EventForm-->AddEventFormContainer: rendered
 AddEventFormContainer-->AddEventPage: rendered
 AddEventPage-->Admin: rendered
@@ -34,84 +30,63 @@ Admin->AddEventPage: Fill Form
 AddEventPage->AddEventFormContainer: Fill Form
 AddEventFormContainer->EventForm: Fill Form
 EventForm-->AddEventFormContainer: form data
-deactivate EventForm
 AddEventFormContainer-->AddEventPage: form data
 AddEventPage-->Admin: form data
 
 Admin->AddEventPage: Click "Create Event" Button
-AddEventPage->AddEventFormContainer: Click "Create Event" Button
-AddEventFormContainer->Router: route("POST", "v2/event", formData)
-activate Router
+AddEventPage->AddEventFormContainer: handleEventFormSubmitted()
+AddEventFormContainer->FEEventService: createEvent(payload)
+FEEventService->Router: route("POST", "v2/event", formData)
 Router->EventHTTPTransport: CreateEvent(EventService, []ServerOption)
-activate EventHTTPTransport
 EventHTTPTransport->EventEndpoint: Create(EventService)
-activate EventEndpoint
-EventEndpoint->EventService: Create(payload)
-activate EventService
+EventEndpoint->EventService: Create(context, payload)
 EventService->EventService: Validate()
 
 alt "Data not valid"
     EventService-->EventEndpoint: UnprocessableEntity
     EventEndpoint-->EventHTTPTransport: UnprocessableEntity
     EventHTTPTransport-->Router: UnprocessableEntity
-    Router-->AddEventFormContainer: UnprocessableEntity
+    Router-->FEEventService: UnprocessableEntity
+    FEEventService-->AddEventFormContainer: UnprocessableEntity
     AddEventFormContainer-->AddEventPage: UnprocessableEntity
     AddEventPage-->Admin: UnprocessableEntity
 else
-    EventService->EventQuery: GetPureModel([]SliceConditions)
-    activate EventQuery
+    EventService->EventQuery: GetPureModel(context, []SliceConditions)
     EventQuery-->EventService: events
-    deactivate EventQuery
 
     alt "there's any event"
         EventService-->EventEndpoint: BadRequest
         EventEndpoint-->EventHTTPTransport: BadRequest
         EventHTTPTransport-->Router: BadRequest
-        Router-->AddEventFormContainer: BadRequest
+        Router-->FEEventService: BadRequest
+        FEEventService-->AddEventFormContainer: BadRequest
         AddEventFormContainer-->AddEventPage: BadRequest
         AddEventPage-->Admin: BadRequest
     else
         EventService->EventService: event := EventModel()
-        EventService->EventCommand: Create(event)
-        activate EventCommand
+        EventService->EventCommand: Create(context, event)
         EventCommand-->EventService: uuid
-        deactivate EventCommand
 
         EventService->StorageGRPCTransport: Upload(ProtoBuffer)
-        activate StorageGRPCTransport
         StorageGRPCTransport-->EventService: []url
-        deactivate StorageGRPCTransport
 
-        EventService->PosterService: Create(payload)
-        activate PosterService
+        EventService->PosterService: Create(context, payload)
         PosterService-->EventService: isDeleted
-        deactivate PosterService
 
-        EventService->ClassService: CommitBooked(uuid)
-        activate ClassService
+        EventService->ClassService: CommitBooked(context, eventId)
         ClassService-->EventService: isCommitted
-        deactivate ClassService
 
-        EventService->EventQuery: Find(uuid)
-        activate EventQuery
+        EventService->EventQuery: Find(context, []SliceConditions)
         EventQuery-->EventService: event
-        deactivate EventQuery
         EventService-->EventEndpoint: event
-        deactivate EventService
         EventEndpoint->EventEndpoint: response := Response(event, nil)
         EventEndpoint-->EventHTTPTransport: response
-        deactivate EventEndpoint
         EventHTTPTransport-->Router: response
-        deactivate EventHTTPTransport
-        Router-->AddEventFormContainer: response
-        deactivate Router
+        Router-->FEEventService: response
+        FEEventService-->AddEventFormContainer: response
         AddEventFormContainer-->AddEventPage: response
-        deactivate AddEventFormContainer
         AddEventPage-->Admin: response
-        deactivate AddEventPage
     end
 end
-
-deactivate Admin
 
 @enduml

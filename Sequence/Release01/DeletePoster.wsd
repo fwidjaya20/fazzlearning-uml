@@ -9,28 +9,18 @@ participant "Poster: Service" as PosterService
 participant "Poster: Command" as PosterCommand
 participant "Poster: Query" as PosterQuery
 
-activate Caller
-
-Caller->PosterService: DeleteByEvent(payload)
-activate PosterService
-PosterService->PosterQuery: Find([]SliceConditions)
-activate PosterQuery
+Caller->PosterService: DeleteByEvent(context, eventId)
+PosterService->PosterQuery: Find(context, []SliceConditions)
 PosterQuery-->PosterService: posters
-deactivate PosterQuery
 
 alt "len(posters) < 1"
     PosterService-->Caller: false
 else
     loop "for each posters"
-        PosterService->PosterCommand: Delete(poster)
-        activate PosterCommand
+        PosterService->PosterCommand: Delete(context, poster)
         PosterCommand-->PosterService: isDeleted
-        deactivate PosterCommand
     end
     PosterService-->Caller: isDeleted
-    deactivate PosterService
 end
-
-deactivate Caller
 
 @enduml

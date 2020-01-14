@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Division" as DivisionPage
 participant "Container: Division Table" as DivisionTableContainer
 participant "Component: Division Table" as DivisionTable
+participant "Service: Division Service" as FEDivisionService
 participant "Router" as Router
 participant "Division: HTTP Transport" as DivisionHTTPTransport
 participant "Division: Endpoint" as DivisionEndpoint
@@ -15,49 +16,9 @@ participant "Division: Service" as DivisionService
 participant "Division: Command" as DivisionCommand
 participant "Division: Query" as DivisionQuery
 
-activate Admin
 
 Admin->DivisionPage: Open "Manage Division" Page
-activate DivisionPage
 DivisionPage->DivisionTableContainer: Render "Division Table" Container
-activate DivisionTableContainer
-DivisionTableContainer->DivisionTable: Render "Division Table"
-activate DivisionTable
-DivisionTable-->DivisionTableContainer: rendered
-DivisionTableContainer->Router: route("GET", "v2/divisions")
-activate Router
-Router->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
-activate DivisionHTTPTransport
-DivisionHTTPTransport->DivisionEndpoint: All(DivisionService, withPaginated)
-activate DivisionEndpoint
-DivisionEndpoint->DivisionService: All(params)
-
-activate DivisionService
-activate DivisionQuery
-alt "With Paginate"
-    DivisionService->DivisionQuery: All([]SliceConditions, PaginateModel)
-else
-    DivisionService->DivisionQuery: All([]SliceConditions, nil)
-end
-DivisionQuery-->DivisionService: divisions
-DivisionService-->DivisionEndpoint: divisions
-
-opt "With Paginate"
-    DivisionEndpoint->DivisionService: GetPagination(PaginateModel)
-    DivisionService->DivisionQuery: Count([]SliceConditions)
-    DivisionQuery-->DivisionService: total
-    DivisionService-->DivisionEndpoint: total
-end
-deactivate DivisionQuery
-deactivate DivisionService
-
-DivisionEndpoint->DivisionEndpoint: response := Response(divisions, paginateMetadata)
-DivisionEndpoint-->DivisionHTTPTransport: response
-deactivate DivisionEndpoint
-DivisionHTTPTransport-->Router: response
-deactivate DivisionHTTPTransport
-Router-->DivisionTableContainer: response
-deactivate Router
 DivisionTableContainer->DivisionTable: Render "Division Table"
 DivisionTable-->DivisionTableContainer: rendered
 DivisionTableContainer-->DivisionPage: rendered
@@ -67,53 +28,39 @@ Admin->DivisionPage: Mark "Division"
 DivisionPage->DivisionTableContainer: Mark "Division"
 DivisionTableContainer->DivisionTable: Mark "Division"
 DivisionTable-->DivisionTableContainer: marked
-deactivate DivisionTable
 DivisionTableContainer-->DivisionPage: marked
 DivisionPage-->Admin: marked
 
 Admin->DivisionPage: Click "Delete Selected" Button
-DivisionPage->DivisionTableContainer: Click "Delete Selected" Button
-DivisionTableContainer->DivisionTableContainer: Show Dialod Confirmation
+DivisionPage->DivisionTableContainer: showDeleteConfirmation(item)
 
 alt "Cancel Delete"
     DivisionTableContainer-->DivisionPage: Close Dialog
     DivisionPage-->Admin: Close Dialog
 else
-    DivisionTableContainer->Router: route("DELETE", "v2/divisions", formData)
-    activate Router
+    DivisionTableContainer->DivisionTableContainer: handleDeleteConfirmation(item)
+    DivisionTableContainer->FEDivisionService: deleteDivision([]payload)
+    FEDivisionService->Router: route("DELETE", "v2/divisions", formData)
     Router->DivisionHTTPTransport: DeleteDivisions(DivisionService, []ServerOption)
-    activate DivisionHTTPTransport
     DivisionHTTPTransport->DivisionEndpoint: DeleteMany(DivisionService)
-    activate DivisionEndpoint
-    DivisionEndpoint->DivisionService: DeleteDivisions([]uuid)
+    DivisionEndpoint->DivisionService: DeleteDivisions(context, []uuid)
 
-    activate DivisionService
     loop "for each uuid"
-        DivisionService->DivisionQuery: Find(uuid)
-        activate DivisionQuery
+        DivisionService->DivisionQuery: Find(context, uuid)
         DivisionQuery-->DivisionService: division
-        deactivate DivisionQuery
 
-        DivisionService->DivisionCommand: Delete(division)
-        activate DivisionCommand
+        DivisionService->DivisionCommand: Delete(context, division)
         DivisionCommand-->DivisionService: isDeleted
-        deactivate DivisionCommand
     end
-    deactivate DivisionService
+
     DivisionService-->DivisionEndpoint: isDeleted
     DivisionEndpoint->DivisionEndpoint: response := Response(isDeleted, nil)
     DivisionEndpoint-->DivisionHTTPTransport: response
-    deactivate DivisionEndpoint
     DivisionHTTPTransport-->Router: response
-    deactivate DivisionHTTPTransport
-    Router-->DivisionTableContainer: response
-    deactivate Router
+    Router-->FEDivisionService: response
+    FEDivisionService-->DivisionTableContainer: response
     DivisionTableContainer-->DivisionPage: response
-    deactivate DivisionTableContainer
     DivisionPage-->Admin: response
-    deactivate DivisionPage
 end
-
-deactivate Admin
 
 @enduml

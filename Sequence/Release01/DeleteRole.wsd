@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Role" as RolePage
 participant "Container: Role Table" as RoleTableContainer
 participant "Component: Role Table" as RoleTable
+participant "Service: Role Service" as FERoleService
 participant "Router" as Router
 participant "Role: HTTP Transport" as RoleHTTPTransport
 participant "Role: Endpoint" as RoleEndpoint
@@ -15,105 +16,48 @@ participant "Role: Service" as RoleService
 participant "Role: Command" as RoleCommand
 participant "Role: Query" as RoleQuery
 
-activate Admin
-
 Admin->RolePage: Open "Manage Role" Page
-activate RolePage
 RolePage->RoleTableContainer: Render "Role Table" Container
-activate RoleTableContainer
-RoleTableContainer->RoleTable: Render "Role Table"
-activate RoleTable
-RoleTable-->RoleTableContainer: rendered
-RoleTableContainer->Router: route("GET", "v2/roles")
-activate Router
-Router->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
-activate RoleHTTPTransport
-RoleHTTPTransport->RoleEndpoint: All(RoleService, withPaginated)
-activate RoleEndpoint
-RoleEndpoint->RoleService: All(params)
-
-activate RoleService
-activate RoleQuery
-alt "With Paginate"
-    RoleService->RoleQuery: All([]SliceConditions, PaginateModel)
-else
-    RoleService->RoleQuery: All([]SliceConditions, nil)
-end
-RoleQuery-->RoleService: roles
-RoleService-->RoleEndpoint: roles
-
-opt "With Paginate"
-    RoleEndpoint->RoleService: GetPagination(PaginateModel)
-    RoleService->RoleQuery: Count([]SliceConditions)
-    RoleQuery-->RoleService: total
-    RoleService-->RoleEndpoint: total
-end
-deactivate RoleQuery
-deactivate RoleService
-
-RoleEndpoint->RoleEndpoint: response := Response(roles, paginateMetadata)
-RoleEndpoint-->RoleHTTPTransport: response
-deactivate RoleEndpoint
-RoleHTTPTransport-->Router: response
-deactivate RoleHTTPTransport
-Router-->RoleTableContainer: response
-deactivate Router
 RoleTableContainer->RoleTable: Render "Role Table"
 RoleTable-->RoleTableContainer: rendered
 RoleTableContainer-->RolePage: rendered
 RolePage-->Admin: rendered
-
 Admin->RolePage: Mark "Role"
 RolePage->RoleTableContainer: Mark "Role"
 RoleTableContainer->RoleTable: Mark "Role"
 RoleTable-->RoleTableContainer: marked
-deactivate RoleTable
 RoleTableContainer-->RolePage: marked
 RolePage-->Admin: marked
 
 Admin->RolePage: Click "Delete Selected" Button
-RolePage->RoleTableContainer: Click "Delete Selected" Button
-RoleTableContainer->RoleTableContainer: Show Dialod Confirmation
+RolePage->RoleTableContainer: showDeleteConfirmation(item)
 
 alt "Cancel Delete"
     RoleTableContainer-->RolePage: Close Dialog
     RolePage-->Admin: Close Dialog
 else
-    RoleTableContainer->Router: route("DELETE", "v2/roles", formData)
-    activate Router
+    RoleTableContainer->RoleTableContainer: handleDeleteConfirmation(item)
+    RoleTableContainer->FERoleService: deleteRole([]payload)
+    FERoleService->Router: route("DELETE", "v2/roles", formData)
     Router->RoleHTTPTransport: DeleteRoles(RoleService, []ServerOption)
-    activate RoleHTTPTransport
     RoleHTTPTransport->RoleEndpoint: DeleteMany(RoleService)
-    activate RoleEndpoint
-    RoleEndpoint->RoleService: DeleteRoles([]id)
+    RoleEndpoint->RoleService: DeleteRoles(context, []id)
 
-    activate RoleService
     loop "for each id"
-        RoleService->RoleQuery: Find(id)
-        activate RoleQuery
+        RoleService->RoleQuery: Find(context, id)
         RoleQuery-->RoleService: role
-        deactivate RoleQuery
-
-        RoleService->RoleCommand: Delete(role)
-        activate RoleCommand
+        RoleService->RoleCommand: Delete(context, role)
         RoleCommand-->RoleService: isDeleted
-        deactivate RoleCommand
     end
-    deactivate RoleService
+
     RoleService-->RoleEndpoint: isDeleted
     RoleEndpoint->RoleEndpoint: response := Response(isDeleted, nil)
     RoleEndpoint-->RoleHTTPTransport: response
-    deactivate RoleEndpoint
     RoleHTTPTransport-->Router: response
-    deactivate RoleHTTPTransport
-    Router-->RoleTableContainer: response
-    deactivate Router
+    Router-->FERoleService: response
+    FERoleService-->RoleTableContainer: response
     RoleTableContainer-->RolePage: response
-    deactivate RoleTableContainer
     RolePage-->Admin: response
-    deactivate RolePage
 end
-
-deactivate Admin
 
 @enduml

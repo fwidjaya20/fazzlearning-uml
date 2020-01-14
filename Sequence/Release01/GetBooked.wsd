@@ -1,0 +1,35 @@
+@startuml GetBooked
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant "Page: Add Event" as AddEventPage
+participant "Container: Booking List" as BookingListContainer
+participant "Service: Class Service" as FEClassService
+participant "Router" as Router
+participant "Class: HTTP Transport" as ClassHTTPTransport
+participant "Class: Endpoint" as ClassEndpoint
+participant "Class: Service" as ClassService
+participant "Class: Query" as ClassQuery
+
+Admin->AddEventPage: Open "Add Event" Page
+AddEventPage->BookingListContainer: fetchBookedClass()
+BookingListContainer->FEClassService: fetchBookedClass()
+FEClassService->Router: route("GET", "v2/bookings")
+Router->ClassHTTPTransport: FetchBookedRoomByUser(ClassService, []ServerOption)
+ClassHTTPTransport->ClassEndpoint: BookedByUser(ClassService, withPaginated)
+ClassEndpoint->ClassService: AllBooked(context, bookedBy)
+ClassService->ClassQuery: FindBooked(context, []SliceConditions)
+ClassQuery-->ClassService: classes
+ClassService-->ClassEndpoint: classes
+ClassEndpoint->ClassEndpoint: response := Response(classes, nil)
+ClassEndpoint-->ClassHTTPTransport: response
+ClassHTTPTransport-->Router: response
+Router-->FEClassService: response
+FEClassService-->BookingListContainer: response
+BookingListContainer-->AddEventPage: response
+AddEventPage-->Admin: response
+
+@enduml

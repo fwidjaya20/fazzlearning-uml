@@ -1,0 +1,25 @@
+@startuml CommitFile
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant "Storage: Service" as StorageService
+participant "Library: Storage" as StorageLib
+participant "AWS: S3" as S3
+
+Caller->StorageService: CommitFile()
+StorageService->StorageLib: RenameAllDirectoryFiles(outPath, path)
+StorageLib-->StorageService: is exists
+StorageService->StorageLib: Zip(path)
+StorageLib-->StorageService: path
+StorageService->StorageLib: FindFileNameFromExt(path, ext)
+StorageLib-->StorageService: path
+StorageService->S3: UplaodFileFromLocal(file, fileInfo)
+S3-->StorageService: link
+StorageService->StorageLib: Remove(path)
+StorageLib-->StorageService: is removed
+StorageService-->Caller: link
+
+@enduml

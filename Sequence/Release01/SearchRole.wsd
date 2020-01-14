@@ -1,0 +1,47 @@
+@startuml SearchRole
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant "Component: User Form" as UserFormComponent
+participant "Service: Role Service" as FERoleService
+participant "Route" as Route
+participant "Role: HTTP Transport" as RoleHTTPTransport
+participant "Role: Endpoint" as RoleEndpoint
+participant "Role: Service" as RoleService
+participant "Role: Query" as RoleQuery
+
+Admin->UserFormComponent: type search keyword
+UserFormComponent->UserFormComponent: fetchRoles()
+UserFormComponent->FERoleService: fetchRoles(page, limit, keyword)
+UserFormComponent->Route: route("GET", "v2/roles?search=role_to_search")
+Route->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
+RoleHTTPTransport->RoleEndpoint: All(RoleService, withPaginate)
+RoleEndpoint->RoleService: All(context, params)
+
+alt "With Paginate"
+    RoleService->RoleQuery: All(context, []SliceConditions, PaginateModel)
+else
+    RoleService->RoleQuery: All(context, []SliceConditions, nil)
+end
+
+RoleQuery-->RoleService: roles
+RoleService-->RoleEndpoint: roles
+
+opt "With Paginate"
+    RoleEndpoint->RoleService: GetPagination(context, PaginateModel)
+    RoleService->RoleQuery: Count(context, []SliceConditions)
+    RoleQuery-->RoleService: total
+    RoleService-->RoleEndpoint: total
+end
+
+RoleEndpoint->RoleEndpoint: response := Response(roles, paginateMetadata)
+RoleEndpoint-->RoleHTTPTransport: response
+RoleHTTPTransport-->Route: response
+Route-->FERoleService: response
+FERoleService-->UserFormComponent: response
+UserFormComponent-->Admin: response
+
+@enduml

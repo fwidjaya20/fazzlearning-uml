@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Edit Event" as EditEventPage
 participant "Container: Edit Event Form" as EditEventFormContainer
 participant "Component: Event Form" as EventForm
+participant "Service: Event Service" as FEEventService
 participant "Router" as Router
 participant "Event: HTTP Transport" as EventHTTPTransport
 participant "Event: Endpoint" as EventEndpoint
@@ -15,37 +16,9 @@ participant "Event: Service" as EventService
 participant "Event: Command" as EventCommand
 participant "Event: Query" as EventQuery
 
-activate Admin
-
 Admin->EditEventPage: Open "Edit Event" Page
-activate EditEventPage
 EditEventPage->EditEventFormContainer: Render "Edit Event Form" Container
-activate EditEventFormContainer
 EditEventFormContainer->EventForm: Render "Event Form"
-activate EventForm
-EventForm-->EditEventFormContainer
-EditEventFormContainer->Router: route("GET", "v2/event/{event_id}")
-activate Router
-Router->EventHTTPTransport: FindByEventId(EventService, []ServerOption)
-activate EventHTTPTransport
-EventHTTPTransport->EventEndpoint: FindByEventId(EventService, eventId)
-activate EventEndpoint
-EventEndpoint->EventService: FindByEventId(eventId)
-activate EventService
-EventService->EventQuery: Find(eventId)
-activate EventQuery
-EventQuery-->EventService: event
-deactivate EventQuery
-EventService-->EventEndpoint: event
-deactivate EventService
-EventEndpoint->EventEndpoint: response := Response(event, nil)
-EventEndpoint-->EventHTTPTransport: response
-deactivate EventEndpoint
-EventHTTPTransport-->Router: response
-deactivate EventHTTPTransport
-Router-->EditEventFormContainer: response
-deactivate Router
-EditEventFormContainer->EventForm: display data to field
 EventForm-->EditEventFormContainer: rendered
 EditEventFormContainer-->EditEventPage: rendered
 EditEventPage-->Admin: rendered
@@ -54,54 +27,39 @@ Admin->EditEventPage: Fill Form
 EditEventPage->EditEventFormContainer: Fill Form
 EditEventFormContainer->EventForm: Fill Form
 EventForm-->EditEventFormContainer: form data
-deactivate EventForm
 EditEventFormContainer-->EditEventPage: form data
 EditEventPage-->Admin: form data
 
 Admin->EditEventPage: Click "Update Event" Button
-EditEventPage->EditEventFormContainer: Click "Update Event" Button
-EditEventFormContainer->Router: route("PATCH", "v2/event/{event_id}", formData)
-activate Router
+EditEventPage->EditEventFormContainer: handleEventFormSubmitted()
+EditEventFormContainer->FEEventService: updateEvent(eventId, payload)
+FEEventService->Router: route("PATCH", "v2/event/{event_id}", formData)
 Router->EventHTTPTransport: UpdateEvent(EventService, []ServerOption)
-activate EventHTTPTransport
 EventHTTPTransport->EventEndpoint: Update(EventService)
-activate EventEndpoint
-EventEndpoint->EventService: Update(payload)
-activate EventService
+EventEndpoint->EventService: Update(context, payload)
 EventService->EventService: Validate()
 
 alt "Data not valid"
     EventService-->EventEndpoint: UnprocessableEntity
     EventEndpoint-->EventHTTPTransport: UnprocessableEntity
     EventHTTPTransport-->Router: UnprocessableEntity
-    Router-->EditEventFormContainer: UnprocessableEntity
+    Router-->FEEventService: UnprocessableEntity
+    FEEventService-->EditEventFormContainer: UnprocessableEntity
     EditEventFormContainer-->EditEventPage: UnprocessableEntity
     EditEventPage-->Admin: UnprocessableEntity
 else
-    EventService->EventQuery: GetPureModel(uuid)
-    activate EventQuery
-    EventQuery-->EventService: event
-    deactivate EventQuery
-    EventService->EventService: binding event data
-    EventService->EventCommand: Update(event)
-    activate EventCommand
+    EventService->EventQuery: GetPureModel(context, []SliceConditions)
+    EventQuery-->EventService: events
+    EventService->EventCommand: Update(context, event)
     EventCommand-->EventService: isUpdated
-    deactivate EventCommand
     EventService-->EventEndpoint: event
-    deactivate EventService
     EventEndpoint->EventEndpoint: response := Response(event, nil)
     EventEndpoint-->EventHTTPTransport: response
-    deactivate EventEndpoint
     EventHTTPTransport-->Router: response
-    deactivate EventHTTPTransport
-    Router-->EditEventFormContainer: response
-    deactivate Router
+    Router-->FEEventService: response
+    FEEventService-->EditEventFormContainer: response
     EditEventFormContainer-->EditEventPage: response
-    deactivate EditEventFormContainer
     EditEventPage-->Admin: response
-    deactivate EditEventPage
 end
-
-deactivate Admin
 
 @enduml

@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Event Detail" as EventDetailPage
-participant "Container: Class Table" as ClassTableContainer
-participant "Component: Class Table" as ClassTable
+participant "Page: Detail Class" as DetailClassPage
+participant "Container: Detail Class" as DetailClassContainer
+participant "Service: Class Service" as FEClassService
 participant "Router" as Router
 participant "Class: HTTP Transport" as ClassHTTPTransport
 participant "Class: Endpoint" as ClassEndpoint
@@ -16,111 +16,50 @@ participant "Class: Command" as ClassCommand
 participant "Class: Query" as ClassQuery
 participant "Material: Service" as MaterialService
 
-activate Admin
-
-Admin->EventDetailPage: Open "Event Detail" Page
-activate EventDetailPage
-EventDetailPage->ClassTableContainer: Render "Class Table" Container
-activate ClassTableContainer
-ClassTableContainer->ClassTable: Render "Class Table"
-activate ClassTable
-ClassTable-->ClassTableContainer: rendered
-ClassTableContainer->Router: route("GET", "v2/event/{event_id}/class")
-activate Router
-Router->ClassHTTPTransport: FetchPaginatedClass(ClassService, []ServerOption)
-activate ClassHTTPTransport
-ClassHTTPTransport->ClassEndpoint: All(ClassService, withPaginated)
-activate ClassEndpoint
-ClassEndpoint->ClassService: All(params)
-
-activate ClassService
-activate ClassQuery
-alt "With Paginate"
-    ClassService->ClassQuery: All([]SliceConditions, PaginateModel)
-else
-    ClassService->ClassQuery: All([]SliceConditions, nil)
-end
-ClassQuery-->ClassService: classes
-ClassService-->ClassEndpoint: classes
-
-opt "With Paginate"
-    ClassEndpoint->ClassService: GetPagination(PaginateModel)
-    ClassService->ClassQuery: Count([]SliceConditions)
-    ClassQuery-->ClassService: total
-    ClassService-->ClassEndpoint: total
-end
-deactivate ClassQuery
-deactivate ClassService
-
-ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
-ClassEndpoint-->ClassHTTPTransport: response
-deactivate ClassEndpoint
-ClassHTTPTransport-->Router: response
-deactivate ClassHTTPTransport
-Router-->ClassTableContainer: response
-deactivate Router
-ClassTableContainer->ClassTable: Render "Class Table"
-ClassTable-->ClassTableContainer: rendered
-ClassTableContainer-->EventDetailPage: rendered
-EventDetailPage-->Admin: rendered
-
-Admin->EventDetailPage: Mark "Class"
-EventDetailPage->ClassTableContainer: Mark "Class"
-ClassTableContainer->ClassTable: Mark "Class"
-ClassTable-->ClassTableContainer: marked
-deactivate ClassTable
-ClassTableContainer-->EventDetailPage: marked
-EventDetailPage-->Admin: marked
-
-Admin->EventDetailPage: Click "Delete Selected" Button
-EventDetailPage->ClassTableContainer: Click "Delete Selected" Button
-ClassTableContainer->ClassTableContainer: Show Dialod Confirmation
+Admin->DetailClassPage: Click "Delete" Button
+DetailClassPage->DetailClassContainer: showDeleteConfirmation(item)
 
 alt "Cancel Delete"
-    ClassTableContainer-->EventDetailPage: Close Dialog
-    EventDetailPage-->Admin: Close Dialog
+    DetailClassContainer-->DetailClassPage: Close Dialog
+    DetailClassPage-->Admin: Close Dialog
 else
-    ClassTableContainer->Router: route("DELETE", "v2/{event_id}/class", formData)
-    activate Router
+    DetailClassContainer->DetailClassContainer: handleDelete(item)
+    DetailClassContainer->FEClassService: deleteClasses(eventId)
+    FEClassService->Router: route("DELETE", "v2/{event_id}/class", formData)
     Router->ClassHTTPTransport: DeleteClass(ClassService, []ServerOption)
-    activate ClassHTTPTransport
     ClassHTTPTransport->ClassEndpoint: Delete(ClassService)
-    activate ClassEndpoint
-    ClassEndpoint->ClassService: DeleteMany(payload)
+    ClassEndpoint->ClassService: DeleteMany(context, payload)
+    ClassService->ClassService: Validate()
 
-    activate ClassService
-    loop "for each uuid"
-        ClassService->ClassQuery: GetPureModel([]SliceConditions)
-        activate ClassQuery
-        ClassQuery-->ClassService: class
-        deactivate ClassQuery
+    alt "Data Not Valid"
+        ClassService-->ClassEndpoint: UnprocessableEntity
+        ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+        ClassHTTPTransport-->Router: UnprocessableEntity
+        Router-->FEClassService: UnprocessableEntity
+        FEClassService-->DetailClassContainer: UnprocessableEntity
+        DetailClassContainer-->DetailClassPage: UnprocessableEntity
+        DetailClassPage-->Admin: UnprocessableEntity
+    else
+        loop "for each uuid"
+            ClassService->ClassQuery: GetPureModel(context, []SliceConditions)
+            ClassQuery-->ClassService: classes
 
-        ClassService->ClassCommand: Delete(class)
-        activate ClassCommand
-        ClassCommand-->ClassService: isDeleted
-        deactivate ClassCommand
+            ClassService->ClassCommand: Delete(context, class)
+            ClassCommand-->ClassService: isDeleted
 
-        ClassService->MaterialService: DeleteByClass(uuid)
-        activate MaterialService
-        MaterialService-->ClassService: isDeleted
-        deactivate MaterialService
+            ClassService->MaterialService: DeleteByClass(context, classId)
+            MaterialService-->ClassService: isDeleted
+        end
+        
+        ClassService-->ClassEndpoint: isDeleted
+        ClassEndpoint->ClassEndpoint: response := Response(isDeleted, nil)
+        ClassEndpoint-->ClassHTTPTransport: response
+        ClassHTTPTransport-->Router: response
+        Router-->FEClassService: response
+        FEClassService-->DetailClassContainer: response
+        DetailClassContainer-->DetailClassPage: response
+        DetailClassPage-->Admin: response
     end
-    deactivate ClassService
-    
-    ClassService-->ClassEndpoint: isDeleted
-    ClassEndpoint->ClassEndpoint: response := Response(isDeleted, nil)
-    ClassEndpoint-->ClassHTTPTransport: response
-    deactivate ClassEndpoint
-    ClassHTTPTransport-->Router: response
-    deactivate ClassHTTPTransport
-    Router-->ClassTableContainer: response
-    deactivate Router
-    ClassTableContainer-->EventDetailPage: response
-    deactivate ClassTableContainer
-    EventDetailPage-->Admin: response
-    deactivate EventDetailPage
 end
-
-deactivate Admin
 
 @enduml

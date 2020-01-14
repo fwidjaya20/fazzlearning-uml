@@ -11,8 +11,7 @@ participant "Poster: Query" as PosterQuery
 
 activate Caller
 
-Caller->PosterService: Create(payload)
-activate PosterService
+Caller->PosterService: Create(context, payload)
 PosterService->PosterService: Validate()
 
 alt "Data not valid"
@@ -20,15 +19,11 @@ alt "Data not valid"
 else
     loop "for each imageLink"
         PosterService->PosterService: poster := PosterModel()
-        PosterService->PosterCommand: Create(poster)
-        activate PosterCommand
+        PosterService->PosterCommand: Create(context, poster)
         PosterCommand-->PosterService: imageLink
-        deactivate PosterCommand
 
-        PosterService->PosterQuery: Find(imageLink)
-        activate PosterQuery
+        PosterService->PosterQuery: Find(context, []SliceCondition)
         PosterQuery-->PosterService: poster
-        deactivate PosterQuery
     end
     PosterService-->Caller: poster
     deactivate PosterService

@@ -5,9 +5,10 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Event" as EventPage
-participant "Container: Event Table" as EventTableContainer
-participant "Component: Event Table" as EventTable
+participant "Page: Home Page" as HomePage
+participant "Container: List Event" as ListEventContainer
+participant "Component: Event Group" as EventGroup
+participant "Service: Event Service" as FEEventService
 participant "Router" as Router
 participant "Event: HTTP Transport" as EventHTTPTransport
 participant "Event: Endpoint" as EventEndpoint
@@ -17,55 +18,40 @@ participant "Event: Query" as EventQuery
 
 activate Member
 
-Member->EventPage: Open "Home" Page
-activate EventPage
-EventPage->EventTableContainer: Render "Event Group" Container
-activate EventTableContainer
-EventTableContainer->EventTable: Render "Event Card"
-activate EventTable
-EventTable-->EventTableContainer: rendered
-EventTableContainer->Router: route("GET", "v2/events")
-activate Router
+Member->HomePage: Open "Home" Page
+HomePage->ListEventContainer: Render "Event Group" Container
+ListEventContainer->EventGroup: Render "Event Card"
+EventGroup-->ListEventContainer: rendered
+ListEventContainer->ListEventContainer: fetchEventGroup()
+ListEventContainer->FEEventService: fetchEvent()
+FEEventService->Router: route("GET", "v2/events")
 Router->EventHTTPTransport: FetchPaginatedEvents(EventService, []ServerOption)
-activate EventHTTPTransport
 EventHTTPTransport->EventEndpoint: All(EventService, withPaginated)
-activate EventEndpoint
-EventEndpoint->EventService: All(params)
+EventEndpoint->EventService: All(context, params)
 
-activate EventService
-activate EventQuery
 alt "With Paginate"
-    EventService->EventQuery: All([]SliceConditions, PaginateModel)
+    EventService->EventQuery: All(context, []SliceConditions, PaginateModel)
 else
-    EventService->EventQuery: All([]SliceConditions, nil)
+    EventService->EventQuery: All(context, []SliceConditions, nil)
 end
 EventQuery-->EventService: events
 EventService-->EventEndpoint: events
 
 opt "With Paginate"
-    EventEndpoint->EventService: GetPagination(PaginateModel)
-    EventService->EventQuery: Count([]SliceConditions)
+    EventEndpoint->EventService: GetPagination(context, params, PaginateModel)
+    EventService->EventQuery: Count(context, []SliceConditions)
     EventQuery-->EventService: total
     EventService-->EventEndpoint: total
 end
-deactivate EventQuery
-deactivate EventService
 
 EventEndpoint->EventEndpoint: response := Response(events, paginateMetadata)
 EventEndpoint-->EventHTTPTransport: response
-deactivate EventEndpoint
 EventHTTPTransport-->Router: response
-deactivate EventHTTPTransport
-Router-->EventTableContainer: response
-deactivate Router
-EventTableContainer->EventTable: Render "Event Card"
-deactivate EventTable
-EventTable-->EventTableContainer: rendered
-EventTableContainer-->EventPage: rendered
-deactivate EventTableContainer
-EventPage-->Member: rendered
-deactivate EventPage
-
-deactivate Member
+Router-->FEEventService: response
+FEEventService-->ListEventContainer: response
+ListEventContainer->EventGroup: Render "Event Table"
+EventGroup-->ListEventContainer: rendered
+ListEventContainer-->HomePage: rendered
+HomePage-->Member: rendered
 
 @enduml

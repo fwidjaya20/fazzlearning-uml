@@ -6,66 +6,90 @@ hide footbox
 
 actor Employee
 participant "Page: Login" as LoginPage
+participant "Service: Auth Service" as FEAuthService
 participant "Route" as Route
 participant "Session: Transport" as SessionTransport
 participant "Session: Endpoint" as SessionEndpoint
 participant "Session: Service" as SessionService
+participant "Session: Stategy" as SessionStrategy
 participant "Session: Command" as SessionCommand
 participant "User: Query" as UserQuery
 
-activate Employee
-
 Employee->LoginPage: Click "Login" Button
-activate LoginPage
-LoginPage->Route: route("POST", "v2/auth/login")
-activate Route
-Route->SessionTransport: Authenticate(SessionService, []ServerOption)
-activate SessionTransport
-SessionTransport->SessionEndpoint: Login(SessionService)
-activate SessionEndpoint
-SessionEndpoint->SessionService: Login(source, payload)
-activate SessionService
-SessionService->SessionService: Validate()
+LoginPage->LoginPage: handleGoogleResponse(response)
 
-alt "Data not valid"
-    SessionService-->SessionEndpoint: UnprocessableEntity
-    SessionEndpoint-->SessionTransport: UnprocessableEntity
-    SessionTransport-->Route: UnprocessableEntity
-    Route-->LoginPage: UnprocessableEntity
-    LoginPage-->Employee: UnprocessableEntity
+alt "Not Valid"
+    LoginPage->LoginPage: handleGoogleFailure()
+    LoginPage-->Employee: error
 else
-    SessionService->UserQuery: "Find([]SliceCondition)"
-    activate UserQuery
-    UserQuery-->SessionService: "user"
-    deactivate UserQuery
+    LoginPage->FEAuthService: login(tokenId, email)
+    FEAuthService->Route: route("POST", "v2/auth/login")
 
-    alt "User not found"
-        SessionService-->SessionEndpoint: BadRequest
-        SessionEndpoint-->SessionTransport: BadRequest
-        SessionTransport-->Route: BadRequest
-        Route-->LoginPage: BadRequest
-        LoginPage-->Employee: BadRequest
+    Route->SessionTransport: Authenticate(SessionService, []ServerOption)
+    SessionTransport->SessionEndpoint: Login(SessionService, UserService)
+    SessionEndpoint->SessionService: Login(context, source, payload)
+    SessionService->SessionService: Validate()
+
+    alt "Data not valid"
+        SessionService-->SessionEndpoint: UnprocessableEntity
+        SessionEndpoint-->SessionTransport: UnprocessableEntity
+        SessionTransport-->Route: UnprocessableEntity
+        Route-->FEAuthService: UnprocessableEntity
+        FEAuthService-->LoginPage: UnprocessableEntity
+        LoginPage-->Employee: UnprocessableEntity
     else
-        SessionService->SessionService: generateToken(user)
-        SessionService->SessionService: session := SessionModel()
-        SessionService->SessionCommand: CreateSession(session)
-        activate SessionCommand
-        SessionCommand-->SessionService
-        deactivate SessionCommand
-        SessionService-->SessionEndpoint: session
-        deactivate SessionService
-        SessionEndpoint->SessionEndpoint: response := Response(session, nil)
-        SessionEndpoint-->SessionTransport: response
-        deactivate SessionEndpoint
-        SessionTransport-->Route: response
-        deactivate SessionTransport
-        Route-->LoginPage: response
-        deactivate Route
-        LoginPage-->Employee: response
-        deactivate LoginPage
+        SessionService->SessionStrategy: Login(context, query, command, payload)
+
+        alt "Source is WEB"
+            SessionStrategy->UserQuery: Find(context, []SliceConditions)
+            UserQuery-->SessionStrategy: users
+        else "Source is PWA"
+            SessionStrategy->UserQuery: Find(context, []SliceConditions)
+            UserQuery-->SessionStrategy: users
+
+            opt "users is null"
+                SessionStrategy->UserQuery: GetPureModel(context, []SliceConditions)
+                UserQuery-->SessionStrategy: users
+            end
+
+            alt "onTrash is null"
+                SessionStrategy->SessionStrategy: user := UserModel();
+                SessionStrategy->SessionStrategy: binding user data
+                SessionStrategy->UserCommand: Create(context, user);
+                UserCommand->SessionStrategy: isCreated
+            else "onTrash.DeletedAt is not null"
+                SessionStrategy->UserCommand: UpdateSoftDelete(ctx, onTrash)
+                UserCommand->SessionStrategy: isUpdated
+            end
+        end
+
+        SessionStrategy->UserQuery: Find(context, []SliceCondition)
+        UserQuery-->SessionStrategy: users
+
+        alt "User not found"
+            SessionStrategy-->SessionService: BadRequest
+            SessionService-->SessionEndpoint: BadRequest
+            SessionEndpoint-->SessionTransport: BadRequest
+            SessionTransport-->Route: BadRequest
+            Route-->FEAuthService: BadRequest
+            FEAuthService-->LoginPage: BadRequest
+            LoginPage-->Employee: BadRequest
+        else
+            SessionStrategy-->SessionService: user
+            SessionService->SessionService: generateToken(context, logger, user)
+            SessionService->SessionService: session := SessionModel()
+            SessionService->SessionService: binding session data
+            SessionService->SessionCommand: Create(context, session)
+            SessionCommand-->SessionService: session
+            SessionService-->SessionEndpoint: session
+            SessionEndpoint->SessionEndpoint: response := Response(session, nil)
+            SessionEndpoint-->SessionTransport: response
+            SessionTransport-->Route: response
+            Route-->FEAuthService: response
+            FEAuthService-->LoginPage: response
+            LoginPage-->Employee: response
+        end
     end
 end
-
-deactivate Employee
 
 @enduml
