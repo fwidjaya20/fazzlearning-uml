@@ -18,10 +18,12 @@ activate Member
 
 Member->HomePage: Open "Home" Page
 activate HomePage
-HomePage-->Member
+HomePage-->Member: rendered
 Member->HomePage: Hit "Scanner" Button
 HomePage->QRScanner: Scan the QR Code given
-HomePage-->QRScanner: callback
+activate QRScanner
+QRScanner-->HomePage: callback
+deactivate QRScanner
 HomePage->Router: route("PATCH", "v2/class/{class_id}/attend")
 activate Router
 Router->AttendanceHTTPTransport: Attend(AttendanceService, []ServerOption)

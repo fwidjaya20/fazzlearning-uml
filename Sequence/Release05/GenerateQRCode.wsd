@@ -16,7 +16,7 @@ activate Admin
 
 Admin->ClassDetailPage: Open "Class Detail" Page
 activate ClassDetailPage
-ClassDetailPage-->Admin
+ClassDetailPage-->Admin: rendered
 Admin->ClassDetailPage: Hit "Generate QR Code" Button
 ClassDetailPage->Router: route("GET", "v2/class/{class_id}/qrcode")
 activate Router
