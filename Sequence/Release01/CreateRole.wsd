@@ -23,9 +23,9 @@ AddRolePage->AddRoleFormContainer: Render "Add Role Form" Container
 activate AddRoleFormContainer
 AddRoleFormContainer->RoleForm: Render "Role Form"
 activate RoleForm
-RoleForm-->AddRoleFormContainer
-AddRoleFormContainer-->AddRolePage
-AddRolePage-->Admin
+RoleForm-->AddRoleFormContainer: rendered
+AddRoleFormContainer-->AddRolePage: rendered
+AddRolePage-->Admin: rendered
 
 Admin->AddRolePage: Fill Form
 AddRolePage->AddRoleFormContainer: Fill Form

@@ -23,7 +23,7 @@ EditDivisionPage->EditDivisionFormContainer: Render "Edit Division Form" Contain
 activate EditDivisionFormContainer
 EditDivisionFormContainer->DivisionForm: Render "Division Form"
 activate DivisionForm
-DivisionForm-->EditDivisionFormContainer
+DivisionForm-->EditDivisionFormContainer: rendered
 EditDivisionFormContainer->Router: route("GET", "v2/division/{division_id}")
 activate Router
 Router->DivisionHTTPTransport: FetchDivisionById(DivisionService, []ServerOption)
@@ -46,9 +46,9 @@ deactivate DivisionHTTPTransport
 Router-->EditDivisionFormContainer: response
 deactivate Router
 EditDivisionFormContainer->DivisionForm: display data to field
-DivisionForm-->EditDivisionFormContainer
-EditDivisionFormContainer-->EditDivisionPage
-EditDivisionPage-->Admin
+DivisionForm-->EditDivisionFormContainer: rendered
+EditDivisionFormContainer-->EditDivisionPage: rendered
+EditDivisionPage-->Admin: rendered
 
 Admin->EditDivisionPage: Fill Form
 EditDivisionPage->EditDivisionFormContainer: Fill Form

@@ -76,8 +76,8 @@ DivisionPage->DivisionTableContainer: Click "Delete Selected" Button
 DivisionTableContainer->DivisionTableContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    DivisionTableContainer-->DivisionPage
-    DivisionPage-->Admin
+    DivisionTableContainer-->DivisionPage: Close Dialog
+    DivisionPage-->Admin: Close Dialog
 else
     DivisionTableContainer->Router: route("DELETE", "v2/divisions", formData)
     activate Router

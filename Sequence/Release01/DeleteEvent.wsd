@@ -111,8 +111,8 @@ EventPage->EventTableContainer: Click "Delete Selected" Button
 EventTableContainer->EventTableContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    EventTableContainer-->EventPage
-    EventPage-->Admin
+    EventTableContainer-->EventPage: Close Dialog
+    EventPage-->Admin: Close Dialog
 else
     EventTableContainer->Router: route("DELETE", "v2/events", formData)
     activate Router

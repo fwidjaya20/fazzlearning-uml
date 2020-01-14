@@ -76,8 +76,8 @@ UserPage->UserTableContainer: Click "Delete Selected" Button
 UserTableContainer->UserTableContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    UserTableContainer-->UserPage
-    UserPage-->Admin
+    UserTableContainer-->UserPage: Close Dialog
+    UserPage-->Admin: Close Dialog
 else
     UserTableContainer->Router: route("DELETE", "v2/users", formData)
     activate Router

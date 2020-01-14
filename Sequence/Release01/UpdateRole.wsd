@@ -23,7 +23,7 @@ EditRolePage->EditRoleFormContainer: Render "Edit Role Form" Container
 activate EditRoleFormContainer
 EditRoleFormContainer->RoleForm: Render "Role Form"
 activate RoleForm
-RoleForm-->EditRoleFormContainer
+RoleForm-->EditRoleFormContainer: rendered
 EditRoleFormContainer->Router: route("GET", "v2/role/{role_id}")
 activate Router
 Router->RoleHTTPTransport: FetchRoleById(RoleService, []ServerOption)
@@ -46,9 +46,9 @@ deactivate RoleHTTPTransport
 Router-->EditRoleFormContainer: response
 deactivate Router
 EditRoleFormContainer->RoleForm: display data to field
-RoleForm-->EditRoleFormContainer
-EditRoleFormContainer-->EditRolePage
-EditRolePage-->Admin
+RoleForm-->EditRoleFormContainer: rendered
+EditRoleFormContainer-->EditRolePage: rendered
+EditRolePage-->Admin: rendered
 
 Admin->EditRolePage: Fill Form
 EditRolePage->EditRoleFormContainer: Fill Form

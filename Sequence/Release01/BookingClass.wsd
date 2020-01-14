@@ -57,9 +57,9 @@ Admin->AddEventPage: Click "Attach Class" Button
 AddEventPage->AttachClassListContainer: Click "Attach Class" Button
 AttachClassListContainer->ClassForm: Show "Class Form" Popup
 activate ClassForm
-ClassForm-->AttachClassListContainer
-AttachClassListContainer-->AddEventPage
-AddEventPage-->Admin
+ClassForm-->AttachClassListContainer: rendered
+AttachClassListContainer-->AddEventPage: rendered
+AddEventPage-->Admin: rendered
 
 Admin->AddEventPage: Fill Form
 AddEventPage->AttachClassListContainer: Fill Form
@@ -126,11 +126,11 @@ Router-->ClassListView: response
 deactivate Router
 activate ClassListView
 ClassListView->ClassListView: render "Class List View"
-ClassListView-->AttachClassListContainer
+ClassListView-->AttachClassListContainer: rendered
 deactivate ClassListView
-AttachClassListContainer-->AddEventPage
+AttachClassListContainer-->AddEventPage: rendered
 deactivate AttachClassListContainer
-AddEventPage-->Admin
+AddEventPage-->Admin: rendered
 deactivate AddEventPage
 
 deactivate Admin

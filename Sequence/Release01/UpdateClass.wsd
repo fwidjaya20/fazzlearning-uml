@@ -23,7 +23,7 @@ EditClassPage->EditClassFormContainer: Render "Edit Class Form" Container
 activate EditClassFormContainer
 EditClassFormContainer->ClassForm: Render "Class Form"
 activate ClassForm
-ClassForm-->EditClassFormContainer
+ClassForm-->EditClassFormContainer: rendered
 EditClassFormContainer->Router: route("GET", "v2/event/{event_id}class/{class_id}")
 activate Router
 Router->ClassHTTPTransport: FindClassById(ClassService, []ServerOption)
@@ -46,9 +46,8 @@ deactivate ClassHTTPTransport
 Router-->EditClassFormContainer: response
 deactivate Router
 EditClassFormContainer->ClassForm: display data to field
-DivisionForm-->EditDivisionFormContainer
-EditClassFormContainer-->EditClassPage
-EditClassPage-->Admin
+EditClassFormContainer-->EditClassPage: rendered
+EditClassPage-->Admin: rendered
 
 Admin->EditClassPage: Fill Form
 EditClassPage->EditClassFormContainer: Fill Form

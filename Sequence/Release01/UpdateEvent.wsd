@@ -46,9 +46,9 @@ deactivate EventHTTPTransport
 Router-->EditEventFormContainer: response
 deactivate Router
 EditEventFormContainer->EventForm: display data to field
-EventForm-->EditEventFormContainer
-EditEventFormContainer-->EditEventPage
-EditEventPage-->Admin
+EventForm-->EditEventFormContainer: rendered
+EditEventFormContainer-->EditEventPage: rendered
+EditEventPage-->Admin: rendered
 
 Admin->EditEventPage: Fill Form
 EditEventPage->EditEventFormContainer: Fill Form

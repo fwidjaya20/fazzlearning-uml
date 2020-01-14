@@ -76,8 +76,8 @@ RolePage->RoleTableContainer: Click "Delete Selected" Button
 RoleTableContainer->RoleTableContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    RoleTableContainer-->RolePage
-    RolePage-->Admin
+    RoleTableContainer-->RolePage: Close Dialog
+    RolePage-->Admin: Close Dialog
 else
     RoleTableContainer->Router: route("DELETE", "v2/roles", formData)
     activate Router

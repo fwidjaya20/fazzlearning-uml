@@ -23,9 +23,9 @@ AddDivisionPage->AddDivisionFormContainer: Render "Add Division Form" Container
 activate AddDivisionFormContainer
 AddDivisionFormContainer->DivisionForm: Render "Division Form"
 activate DivisionForm
-DivisionForm-->AddDivisionFormContainer
-AddDivisionFormContainer-->AddDivisionPage
-AddDivisionPage-->Admin
+DivisionForm-->AddDivisionFormContainer: rendered
+AddDivisionFormContainer-->AddDivisionPage: rendered
+AddDivisionPage-->Admin: rendered
 
 Admin->AddDivisionPage: Fill Form
 AddDivisionPage->AddDivisionFormContainer: Fill Form

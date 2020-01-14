@@ -77,8 +77,8 @@ EventDetailPage->ClassTableContainer: Click "Delete Selected" Button
 ClassTableContainer->ClassTableContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    ClassTableContainer-->EventDetailPage
-    EventDetailPage-->Admin
+    ClassTableContainer-->EventDetailPage: Close Dialog
+    EventDetailPage-->Admin: Close Dialog
 else
     ClassTableContainer->Router: route("DELETE", "v2/{event_id}/class", formData)
     activate Router

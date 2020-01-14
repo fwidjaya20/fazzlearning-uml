@@ -59,9 +59,9 @@ AttachClassContainer->ClassListView: Click "Delete" Button
 ClassListView->ClassListView: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    ClassListView-->AttachClassContainer
-    AttachClassContainer-->AddEventPage
-    AddEventPage-->Admin
+    ClassListView-->AttachClassContainer: Close Dialog
+    AttachClassContainer-->AddEventPage: Close Dialog
+    AddEventPage-->Admin: Close Dialog
 else
     ClassListView->Router: route("DELETE", "v2/booking/{class_id}")
     activate Router
@@ -97,11 +97,11 @@ else
     Router-->ClassListView: response
     deactivate Router
     ClassListView->ClassListView: Render "Class List View"
-    ClassListView-->AttachClassContainer
+    ClassListView-->AttachClassContainer: rendered
     deactivate ClassListView
-    AttachClassContainer-->AddEventPage
+    AttachClassContainer-->AddEventPage: rendered
     deactivate AttachClassContainer
-    AddEventPage-->Admin
+    AddEventPage-->Admin: rendered
     deactivate AddEventPage
 end
 

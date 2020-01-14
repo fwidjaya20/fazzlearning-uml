@@ -84,9 +84,9 @@ deactivate Route
 FulfilmentFormComponent->FulfilmentFormComponent: binding response to attibute
 ' End Fetch Division
 
-FulfilmentFormComponent-->FulfilmentFormContainer
-FulfilmentFormContainer-->RegisterPage
-RegisterPage-->Member
+FulfilmentFormComponent-->FulfilmentFormContainer: rendered
+FulfilmentFormContainer-->RegisterPage: rendered
+RegisterPage-->Member: rendered
 ' End Load Data
 
 ' Fill Data
