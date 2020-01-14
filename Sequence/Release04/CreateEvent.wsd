@@ -26,9 +26,9 @@ AddEventPage->AddEventFormContainer: Render "Add Event Form" Container
 activate AddEventFormContainer
 AddEventFormContainer->EventForm: Render "Event Form"
 activate EventForm
-EventForm-->AddEventFormContainer
-AddEventFormContainer-->AddEventPage
-AddEventPage-->Admin
+EventForm-->AddEventFormContainer: rendered
+AddEventFormContainer-->AddEventPage: rendered
+AddEventPage-->Admin: rendered
 
 Admin->AddEventPage: Fill Form
 AddEventPage->AddEventFormContainer: Fill Form

@@ -17,10 +17,10 @@ FazzlearningKitEvent-->Caller: publisher
 Caller->FazzlearningKitEvent: Store(StoreDetail)
 FazzlearningKitEvent->NatsStreaming: Publish(User.UserDeleted, []byte)
 activate NatsStreaming
-NatsStreaming-->FazzlearningKitEvent
+NatsStreaming-->FazzlearningKitEvent: published
 deactivate NatsStreaming
 deactivate FazzlearningKitEvent
-FazzlearningKitEvent-->Caller
+FazzlearningKitEvent-->Caller: published
 
 deactivate Caller
 

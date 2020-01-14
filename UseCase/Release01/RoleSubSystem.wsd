@@ -13,6 +13,7 @@ rectangle "Role System" {
     Admin --> (Update Role)
     Admin --> (Delete Role)
     Admin --> (Get Role)
+    Admin --> (Search Role)
 }
 
 @enduml

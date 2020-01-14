@@ -49,7 +49,7 @@ ClassCard-->FavouriteListContainer: rendered
 deactivate ClassCard
 FavouriteListContainer-->FavouritePage: rendered
 deactivate FavouriteListContainer
-FavouritePage-->Member
+FavouritePage-->Member: rendered
 deactivate FavouritePage
 
 deactivate Member

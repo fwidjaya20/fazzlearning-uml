@@ -16,13 +16,14 @@ rectangle "User System" {
 
     (Create User) ..> (Get Role) : include
     (Create User) ..> (Get Division) : include
-    (Create User) ..> (Search Role) : include
-    (Create User) ..> (Search Division) : include
 
     (Update User) ..> (Get Role) : include
     (Update User) ..> (Get Division) : include
-    (Update User) ..> (Search Role) : include
-    (Update User) ..> (Search Division) : include
+
+    (Create User) ..> (Search Role): include
+    (Create User) ..> (Search Division): include
+    (Update User) ..> (Search Role): include
+    (Update User) ..> (Search Division): include
 }
 
 @enduml

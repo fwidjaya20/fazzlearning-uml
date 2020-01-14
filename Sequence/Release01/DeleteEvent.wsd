@@ -5,12 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Event" as EventPage
 participant "Page: Detail Event" as DetailEventPage
-participant "Container: Event Table" as EventTableContainer
-participant "Container: Event Card" as EventCardContainer
-participant "Component: Event Table" as EventTable
-participant "Component: Event Card" as EventCard
+participant "Container: Detail Event" as DetailEventContainer
+participant "Service: Event Service" as FEEventService
 participant "Router" as Router
 participant "Event: HTTP Transport" as EventHTTPTransport
 participant "Event: Endpoint" as EventEndpoint
@@ -22,143 +19,42 @@ participant "Poster: Service" as PosterService
 
 activate Admin
 
-Admin->EventPage: Open "Manage Event" Page
-activate EventPage
-EventPage->EventTableContainer: Render "Event Table" Container
-activate EventTableContainer
-EventTableContainer->EventTable: Render "Event Table"
-activate EventTable
-EventTable-->EventTableContainer: rendered
-EventTableContainer->Router: route("GET", "v2/events")
-activate Router
-Router->EventHTTPTransport: FetchPaginatedEvents(EventService, []ServerOption)
-activate EventHTTPTransport
-EventHTTPTransport->EventEndpoint: All(EventService, withPaginated)
-activate EventEndpoint
-EventEndpoint->EventService: All(params)
-
-activate EventService
-activate EventQuery
-alt "With Paginate"
-    EventService->EventQuery: All([]SliceConditions, PaginateModel)
-else
-    EventService->EventQuery: All([]SliceConditions, nil)
-end
-EventQuery-->EventService: Events
-EventService-->EventEndpoint: Events
-
-opt "With Paginate"
-    EventEndpoint->EventService: GetPagination(PaginateModel)
-    EventService->EventQuery: Count([]SliceConditions)
-    EventQuery-->EventService: total
-    EventService-->EventEndpoint: total
-end
-deactivate EventQuery
-deactivate EventService
-
-EventEndpoint->EventEndpoint: response := Response(Events, paginateMetadata)
-EventEndpoint-->EventHTTPTransport: response
-deactivate EventEndpoint
-EventHTTPTransport-->Router: response
-deactivate EventHTTPTransport
-Router-->EventTableContainer: response
-deactivate Router
-EventTableContainer->EventTable: Render "Event Table"
-EventTable-->EventTableContainer: rendered
-EventTableContainer-->EventPage: rendered
-EventPage-->Admin: rendered
-
-' View Detail
-Admin->EventPage: Hit "View Detail" Button
-EventPage->DetailEventPage: Open "Event Detail" Page
-activate DetailEventPage
-DetailEventPage->EventCardContainer: Render "Event Card" Container
-activate EventCardContainer
-EventCardContainer->EventCard: Render "Event Card"
-activate EventCard
-EventCard-->EventCardContainer: rendered
-EventCardContainer->Router: route("GET", "v2/event/{event_id}")
-activate Router
-Router->EventHTTPTransport: FindByEventId(EventService, []ServerOption)
-activate EventHTTPTransport
-EventHTTPTransport->EventEndpoint: FindByEventId(EventService, withPaginated)
-activate EventEndpoint
-EventEndpoint->EventService: FindByEventId(eventId)
-
-activate EventService
-EventService->EventQuery: Find([]SliceConditions)
-activate EventQuery
-EventQuery-->EventService: event
-deactivate EventQuery
-EventService-->EventEndpoint: event
-deactivate EventService
-
-EventEndpoint->EventEndpoint: response := Response(event, nil)
-EventEndpoint-->EventHTTPTransport: response
-deactivate EventEndpoint
-EventHTTPTransport-->Router: response
-deactivate EventHTTPTransport
-Router-->EventCardContainer: response
-deactivate Router
-EventCardContainer->EventCard: Render "Event Card"
-EventCard-->EventCardContainer: rendered
-EventCardContainer-->DetailEventPage: rendered
-DetailEventPage-->Admin: rendered
-' End View Detail
-
-Admin->EventPage: Click "Delete Selected" Button
-EventPage->EventTableContainer: Click "Delete Selected" Button
-EventTableContainer->EventTableContainer: Show Dialod Confirmation
+Admin->DetailEventPage: Click "Delete" Button
+DetailEventPage->DetailEventContainer: showDeleteConfirmation(item)
 
 alt "Cancel Delete"
-    EventTableContainer-->EventPage
-    EventPage-->Admin
+    DetailEventContainer-->DetailEventPage: Close Dialog
+    DetailEventPage-->Admin: Close Dialog
 else
-    EventTableContainer->Router: route("DELETE", "v2/events", formData)
-    activate Router
+    DetailEventContainer->DetailEventContainer: handleDeleteConfirmation(item)
+    DetailEventContainer->FEEventService: deleteEvent(payload)
+    FEEventService->Router: route("DELETE", "v2/events", formData)
     Router->EventHTTPTransport: DeleteEvents(EventService, []ServerOption)
-    activate EventHTTPTransport
     EventHTTPTransport->EventEndpoint: Delete(EventService)
-    activate EventEndpoint
-    EventEndpoint->EventService: DeleteMany(payload)
+    EventEndpoint->EventService: DeleteMany(context, id)
 
-    activate EventService
     loop "for each uuid"
-        EventService->EventQuery: GetPureModel([]SliceConditions)
-        activate EventQuery
-        EventQuery-->EventService: event
-        deactivate EventQuery
+        EventService->EventQuery: GetPureModel(context, []SliceConditions)
+        EventQuery-->EventService: events
 
-        EventService->EventCommand: Delete(event)
-        activate EventCommand
+        EventService->EventCommand: Delete(context, event)
         EventCommand-->EventService: isDeleted
-        deactivate EventCommand
 
-        EventService->ClassService: DeleteByEvent(uuid)
-        activate ClassService
+        EventService->ClassService: DeleteByEvent(context, eventId)
         ClassService-->EventService: isDeleted
-        deactivate ClassService
 
-        EventService->PosterService: DeleteByEvent(uuid)
-        activate PosterService
+        EventService->PosterService: DeleteByEvent(context, eventId)
         PosterService-->EventService: isDeleted
-        deactivate PosterService
     end
-    deactivate EventService
+
     EventService-->EventEndpoint: isDeleted
     EventEndpoint->EventEndpoint: response := Response(isDeleted, nil)
     EventEndpoint-->EventHTTPTransport: response
-    deactivate EventEndpoint
     EventHTTPTransport-->Router: response
-    deactivate EventHTTPTransport
-    Router-->EventTableContainer: response
-    deactivate Router
-    EventTableContainer-->EventPage: response
-    deactivate EventTableContainer
-    EventPage-->Admin: response
-    deactivate EventPage
+    Router-->FEEventService: response
+    FEEventService-->DetailEventContainer: response
+    DetailEventContainer-->DetailEventPage: response
+    DetailEventPage-->Admin: response
 end
-
-deactivate Admin
 
 @enduml

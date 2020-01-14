@@ -5,9 +5,10 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Class" as ClassPage
-participant "Container: Class Table" as ClassTableContainer
+participant "Page: Detail Event" as DetailEventPage
+participant "Container: List Event Class" as ListEventClassContainer
 participant "Component: Class Table" as ClassTable
+participant "Service: Class Service" as FEClassService
 participant "Router" as Router
 participant "Class: HTTP Transport" as ClassHTTPTransport
 participant "Class: Endpoint" as ClassEndpoint
@@ -15,57 +16,37 @@ participant "Class: Service" as ClassService
 participant "Class: Command" as ClassCommand
 participant "Class: Query" as ClassQuery
 
-activate Admin
-
-Admin->ClassPage: Open "Manage Class" Page
-activate ClassPage
-ClassPage->ClassTableContainer: Render "Class Table" Container
-activate ClassTableContainer
-ClassTableContainer->ClassTable: Render "Class Table"
-activate ClassTable
-ClassTable-->ClassTableContainer: rendered
-ClassTableContainer->Router: route("GET", "v2/event/{event_id}/classes")
-activate Router
+Admin->DetailEventPage: Open "Detail Event" Page
+DetailEventPage->ListEventClassContainer: fetchClasses()
+ListEventClassContainer->FEClassService: fetchClasses(eventId)
+FEClassService->Router: route("GET", "v2/event/{event_id}/classes")
 Router->ClassHTTPTransport: FetchPaginatedClasss(ClassService, []ServerOption)
-activate ClassHTTPTransport
 ClassHTTPTransport->ClassEndpoint: All(ClassService, withPaginated)
-activate ClassEndpoint
-ClassEndpoint->ClassService: All(params)
+ClassEndpoint->ClassService: All(context, params)
 
-activate ClassService
-activate ClassQuery
 alt "With Paginate"
-    ClassService->ClassQuery: All([]SliceConditions, PaginateModel)
+    ClassService->ClassQuery: All(context, []SliceConditions, PaginateModel)
 else
-    ClassService->ClassQuery: All([]SliceConditions, nil)
+    ClassService->ClassQuery: All(context, []SliceConditions, nil)
 end
 ClassQuery-->ClassService: classes
 ClassService-->ClassEndpoint: classes
 
 opt "With Paginate"
-    ClassEndpoint->ClassService: GetPagination(PaginateModel)
-    ClassService->ClassQuery: Count([]SliceConditions)
+    ClassEndpoint->ClassService: GetPagination(context, params)
+    ClassService->ClassQuery: Count(context, []SliceConditions)
     ClassQuery-->ClassService: total
     ClassService-->ClassEndpoint: total
 end
-deactivate ClassQuery
-deactivate ClassService
 
 ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
 ClassEndpoint-->ClassHTTPTransport: response
-deactivate ClassEndpoint
 ClassHTTPTransport-->Router: response
-deactivate ClassHTTPTransport
-Router-->ClassTableContainer: response
-deactivate Router
-ClassTableContainer->ClassTable: Render "Class Table"
-deactivate ClassTable
-ClassTable-->ClassTableContainer: rendered
-ClassTableContainer-->ClassPage: rendered
-deactivate ClassTableContainer
-ClassPage-->Admin: rendered
-deactivate ClassPage
-
-deactivate Admin
+Router-->FEClassService: response
+FEClassService-->ListEventClassContainer: response
+ListEventClassContainer->ClassTable: Render "Class Table"
+ClassTable-->ListEventClassContainer: rendered
+ListEventClassContainer-->DetailEventPage: rendered
+DetailEventPage-->Admin: rendered
 
 @enduml

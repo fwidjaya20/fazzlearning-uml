@@ -11,8 +11,7 @@ participant "Material: Query" as MaterialQuery
 
 activate Caller
 
-Caller->MaterialService: Create(payload)
-activate MaterialService
+Caller->MaterialService: Create(context, payload)
 MaterialService->MaterialService: Validate()
 
 alt "Data not valid"
@@ -20,20 +19,13 @@ alt "Data not valid"
 else
     loop "for each imageLink"
         MaterialService->MaterialService: material := MaterialModel()
-        MaterialService->MaterialCommand: Create(material)
-        activate MaterialCommand
+        MaterialService->MaterialCommand: Create(context, material)
         MaterialCommand-->MaterialService: materialLink
-        deactivate MaterialCommand
 
-        MaterialService->MaterialQuery: Find(materialLink)
-        activate MaterialQuery
+        MaterialService->MaterialQuery: Find(context, []SliceConditions)
         MaterialQuery-->MaterialService: material
-        deactivate MaterialQuery
     end
     MaterialService-->Caller: Material
-    deactivate MaterialService
 end
-
-deactivate Caller
 
 @enduml

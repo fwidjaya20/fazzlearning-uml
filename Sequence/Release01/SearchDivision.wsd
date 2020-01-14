@@ -1,0 +1,47 @@
+@startuml SearchDivision
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant "Component: User Form" as UserFormComponent
+participant "Service: Division Service" as FEDivisionService
+participant "Route" as Route
+participant "Division: HTTP Transport" as DivisionHTTPTransport
+participant "Division: Endpoint" as DivisionEndpoint
+participant "Division: Service" as DivisionService
+participant "Division: Query" as DivisionQuery
+
+Admin->UserFormComponent: type search keyword
+UserFormComponent->UserFormComponent: fetchDivisions()
+UserFormComponent->FEDivisionService: fetchDivisions(page, limit, keyword)
+UserFormComponent->Route: route("GET", "v2/divisions?search=role_to_search")
+Route->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
+DivisionHTTPTransport->DivisionEndpoint: All(DivisionService, withPaginate)
+DivisionEndpoint->DivisionService: All(context, params)
+
+alt "With Paginate"
+    DivisionService->DivisionQuery: All(context, []SliceConditions, PaginateModel)
+else
+    DivisionService->DivisionQuery: All(context, []SliceConditions, nil)
+end
+
+DivisionQuery-->DivisionService: roles
+DivisionService-->DivisionEndpoint: roles
+
+opt "With Paginate"
+    DivisionEndpoint->DivisionService: GetPagination(context, PaginateModel)
+    DivisionService->DivisionQuery: Count(context, []SliceConditions)
+    DivisionQuery-->DivisionService: total
+    DivisionService-->DivisionEndpoint: total
+end
+
+DivisionEndpoint->DivisionEndpoint: response := Response(roles, paginateMetadata)
+DivisionEndpoint-->DivisionHTTPTransport: response
+DivisionHTTPTransport-->Route: response
+Route-->FEDivisionService: response
+FEDivisionService-->UserFormComponent: response
+UserFormComponent-->Admin: response
+
+@enduml

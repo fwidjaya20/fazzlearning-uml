@@ -23,9 +23,9 @@ AddShiftPage->AddShiftFormContainer: Render "Add Shift Form" Container
 activate AddShiftFormContainer
 AddShiftFormContainer->ShiftForm: Render "Shift Form"
 activate ShiftForm
-ShiftForm-->AddShiftFormContainer
-AddShiftFormContainer-->AddShiftPage
-AddShiftPage-->Admin
+ShiftForm-->AddShiftFormContainer: rendered
+AddShiftFormContainer-->AddShiftPage: rendered
+AddShiftPage-->Admin: rendered
 
 Admin->AddShiftPage: Fill Form
 AddShiftPage->AddShiftFormContainer: Fill Form

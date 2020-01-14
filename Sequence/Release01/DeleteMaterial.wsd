@@ -9,28 +9,18 @@ participant "Material: Service" as MaterialService
 participant "Material: Command" as MaterialCommand
 participant "Material: Query" as MaterialQuery
 
-activate Caller
-
-Caller->MaterialService: DeleteByClass(payload)
-activate MaterialService
-MaterialService->MaterialQuery: Find([]SliceConditions)
-activate MaterialQuery
+Caller->MaterialService: DeleteByClass(context, classId)
+MaterialService->MaterialQuery: Find(context, []SliceConditions)
 MaterialQuery-->MaterialService: materials
-deactivate MaterialQuery
 
 alt "len(materials) < 1"
     MaterialService-->Caller: false
 else
     loop "for each materials"
-        MaterialService->MaterialCommand: Delete(material)
-        activate MaterialCommand
+        MaterialService->MaterialCommand: Delete(context, material)
         MaterialCommand-->MaterialService: isDeleted
-        deactivate MaterialCommand
     end
     MaterialService-->Caller: isDeleted
-    deactivate MaterialService
 end
-
-deactivate Caller
 
 @enduml

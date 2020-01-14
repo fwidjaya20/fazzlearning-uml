@@ -16,9 +16,9 @@ activate MessengerService
 MessengerService->MessengerService: get message sender
 MessengerService->PayfazzMessenger: SendEmail(sender, receiver, subject, message)
 activate PayfazzMessenger
-PayfazzMessenger-->MessengerService
+PayfazzMessenger-->MessengerService: isSent
 deactivate PayfazzMessenger
-MessengerService-->Caller
+MessengerService-->Caller: isSent
 deactivate MessengerService
 
 deactivate Caller

@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Add Division" as AddDivisionPage
 participant "Container: Add Division Form" as AddDivisionFormContainer
 participant "Component: Division Form" as DivisionForm
+participant "Service: Division Service" as FEDivisionService
 participant "Router" as Router
 participant "Division: HTTP Transport" as DivisionHTTPTransport
 participant "Division: Endpoint" as DivisionEndpoint
@@ -15,70 +16,52 @@ participant "Division: Service" as DivisionService
 participant "Division: Command" as DivisionCommand
 participant "Division: Query" as DivisionQuery
 
-activate Admin
-
 Admin->AddDivisionPage: Open "Add Division" Page
-activate AddDivisionPage
 AddDivisionPage->AddDivisionFormContainer: Render "Add Division Form" Container
-activate AddDivisionFormContainer
 AddDivisionFormContainer->DivisionForm: Render "Division Form"
-activate DivisionForm
-DivisionForm-->AddDivisionFormContainer
-AddDivisionFormContainer-->AddDivisionPage
-AddDivisionPage-->Admin
+DivisionForm-->AddDivisionFormContainer: rendered
+AddDivisionFormContainer-->AddDivisionPage: rendered
+AddDivisionPage-->Admin: rendered
 
 Admin->AddDivisionPage: Fill Form
 AddDivisionPage->AddDivisionFormContainer: Fill Form
 AddDivisionFormContainer->DivisionForm: Fill Form
 DivisionForm-->AddDivisionFormContainer: form data
-deactivate DivisionForm
 AddDivisionFormContainer-->AddDivisionPage: form data
 AddDivisionPage-->Admin: form data
 
 Admin->AddDivisionPage: Click "Create Division" Button
-AddDivisionPage->AddDivisionFormContainer: Click "Create Division" Button
-AddDivisionFormContainer->Router: route("POST", "v2/division", formData)
-activate Router
+AddDivisionPage->AddDivisionFormContainer: handleDivisionFormSubmitted()
+AddDivisionFormContainer->FEDivisionService: createDivision(payload)
+FEDivisionService->Router: route("POST", "v2/division", formData)
+
 Router->DivisionHTTPTransport: CreateDivision(DivisionService, []ServerOption)
-activate DivisionHTTPTransport
 DivisionHTTPTransport->DivisionEndpoint: Create(DivisionService)
-activate DivisionEndpoint
-DivisionEndpoint->DivisionService: CreateDivision(payload)
-activate DivisionService
+DivisionEndpoint->DivisionService: CreateDivision(context, payload)
 DivisionService->DivisionService: Validate()
 
 alt "Data not valid"
     DivisionService-->DivisionEndpoint: UnprocessableEntity
     DivisionEndpoint-->DivisionHTTPTransport: UnprocessableEntity
     DivisionHTTPTransport-->Router: UnprocessableEntity
-    Router-->AddDivisionFormContainer: UnprocessableEntity
+    Router-->FEDivisionService: UnprocessableEntity
+    FEDivisionService-->AddDivisionFormContainer: UnprocessableEntity
     AddDivisionFormContainer-->AddDivisionPage: UnprocessableEntity
     AddDivisionPage-->Admin: UnprocessableEntity
 else
     DivisionService->DivisionService: division := DivisionModel()
-    DivisionService->DivisionCommand: Create(division)
-    activate DivisionCommand
+    DivisionService->DivisionCommand: Create(context, division)
     DivisionCommand-->DivisionService: uuid
-    deactivate DivisionCommand
-    DivisionService->DivisionQuery: Find(uuid)
-    activate DivisionQuery
+    DivisionService->DivisionQuery: Find(context, uuid)
     DivisionQuery-->DivisionService: division
-    deactivate DivisionQuery
     DivisionService-->DivisionEndpoint: division
-    deactivate DivisionService
     DivisionEndpoint->DivisionEndpoint: response := Response(Division, nil)
     DivisionEndpoint-->DivisionHTTPTransport: response
-    deactivate DivisionEndpoint
     DivisionHTTPTransport-->Router: response
-    deactivate DivisionHTTPTransport
-    Router-->AddDivisionFormContainer: response
-    deactivate Router
+    Router-->FEDivisionService: response
+    FEDivisionService-->AddDivisionFormContainer: response
     AddDivisionFormContainer-->AddDivisionPage: response
-    deactivate AddDivisionFormContainer
     AddDivisionPage-->Admin: response
-    deactivate AddDivisionPage
 end
-
-deactivate Admin
 
 @enduml

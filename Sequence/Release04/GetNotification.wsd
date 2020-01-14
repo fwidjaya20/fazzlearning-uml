@@ -49,7 +49,7 @@ NotificationComponent-->NotificationListContainer: rendered
 deactivate NotificationComponent
 NotificationListContainer-->NotificationPage: rendered
 deactivate NotificationListContainer
-NotificationPage-->Member
+NotificationPage-->Member: rendered
 deactivate NotificationPage
 
 deactivate Member

@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Event" as EventPage
 participant "Container: Event Table" as EventTableContainer
 participant "Component: Event Table" as EventTable
+participant "Service: Event Service" as FEEventService
 participant "Router" as Router
 participant "Event: HTTP Transport" as EventHTTPTransport
 participant "Event: Endpoint" as EventEndpoint
@@ -18,54 +19,39 @@ participant "Event: Query" as EventQuery
 activate Admin
 
 Admin->EventPage: Open "Manage Event" Page
-activate EventPage
 EventPage->EventTableContainer: Render "Event Table" Container
-activate EventTableContainer
 EventTableContainer->EventTable: Render "Event Table"
-activate EventTable
 EventTable-->EventTableContainer: rendered
-EventTableContainer->Router: route("GET", "v2/events")
-activate Router
+EventTableContainer->EventTableContainer: fetchEvents()
+EventTableContainer->FEEventService: fetchEvents(status, page, limit)
+FEEventService->Router: route("GET", "v2/events")
 Router->EventHTTPTransport: FetchPaginatedEvents(EventService, []ServerOption)
-activate EventHTTPTransport
 EventHTTPTransport->EventEndpoint: All(EventService, withPaginated)
-activate EventEndpoint
-EventEndpoint->EventService: All(params)
+EventEndpoint->EventService: All(context, params)
 
-activate EventService
-activate EventQuery
 alt "With Paginate"
-    EventService->EventQuery: All([]SliceConditions, PaginateModel)
+    EventService->EventQuery: All(context, []SliceConditions, PaginateModel)
 else
-    EventService->EventQuery: All([]SliceConditions, nil)
+    EventService->EventQuery: All(context, []SliceConditions, nil)
 end
 EventQuery-->EventService: events
 EventService-->EventEndpoint: events
 
 opt "With Paginate"
-    EventEndpoint->EventService: GetPagination(PaginateModel)
-    EventService->EventQuery: Count([]SliceConditions)
+    EventEndpoint->EventService: GetPagination(context, params, PaginateModel)
+    EventService->EventQuery: Count(context, []SliceConditions)
     EventQuery-->EventService: total
     EventService-->EventEndpoint: total
 end
-deactivate EventQuery
-deactivate EventService
 
 EventEndpoint->EventEndpoint: response := Response(events, paginateMetadata)
 EventEndpoint-->EventHTTPTransport: response
-deactivate EventEndpoint
 EventHTTPTransport-->Router: response
-deactivate EventHTTPTransport
-Router-->EventTableContainer: response
-deactivate Router
+Router-->FEEventService: response
+FEEventService-->EventTableContainer: response
 EventTableContainer->EventTable: Render "Event Table"
-deactivate EventTable
 EventTable-->EventTableContainer: rendered
 EventTableContainer-->EventPage: rendered
-deactivate EventTableContainer
 EventPage-->Admin: rendered
-deactivate EventPage
-
-deactivate Admin
 
 @enduml

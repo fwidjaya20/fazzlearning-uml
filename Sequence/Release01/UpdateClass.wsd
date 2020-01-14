@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Edit Class" as EditClassPage
 participant "Container: Edit Class Form" as EditClassFormContainer
 participant "Component: Class Form" as ClassForm
+participant "Service: Class Service" as FEClassService
 participant "Router" as Router
 participant "Class: HTTP Transport" as ClassHTTPTransport
 participant "Class: Endpoint" as ClassEndpoint
@@ -15,94 +16,52 @@ participant "Class: Service" as ClassService
 participant "Class: Command" as ClassCommand
 participant "Class: Query" as ClassQuery
 
-activate Admin
-
 Admin->EditClassPage: Open "Edit Class" Page
-activate EditClassPage
 EditClassPage->EditClassFormContainer: Render "Edit Class Form" Container
-activate EditClassFormContainer
 EditClassFormContainer->ClassForm: Render "Class Form"
-activate ClassForm
-ClassForm-->EditClassFormContainer
-EditClassFormContainer->Router: route("GET", "v2/event/{event_id}class/{class_id}")
-activate Router
-Router->ClassHTTPTransport: FindClassById(ClassService, []ServerOption)
-activate ClassHTTPTransport
-ClassHTTPTransport->ClassEndpoint: FindClassById(ClassService, divisionId)
-activate ClassEndpoint
-ClassEndpoint->ClassService: FindClassById(divisionId)
-activate ClassService
-ClassService->DivisionQuery: Find(divisionId)
-activate DivisionQuery
-DivisionQuery-->ClassService: division
-deactivate DivisionQuery
-ClassService-->ClassEndpoint: division
-deactivate ClassService
-ClassEndpoint->ClassEndpoint: response := Response(division, nil)
-ClassEndpoint-->ClassHTTPTransport: response
-deactivate ClassEndpoint
-ClassHTTPTransport-->Router: response
-deactivate ClassHTTPTransport
-Router-->EditClassFormContainer: response
-deactivate Router
-EditClassFormContainer->ClassForm: display data to field
-DivisionForm-->EditDivisionFormContainer
-EditClassFormContainer-->EditClassPage
-EditClassPage-->Admin
+ClassForm-->EditClassFormContainer: rendered
+EditClassFormContainer-->EditClassPage: rendered
+EditClassPage-->Admin: rendered
 
 Admin->EditClassPage: Fill Form
 EditClassPage->EditClassFormContainer: Fill Form
 EditClassFormContainer->ClassForm: Fill Form
 ClassForm-->EditClassFormContainer: form data
-deactivate ClassForm
 EditClassFormContainer-->EditClassPage: form data
 EditClassPage-->Admin: form data
 
 Admin->EditClassPage: Click "Create Class" Button
-EditClassPage->EditClassFormContainer: Click "Create Class" Button
-EditClassFormContainer->Router: route("POST", "v2/{event_id}/class/{class_id}", formData)
-activate Router
+EditClassPage->EditClassFormContainer: handleClassFormSubmmitted()
+EditClassFormContainer->FEClassService: updateClass(eventId, classId, payload)
+FEClassService->Router: route("POST", "v2/{event_id}/class/{class_id}", formData)
 Router->ClassHTTPTransport: UpdateClass(ClassService, []ServerOption)
-activate ClassHTTPTransport
 ClassHTTPTransport->ClassEndpoint: Update(ClassService)
-activate ClassEndpoint
-ClassEndpoint->ClassService: Update(payload)
-activate ClassService
+ClassEndpoint->ClassService: Update(context, payload)
 ClassService->ClassService: Validate()
 
 alt "Data not valid"
     ClassService-->ClassEndpoint: UnprocessableEntity
     ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
     ClassHTTPTransport-->Router: UnprocessableEntity
-    Router-->EditClassFormContainer: UnprocessableEntity
+    Router-->FEClassService: UnprocessableEntity
+    FEClassService-->EditClassFormContainer: UnprocessableEntity
     EditClassFormContainer-->EditClassPage: UnprocessableEntity
     EditClassPage-->Admin: UnprocessableEntity
 else
-    ClassService->ClassQuery: GetPureModel([]SliceConditions)
-    activate ClassQuery
-    ClassQuery-->ClassService: class
-    deactivate ClassQuery
-    ClassService->ClassService: binding class data
-    ClassService->ClassCommand: Update(class)
-    activate ClassCommand
+    ClassService->ClassQuery: GetPureModel(context, []SliceConditions)
+    ClassQuery-->ClassService: classes
+
+    ClassService->ClassCommand: Update(context, class)
     ClassCommand-->ClassService: isUpdated
-    deactivate ClassCommand
 
     ClassService-->ClassEndpoint: class
-    deactivate ClassService
     ClassEndpoint->ClassEndpoint: response := Response(class, nil)
     ClassEndpoint-->ClassHTTPTransport: response
-    deactivate ClassEndpoint
     ClassHTTPTransport-->Router: response
-    deactivate ClassHTTPTransport
-    Router-->EditClassFormContainer: response
-    deactivate Router
+    Router-->FEClassService: response
+    FEClassService-->EditClassFormContainer: response
     EditClassFormContainer-->EditClassPage: response
-    deactivate EditClassFormContainer
     EditClassPage-->Admin: response
-    deactivate EditClassPage
 end
-
-deactivate Admin
 
 @enduml

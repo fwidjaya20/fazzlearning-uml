@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Edit Division" as EditDivisionPage
 participant "Container: Edit Division Form" as EditDivisionFormContainer
 participant "Component: Division Form" as DivisionForm
+participant "Service: Division Service" as FEDivisionService
 participant "Router" as Router
 participant "Division: HTTP Transport" as DivisionHTTPTransport
 participant "Division: Endpoint" as DivisionEndpoint
@@ -15,93 +16,51 @@ participant "Division: Service" as DivisionService
 participant "Division: Command" as DivisionCommand
 participant "Division: Query" as DivisionQuery
 
-activate Admin
-
 Admin->EditDivisionPage: Open "Edit Division" Page
-activate EditDivisionPage
 EditDivisionPage->EditDivisionFormContainer: Render "Edit Division Form" Container
-activate EditDivisionFormContainer
 EditDivisionFormContainer->DivisionForm: Render "Division Form"
-activate DivisionForm
-DivisionForm-->EditDivisionFormContainer
-EditDivisionFormContainer->Router: route("GET", "v2/division/{division_id}")
-activate Router
-Router->DivisionHTTPTransport: FetchDivisionById(DivisionService, []ServerOption)
-activate DivisionHTTPTransport
-DivisionHTTPTransport->DivisionEndpoint: FindById(DivisionService, divisionId)
-activate DivisionEndpoint
-DivisionEndpoint->DivisionService: FindById(divisionId)
-activate DivisionService
-DivisionService->DivisionQuery: Find(divisionId)
-activate DivisionQuery
-DivisionQuery-->DivisionService: division
-deactivate DivisionQuery
-DivisionService-->DivisionEndpoint: division
-deactivate DivisionService
-DivisionEndpoint->DivisionEndpoint: response := Response(division, nil)
-DivisionEndpoint-->DivisionHTTPTransport: response
-deactivate DivisionEndpoint
-DivisionHTTPTransport-->Router: response
-deactivate DivisionHTTPTransport
-Router-->EditDivisionFormContainer: response
-deactivate Router
-EditDivisionFormContainer->DivisionForm: display data to field
-DivisionForm-->EditDivisionFormContainer
-EditDivisionFormContainer-->EditDivisionPage
-EditDivisionPage-->Admin
+DivisionForm-->EditDivisionFormContainer: rendered
+EditDivisionFormContainer-->EditDivisionPage: rendered
+EditDivisionPage-->Admin: rendered
 
 Admin->EditDivisionPage: Fill Form
 EditDivisionPage->EditDivisionFormContainer: Fill Form
 EditDivisionFormContainer->DivisionForm: Fill Form
 DivisionForm-->EditDivisionFormContainer: form data
-deactivate DivisionForm
 EditDivisionFormContainer-->EditDivisionPage: form data
 EditDivisionPage-->Admin: form data
 
 Admin->EditDivisionPage: Click "Update Division" Button
-EditDivisionPage->EditDivisionFormContainer: Click "Update Division" Button
-EditDivisionFormContainer->Router: route("PUT", "v2/division/{division_id}", formData)
-activate Router
+EditDivisionPage->EditDivisionFormContainer: handleDivisionFormSubmitted()
+EditDivisionFormContainer->FEDivisionService: updateDivision(divisionId, payload)
+FEDivisionService->Router: route("PUT", "v2/division/{division_id}", formData)
 Router->DivisionHTTPTransport: UpdateDivision(DivisionService, []ServerOption)
-activate DivisionHTTPTransport
 DivisionHTTPTransport->DivisionEndpoint: Update(DivisionService)
-activate DivisionEndpoint
-DivisionEndpoint->DivisionService: UpdateDivision(payload)
-activate DivisionService
+DivisionEndpoint->DivisionService: UpdateDivision(context, payload, id)
 DivisionService->DivisionService: Validate()
 
 alt "Data not valid"
     DivisionService-->DivisionEndpoint: UnprocessableEntity
     DivisionEndpoint-->DivisionHTTPTransport: UnprocessableEntity
     DivisionHTTPTransport-->Router: UnprocessableEntity
-    Router-->EditDivisionFormContainer: UnprocessableEntity
+    Router-->FEDivisionService: UnprocessableEntity
+    FEDivisionService-->EditDivisionFormContainer: UnprocessableEntity
     EditDivisionFormContainer-->EditDivisionPage: UnprocessableEntity
     EditDivisionPage-->Admin: UnprocessableEntity
 else
-    DivisionService->DivisionQuery: Find(uuid)
-    activate DivisionQuery
+    DivisionService->DivisionQuery: Find(context, uuid)
     DivisionQuery-->DivisionService: division
-    deactivate DivisionQuery
     DivisionService->DivisionService: binding division data
-    DivisionService->DivisionCommand: Update(division)
-    activate DivisionCommand
+    DivisionService->DivisionCommand: Update(context, division)
     DivisionCommand-->DivisionService: isUpdated
-    deactivate DivisionCommand
     DivisionService-->DivisionEndpoint: division
-    deactivate DivisionService
     DivisionEndpoint->DivisionEndpoint: response := Response(division, nil)
     DivisionEndpoint-->DivisionHTTPTransport: response
-    deactivate DivisionEndpoint
     DivisionHTTPTransport-->Router: response
-    deactivate DivisionHTTPTransport
-    Router-->EditDivisionFormContainer: response
-    deactivate Router
+    Router-->FEDivisionService: response
+    FEDivisionService-->EditDivisionFormContainer: response
     EditDivisionFormContainer-->EditDivisionPage: response
-    deactivate EditDivisionFormContainer
     EditDivisionPage-->Admin: response
-    deactivate EditDivisionPage
 end
-
-deactivate Admin
 
 @enduml

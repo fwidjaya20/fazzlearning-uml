@@ -59,8 +59,8 @@ ConversationItem-->ConversationContainer
 ConversationContainer->ConversationContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    ConversationContainer-->EventDetailPage
-    EventDetailPage-->Actor
+    ConversationContainer-->EventDetailPage: close dialog
+    EventDetailPage-->Actor: close dialog
 else
     ConversationContainer->Router: route("DELETE", "v2/event{event_id}/comment/{comment_id}", formData)
     activate Router

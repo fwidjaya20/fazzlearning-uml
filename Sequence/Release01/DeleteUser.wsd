@@ -8,6 +8,7 @@ actor Admin
 participant "Page: User" as UserPage
 participant "Container: User Table" as UserTableContainer
 participant "Component: User Table" as UserTable
+participant "Service: User Service" as FEUserService
 participant "Router" as Router
 participant "User: HTTP Transport" as UserHTTPTransport
 participant "User: Endpoint" as UserEndpoint
@@ -18,46 +19,7 @@ participant "User: Query" as UserQuery
 activate Admin
 
 Admin->UserPage: Open "Manage User" Page
-activate UserPage
 UserPage->UserTableContainer: Render "User Table" Container
-activate UserTableContainer
-UserTableContainer->UserTable: Render "User Table"
-activate UserTable
-UserTable-->UserTableContainer: rendered
-UserTableContainer->Router: route("GET", "v2/users")
-activate Router
-Router->UserHTTPTransport: FetchPaginatedUsers(UserService, []ServerOption)
-activate UserHTTPTransport
-UserHTTPTransport->UserEndpoint: All(UserService, withPaginated)
-activate UserEndpoint
-UserEndpoint->UserService: All(params)
-
-activate UserService
-activate UserQuery
-alt "With Paginate"
-    UserService->UserQuery: All([]SliceConditions, PaginateModel)
-else
-    UserService->UserQuery: All([]SliceConditions, nil)
-end
-UserQuery-->UserService: users
-UserService-->UserEndpoint: users
-
-opt "With Paginate"
-    UserEndpoint->UserService: GetPagination(PaginateModel)
-    UserService->UserQuery: Count([]SliceConditions)
-    UserQuery-->UserService: total
-    UserService-->UserEndpoint: total
-end
-deactivate UserQuery
-deactivate UserService
-
-UserEndpoint->UserEndpoint: response := Response(users, paginateMetadata)
-UserEndpoint-->UserHTTPTransport: response
-deactivate UserEndpoint
-UserHTTPTransport-->Router: response
-deactivate UserHTTPTransport
-Router-->UserTableContainer: response
-deactivate Router
 UserTableContainer->UserTable: Render "User Table"
 UserTable-->UserTableContainer: rendered
 UserTableContainer-->UserPage: rendered
@@ -67,53 +29,39 @@ Admin->UserPage: Mark "User"
 UserPage->UserTableContainer: Mark "User"
 UserTableContainer->UserTable: Mark "User"
 UserTable-->UserTableContainer: marked
-deactivate UserTable
 UserTableContainer-->UserPage: marked
 UserPage-->Admin: marked
 
 Admin->UserPage: Click "Delete Selected" Button
-UserPage->UserTableContainer: Click "Delete Selected" Button
-UserTableContainer->UserTableContainer: Show Dialod Confirmation
+UserPage->UserTableContainer: showDeleteConfirmation(item)
 
 alt "Cancel Delete"
-    UserTableContainer-->UserPage
-    UserPage-->Admin
+    UserTableContainer-->UserPage: Close Dialog
+    UserPage-->Admin: Close Dialog
 else
-    UserTableContainer->Router: route("DELETE", "v2/users", formData)
-    activate Router
+    UserTableContainer->UserTableContainer: handleDeleteConfirmation(item)
+    UserTableContainer->FEUserService: deleteUser(payload)
+    FEUserService->Router: route("DELETE", "v2/users", formData)
     Router->UserHTTPTransport: DeleteUsers(UserService, []ServerOption)
-    activate UserHTTPTransport
     UserHTTPTransport->UserEndpoint: DeleteMany(UserService)
-    activate UserEndpoint
-    UserEndpoint->UserService: DeleteUsers([]uuid)
+    UserEndpoint->UserService: DeleteUsers(context, []email)
 
-    activate UserService
     loop "for each uuid"
-        UserService->UserQuery: GetPureModel([]SliceConditions])
-        activate UserQuery
+        UserService->UserQuery: GetPureModel(context, []SliceConditions])
         UserQuery-->UserService: user
-        deactivate UserQuery
 
-        UserService->UserCommand: Delete(user)
-        activate UserCommand
+        UserService->UserCommand: Delete(context, user)
         UserCommand-->UserService: isDeleted
-        deactivate UserCommand
     end
-    deactivate UserService
+
     UserService-->UserEndpoint: isDeleted
     UserEndpoint->UserEndpoint: response := Response(isDeleted, nil)
     UserEndpoint-->UserHTTPTransport: response
-    deactivate UserEndpoint
     UserHTTPTransport-->Router: response
-    deactivate UserHTTPTransport
-    Router-->UserTableContainer: response
-    deactivate Router
+    Router-->FEUserService: response
+    FEUserService-->UserTableContainer: response
     UserTableContainer-->UserPage: response
-    deactivate UserTableContainer
     UserPage-->Admin: response
-    deactivate UserPage
 end
-
-deactivate Admin
 
 @enduml

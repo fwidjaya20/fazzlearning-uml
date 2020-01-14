@@ -16,9 +16,9 @@ activate RoomTransactionNATSTransport
 RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message
 RoomTransactionNATSTransport->RoomTransactionService: Create(TransactionClass)
 activate RoomTransactionService
-RoomTransactionService-->RoomTransactionNATSTransport
+RoomTransactionService-->RoomTransactionNATSTransport: subscribed
 deactivate RoomTransactionService
-RoomTransactionNATSTransport-->Caller
+RoomTransactionNATSTransport-->Caller: subscribed
 deactivate RoomTransactionNATSTransport
 
 deactivate Caller

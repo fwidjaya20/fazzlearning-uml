@@ -46,9 +46,9 @@ deactivate ShiftHTTPTransport
 Router-->EditShiftFormContainer: response
 deactivate Router
 EditShiftFormContainer->ShiftForm: display data to field
-ShiftForm-->EditShiftFormContainer
-EditShiftFormContainer-->EditShiftPage
-EditShiftPage-->Admin
+ShiftForm-->EditShiftFormContainer: rendered
+EditShiftFormContainer-->EditShiftPage: rendered
+EditShiftPage-->Admin: rendered
 
 Admin->EditShiftPage: Fill Form
 EditShiftPage->EditShiftFormContainer: Fill Form

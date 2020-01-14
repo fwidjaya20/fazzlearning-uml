@@ -8,63 +8,47 @@ actor Admin
 participant "Page: Division" as DivisionPage
 participant "Container: Division Table" as DivisionTableContainer
 participant "Component: Division Table" as DivisionTable
+participant "Service: Division Service" as FEDivisionService
 participant "Router" as Router
 participant "Division: HTTP Transport" as DivisionHTTPTransport
 participant "Division: Endpoint" as DivisionEndpoint
 participant "Division: Service" as DivisionService
 participant "Division: Query" as DivisionQuery
 
-activate Admin
-
 Admin->DivisionPage: Open "Manage Division" Page
-activate DivisionPage
 DivisionPage->DivisionTableContainer: Render "Division Table" Container
-activate DivisionTableContainer
 DivisionTableContainer->DivisionTable: Render "Division Table"
-activate DivisionTable
 DivisionTable-->DivisionTableContainer: rendered
-DivisionTableContainer->Router: route("GET", "v2/divisions")
-activate Router
-Router->DivisionHTTPTransport: Divisions(DivisionService, []ServerOption)
-activate DivisionHTTPTransport
+DivisionTableContainer->DivisionTableContainer: fetchDivision()
+DivisionTableContainer->FEDivisionService: fetchDivisions(page, limit, keyword)
+FEDivisionService->Router: route("GET", "v2/divisions")
+Router->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
 DivisionHTTPTransport->DivisionEndpoint: All(DivisionService, withPaginated)
-activate DivisionEndpoint
-DivisionEndpoint->DivisionService: All(params)
+DivisionEndpoint->DivisionService: All(context, params)
 
-activate DivisionService
-activate DivisionQuery
 alt "With Paginate"
-    DivisionService->DivisionQuery: All([]SliceConditions, PaginateModel)
+    DivisionService->DivisionQuery: All(context, []SliceConditions, PaginateModel)
 else
-    DivisionService->DivisionQuery: All([]SliceConditions, nil)
+    DivisionService->DivisionQuery: All(context, []SliceConditions, nil)
 end
 DivisionQuery-->DivisionService: divisions
 DivisionService-->DivisionEndpoint: divisions
 
 opt "With Paginate"
-    DivisionEndpoint->DivisionService: GetPagination(PaginateModel)
-    DivisionService->DivisionQuery: Count([]SliceConditions)
+    DivisionEndpoint->DivisionService: GetPagination(context, PaginateModel)
+    DivisionService->DivisionQuery: Count(context, []SliceConditions)
     DivisionQuery-->DivisionService: total
     DivisionService-->DivisionEndpoint: total
 end
-deactivate DivisionQuery
-deactivate DivisionService
 
 DivisionEndpoint->DivisionEndpoint: response := Response(divisions, paginateMetadata)
 DivisionEndpoint-->DivisionHTTPTransport: response
-deactivate DivisionEndpoint
 DivisionHTTPTransport-->Router: response
-deactivate DivisionHTTPTransport
-Router-->DivisionTableContainer: response
-deactivate Router
+Router-->FEDivisionService: response
+FEDivisionService-->DivisionTableContainer: response
 DivisionTableContainer->DivisionTable: Render "Division Table"
 DivisionTable-->DivisionTableContainer: rendered
-deactivate DivisionTable
 DivisionTableContainer-->DivisionPage: rendered
-deactivate DivisionTableContainer
 DivisionPage-->Admin: rendered
-deactivate DivisionPage
-
-deactivate Admin
 
 @enduml

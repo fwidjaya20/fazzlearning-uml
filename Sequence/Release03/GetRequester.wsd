@@ -25,23 +25,23 @@ activate RequesterTable
 RequesterTable-->RequesterTableContainer: rendered
 RequesterTableContainer->Router: route("GET", "v2/class/{class_id}/requester")
 activate Router
-Router->RequesterTableHTTPTransport: GetByClass(RequestService, []ServerOption)
-activate RequesterTableHTTPTransport
-RequesterTableHTTPTransport->RequesterTableEndpoint: GetByClass(RequestService)
-activate RequesterTableEndpoint
-RequesterTableEndpoint->RequesterTableService: GetByClassId(classId)
-activate RequesterTableService
-RequesterTableService->RequesterTableQuery: Find([]SliceCondition)
-activate RequesterTableQuery
-RequesterTableQuery-->RequesterTableService: requester
-deactivate RequesterTableQuery
-RequesterTableService-->RequesterTableEndpoint: requester
-deactivate RequesterTableService
-RequesterTableEndpoint->RequesterTableEndpoint: response := Response(requester, nil)
-RequesterTableEndpoint-->RequesterTableHTTPTransport: response
-deactivate RequesterTableEndpoint
-RequesterTableHTTPTransport-->Router: response
-deactivate RequesterTableHTTPTransport
+Router->RequestHTTPTransport: GetByClass(RequestService, []ServerOption)
+activate RequestHTTPTransport
+RequestHTTPTransport->RequestEndpoint: GetByClass(RequestService)
+activate RequestEndpoint
+RequestEndpoint->RequestService: GetByClassId(classId)
+activate RequestService
+RequestService->RequestQuery: Find([]SliceCondition)
+activate RequestQuery
+RequestQuery-->RequestService: requester
+deactivate RequestQuery
+RequestService-->RequestEndpoint: requester
+deactivate RequestService
+RequestEndpoint->RequestEndpoint: response := Response(requester, nil)
+RequestEndpoint-->RequestHTTPTransport: response
+deactivate RequestEndpoint
+RequestHTTPTransport-->Router: response
+deactivate RequestHTTPTransport
 Router-->RequesterTableContainer: response
 deactivate Router
 RequesterTableContainer->RequesterTable: render "Requester Table"

@@ -171,7 +171,7 @@ else
     deactivate ClassQuery
     ClassService->NatsStreaming: Publish Event Subject Class.ClassCreated
     activate NatsStreaming
-    NatsStreaming-->ClassService
+    NatsStreaming-->ClassService: published
     deactivate NatsStreaming
 end
 
@@ -186,11 +186,11 @@ Router-->ClassListView: response
 deactivate Router
 activate ClassListView
 ClassListView->ClassListView: render "Class List View"
-ClassListView-->AttachClassListContainer
+ClassListView-->AttachClassListContainer: rendered
 deactivate ClassListView
-AttachClassListContainer-->AddEventPage
+AttachClassListContainer-->AddEventPage: rendered
 deactivate AttachClassListContainer
-AddEventPage-->Admin
+AddEventPage-->Admin: rendered
 deactivate AddEventPage
 
 deactivate Admin
