@@ -11,11 +11,8 @@ start
 
 
 |System|
-fork
-    :Get "Roles" data from Database;
-forkagain
-    :Get "Division" data from Database;
-endfork
+:Get "Roles" data from Database;
+:Get "Division" data from Database;
 :Display fetched data into its own field;
 
 |Member|
