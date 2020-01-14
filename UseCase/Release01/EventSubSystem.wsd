@@ -19,6 +19,7 @@ rectangle "Event System" {
 
     (Create Event) ..> (Upload) : include
     (Create Event) ..> (Create Poster) : include
+    (Create Event) ..> (CommitBooked) : include
     
     (Delete Event) ..> (Delete Poster) : include
 }

@@ -16,7 +16,7 @@ rectangle "Storage System" {
     (Resolve) <-- Member
 
     Caller --> (Upload)
-    Caller --> (Compress)
+    Caller --> (Commit File)
 }
 
 @enduml

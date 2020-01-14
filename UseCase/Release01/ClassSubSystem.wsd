@@ -16,11 +16,12 @@ rectangle "Class System" {
     Admin --> (Get Class)
     Admin --> (Booking Class)
     Admin --> (Unbooking Class)
+    Admin --> (Get Booked)
 
     (Get Class) <-- Member
 
     (Create Class) ..> (Upload) : include
-    (Create Class) ..> (Compress) : include
+    (Create Class) ..> (Commit File) : include
     (Create Class) ..> (Create Material) : include
     
     (Delete Class) ..> (Delete Material) : include

@@ -13,6 +13,7 @@ rectangle "Division System" {
     Admin --> (Update Division)
     Admin --> (Delete Division)
     Admin --> (Get Division)
+    Admin --> (Search Division)
 }
 
 @enduml
