@@ -20,7 +20,7 @@ rectangle "Event System" {
     (Create Event) ..> (Upload) : include
     (Create Event) ..> (Create Poster) : include
     
-    (Delete Event) ..> (Delete Poster)
+    (Delete Event) ..> (Delete Poster) : include
 }
 
 @enduml
