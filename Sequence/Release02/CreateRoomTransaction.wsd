@@ -28,9 +28,9 @@ else
 
     RoomTransactionService->NatsStreaming: Publish Event Subject Transaction.TransactionCreated
     activate NatsStreaming
-    NatsStreaming-->RoomTransactionService
+    NatsStreaming-->RoomTransactionService: published
     deactivate NatsStreaming
-    RoomTransactionService-->Caller
+    RoomTransactionService-->Caller: created
     deactivate RoomTransactionService
 end
 

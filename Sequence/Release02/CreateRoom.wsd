@@ -23,9 +23,9 @@ AddRoomPage->AddRoomFormContainer: Render "Add Room Form" Container
 activate AddRoomFormContainer
 AddRoomFormContainer->RoomForm: Render "Room Form"
 activate RoomForm
-RoomForm-->AddRoomFormContainer
-AddRoomFormContainer-->AddRoomPage
-AddRoomPage-->Admin
+RoomForm-->AddRoomFormContainer: rendered
+AddRoomFormContainer-->AddRoomPage: rendered
+AddRoomPage-->Admin: rendered
 
 Admin->AddRoomPage: Fill Form
 AddRoomPage->AddRoomFormContainer: Fill Form

@@ -27,9 +27,9 @@ AddClassPage->AddClassFormContainer: Render "Add Class Form" Container
 activate AddClassFormContainer
 AddClassFormContainer->ClassForm: Render "Class Form"
 activate ClassForm
-ClassForm-->AddClassFormContainer
-AddClassFormContainer-->AddClassPage
-AddClassPage-->Admin
+ClassForm-->AddClassFormContainer: rendered
+AddClassFormContainer-->AddClassPage: rendered
+AddClassPage-->Admin: rendered
 
 Admin->AddClassPage: Fill Form
 AddClassPage->AddClassFormContainer: Fill Form
@@ -95,7 +95,7 @@ loop "for each payload"
 
             ClassService->NatsStreaming: Publish Event Subject Class.ClassCreated
             activate NatsStreaming
-            NatsStreaming-->ClassService
+            NatsStreaming-->ClassService: published
             deactivate NatsStreaming
         end
     end

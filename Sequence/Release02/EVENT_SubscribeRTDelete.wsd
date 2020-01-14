@@ -16,9 +16,9 @@ activate RoomTransactionETLNATSTransport
 RoomTransactionETLNATSTransport->RoomTransactionETLNATSTransport: parse message
 RoomTransactionETLNATSTransport->RoomTransactionETLService: DeletePersistance()
 activate RoomTransactionETLService
-RoomTransactionETLService-->RoomTransactionETLNATSTransport
+RoomTransactionETLService-->RoomTransactionETLNATSTransport: subscribed
 deactivate RoomTransactionETLService
-RoomTransactionETLNATSTransport-->Caller
+RoomTransactionETLNATSTransport-->Caller: subscribed
 deactivate RoomTransactionETLNATSTransport
 
 deactivate Caller

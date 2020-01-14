@@ -16,9 +16,9 @@ activate UserETLNATSTransport
 UserETLNATSTransport->UserETLNATSTransport: parse message
 UserETLNATSTransport->UserETLService: Delete(User)
 activate UserETLService
-UserETLService-->UserETLNATSTransport
+UserETLService-->UserETLNATSTransport: subscribed
 deactivate UserETLService
-UserETLNATSTransport-->Caller
+UserETLNATSTransport-->Caller: subscribed
 deactivate UserETLNATSTransport
 
 deactivate Caller

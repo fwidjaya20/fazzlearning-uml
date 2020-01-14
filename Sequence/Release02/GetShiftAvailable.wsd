@@ -42,7 +42,7 @@ deactivate ShiftHTTPTransport
 Router-->ShiftTable: response
 deactivate Router
 ShiftTable->ShiftTable: display Shifts options to field
-ShiftTable-->Admin
+ShiftTable-->Admin: rendered
 deactivate ShiftTable
 
 deactivate Admin

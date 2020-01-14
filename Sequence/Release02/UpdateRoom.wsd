@@ -47,8 +47,8 @@ Router-->EditRoomFormContainer: response
 deactivate Router
 EditRoomFormContainer->RoomForm: display data to field
 RoomForm-->EditRoomFormContainer
-EditRoomFormContainer-->EditRoomPage
-EditRoomPage-->Admin
+EditRoomFormContainer-->EditRoomPage: rendered
+EditRoomPage-->Admin: rendered
 
 Admin->EditRoomPage: Fill Form
 EditRoomPage->EditRoomFormContainer: Fill Form

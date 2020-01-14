@@ -76,8 +76,8 @@ RoomPage->RoomTableContainer: Click "Delete Selected" Button
 RoomTableContainer->RoomTableContainer: Show Dialod Confirmation
 
 alt "Cancel Delete"
-    RoomTableContainer-->RoomPage
-    RoomPage-->Admin
+    RoomTableContainer-->RoomPage: Close Dialog
+    RoomPage-->Admin: Close Dialog
 else
     RoomTableContainer->Router: route("DELETE", "v2/rooms", formData)
     activate Router

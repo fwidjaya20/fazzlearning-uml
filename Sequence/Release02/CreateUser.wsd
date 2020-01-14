@@ -238,7 +238,7 @@ else
     deactivate UserQuery
     UserService->NatsStreaming: Publish Event Subject User.UserCreated
     activate NatsStreaming
-    NatsStreaming-->UserService
+    NatsStreaming-->UserService: published
     deactivate NatsStreaming
     UserService->UserEndpoint: user
     deactivate UserService

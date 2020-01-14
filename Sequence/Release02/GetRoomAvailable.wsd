@@ -42,7 +42,7 @@ deactivate RoomHTTPTransport
 Router-->RoomTable: response
 deactivate Router
 RoomTable->RoomTable: display rooms options to field
-RoomTable-->Admin
+RoomTable-->Admin: rendered
 deactivate RoomTable
 
 deactivate Admin
