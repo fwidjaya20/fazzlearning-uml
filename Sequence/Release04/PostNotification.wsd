@@ -41,7 +41,7 @@ loop "for each notification"
         activate NotificationCommand
         NotificationCommand-->NotificationService: is created
         deactivate NotificationCommand
-        NotificationService-->Caller
+        NotificationService-->Caller: is created
         deactivate NotificationService
     end
 end

@@ -29,7 +29,7 @@ else
         TTCMSHTTPTransport-->MailerService: compiled message
         MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
         activate MessengerHTTPTransport
-        MessengerHTTPTransport-->MailerService
+        MessengerHTTPTransport-->MailerService: subscribed
         
         MailerNATSTransport->MailerService: build template tag payload "Low Priority" Status
         MailerService->TTCMSHTTPTransport: GetCompileMessage(payload)
@@ -42,14 +42,14 @@ else
         TTCMSHTTPTransport-->MailerService: compiled message
         deactivate TTCMSHTTPTransport
         MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
-        MessengerHTTPTransport-->MailerService
+        MessengerHTTPTransport-->MailerService: subscribed
 
         deactivate MessengerHTTPTransport
-        MailerService-->MailerNATSTransport
+        MailerService-->MailerNATSTransport: subscribed
         deactivate MailerService
-        MailerNATSTransport-->Caller
+        MailerNATSTransport-->Caller: subscribed
     else
-        MailerNATSTransport-->Caller
+        MailerNATSTransport-->Caller: subscribed
         deactivate MailerNATSTransport
     end
 end

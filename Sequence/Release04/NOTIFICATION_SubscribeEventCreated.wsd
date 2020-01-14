@@ -8,8 +8,6 @@ actor "Caller" as Caller
 participant "Notification: NATS Transport" as NotificationNATSTransport
 participant "Notification: Service" as NotificationService
 participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
-participant "User: GRPC Transport" as UserGRPCTransport
-participant "Notification: Command" as NotificationCommand
 
 activate Caller
 
@@ -27,9 +25,9 @@ else
     deactivate TTCMSHTTPTransport
     NotificationNATSTransport->NotificationService: Post(payload)
     activate NotificationService
-    NotificationService-->NotificationNATSTransport
+    NotificationService-->NotificationNATSTransport: subscribed
     deactivate NotificationService
-    NotificationNATSTransport-->Caller
+    NotificationNATSTransport-->Caller: subscribed
     deactivate NotificationNATSTransport
 end
 

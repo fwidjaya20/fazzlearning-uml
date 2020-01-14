@@ -20,9 +20,9 @@ TTCMSHTTPTransport-->MailerService: compiled message
 deactivate TTCMSHTTPTransport
 MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
 activate MessengerHTTPTransport
-MessengerHTTPTransport-->MailerService
+MessengerHTTPTransport-->MailerService: sent
 deactivate MessengerHTTPTransport
-MailerService-->Caller
+MailerService-->Caller: sent
 deactivate MailerService
 
 deactivate Caller

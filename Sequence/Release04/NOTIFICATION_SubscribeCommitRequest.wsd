@@ -39,9 +39,9 @@ else
     deactivate TTCMSHTTPTransport
     NotificationNATSTransport->NotificationService: Post(payload)
     
-    NotificationService-->NotificationNATSTransport
+    NotificationService-->NotificationNATSTransport: subscribed
     deactivate NotificationService
-    NotificationNATSTransport-->Caller
+    NotificationNATSTransport-->Caller: subscribed
 end
 
 deactivate Caller

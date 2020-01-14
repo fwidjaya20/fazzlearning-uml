@@ -7,7 +7,7 @@ hide footbox
 actor "Caller" as Caller
 participant "Mailer: NATS Transport" as MailerNATSTransport
 participant "Mailer: Mailer Service" as MailerService
-participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
+participant "Template Tag CMS: HTTP Transport" as CMSHTTPTransport
 participant "Messenger: HTTP Transport" as MessengerHTTPTransport
 
 activate Caller
@@ -22,19 +22,19 @@ else
     alt "Is Broadcast"
         MailerNATSTransport->MailerService: build template tag payload
         activate MailerService
-        MailerService->TTCMSHTTPTransport: GetCompileMessage(payload)
-        activate TTCMSHTTPTransport
-        TTCMSHTTPTransport-->MailerService: compiled message
-        deactivate TTCMSHTTPTransport
+        MailerService->CMSHTTPTransport: GetCompileMessage(payload)
+        activate CMSHTTPTransport
+        CMSHTTPTransport-->MailerService: compiled message
+        deactivate CMSHTTPTransport
         MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
         activate MessengerHTTPTransport
-        MessengerHTTPTransport-->MailerService
+        MessengerHTTPTransport-->MailerService: subscribed
         deactivate MessengerHTTPTransport
-        MailerService-->MailerNATSTransport
+        MailerService-->MailerNATSTransport: subscribed
         deactivate MailerService
-        MailerNATSTransport-->Caller
+        MailerNATSTransport-->Caller: subscribed
     else
-        MailerNATSTransport-->Caller
+        MailerNATSTransport-->Caller: subscribed
         deactivate MailerNATSTransport
     end
 end

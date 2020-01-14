@@ -48,7 +48,7 @@ deactivate Router
 NotificationListContainer->Notification: render notifications
 Notification-->NotificationListContainer: rendered
 NotificationListContainer-->NotificationPage: rendered
-NotificationPage-->Member
+NotificationPage-->Member: rendered
 
 Member->NotificationPage: Click "Notification" Item
 NotificationPage->NotificationListContainer: Click "Notification" Item

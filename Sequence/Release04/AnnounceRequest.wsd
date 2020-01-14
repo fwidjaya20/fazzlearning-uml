@@ -20,23 +20,23 @@ activate TTCMSHTTPTransport
 TTCMSHTTPTransport-->MailerService: compiled message
 MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
 activate MessengerHTTPTransport
-MessengerHTTPTransport-->MailerService
+MessengerHTTPTransport-->MailerService: sent
 
 MailerService->MailerService: build template tag payload "Low Priority" Status
 MailerService->TTCMSHTTPTransport: GetCompileMessage(payload)
 TTCMSHTTPTransport-->MailerService: compiled message
 MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
-MessengerHTTPTransport-->MailerService
+MessengerHTTPTransport-->MailerService: sent
 
 MailerService->MailerService: build template tag payload "Rejected" Status
 MailerService->TTCMSHTTPTransport: GetCompileMessage(payload)
 TTCMSHTTPTransport-->MailerService: compiled message
 deactivate TTCMSHTTPTransport
 MailerService->MessengerHTTPTransport: SendEmail(receiver, subject, compiledMessage)
-MessengerHTTPTransport-->MailerService
+MessengerHTTPTransport-->MailerService: sent
 
 deactivate MessengerHTTPTransport
-MailerService-->Caller
+MailerService-->Caller: sent
 deactivate MailerService
 
 deactivate Caller
