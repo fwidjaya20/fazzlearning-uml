@@ -11,34 +11,27 @@ participant "RoomTransaction: Command" as RoomTransactionCommand
 participant "RoomTransaction: Query" as RoomTransactionQuery
 participant "Nats Streaming" as NatsStreaming
 
-activate Caller
-
-Caller->RoomTransactionService: Delete(payload)
-activate RoomTransactionService
+Caller->RoomTransactionService: Delete(context, payload)
 RoomTransactionService->RoomTransactionService: Validate()
+
 alt "Data Not Valid"
     RoomTransactionService-->Caller: UnprocessableEntity
 else
-    RoomTransactionService->RoomTransactionQuery: Find([]SliceCondition)
+    RoomTransactionService->RoomTransactionQuery: Find(context, []SliceCondition)
     activate RoomTransactionQuery
     RoomTransactionQuery-->RoomTransactionService: roomTrans
     deactivate RoomTransactionQuery
     
     loop "For each roomTrans"
-        RoomTransactionService->RoomTransactionCommand: Delete(roomTransaction)
+        RoomTransactionService->RoomTransactionCommand: Delete(context, roomTransaction)
         activate RoomTransactionCommand
         RoomTransactionCommand-->RoomTransactionService: boolean
         deactivate RoomTransactionCommand
     end
 
-    RoomTransactionService->NatsStreaming: Publish Event Subject Transaction.TransactionDeleted
-    activate NatsStreaming
+    RoomTransactionService->NatsStreaming: publishTransactionDeleted(context, []id)
     NatsStreaming-->RoomTransactionService: published
-    deactivate NatsStreaming
     RoomTransactionService-->Caller: deleted
-    deactivate RoomTransactionService
 end
-
-deactivate Caller
 
 @enduml

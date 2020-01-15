@@ -10,15 +10,10 @@ start
 :Subscribe Class.ClassCreated;
 
 |System|
-:Parsing Event Message;
+:Create Room Transaction;
 
-if (Valid ?) then (Yes)
-    :Create Room Transaction;
-
-    if (Is Error ?) then (Yes)
-        :Adding Error Information;
-    endif
-else (No)
+if (Is Error ?) then (Yes)
+    :Adding Error Information;
 endif
 stop
 

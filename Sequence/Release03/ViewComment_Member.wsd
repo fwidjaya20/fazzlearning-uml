@@ -1,0 +1,49 @@
+@startuml ViewComment_Member
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Member" as Member
+participant "Page: Event" as EventPage
+participant "Container: Event Comments" as EventCommentsContainer
+participant "Component: Comment" as CommentComponent
+participant "Component: CommentForm" as CommentFormComponent
+participant "Service: Conversation Service" as FEConversationService
+participant "Router" as Router
+participant "Conversation: HTTP Transport" as ConversationHTTPTransport
+participant "Conversation: Endpoint" as ConversationEndpoint
+participant "Conversation: Service" as ConversationService
+participant "Conversation: Query" as ConversationQuery
+
+Member->EventPage: Open "Event" Page
+EventPage->EventCommentsContainer: fetchComment()
+EventCommentsContainer->FEConversationService: fetchComment(eventId)
+FEConversationService->Router: route("GET", "v2/event/{event_id}/comments")
+Router->ConversationHTTPTransport: FetchCommentsByEventId(ConversationService, []ServerOption)
+ConversationHTTPTransport->ConversationEndpoint: FetchCommentsByEventId(ConversationService)
+ConversationEndpoint->ConversationService: FindCommentsByEvent(context, parameters)
+ConversationService->ConversationQuery: FindComment(context, []SliceCondition)
+ConversationQuery-->ConversationService: comments
+loop "for each comment"
+    ConversationService->ConversationService: FindRepliesByComment(context, payload)
+end
+ConversationService-->ConversationEndpoint: comments
+
+ConversationEndpoint->ConversationService: GetCommentsCountByEvent(context, parameters)
+ConversationService->ConversationQuery: CountComments(context, []SliceCondition)
+ConversationQuery-->ConversationService: total
+ConversationService-->ConversationEndpoint: total
+ConversationEndpoint->ConversationEndpoint: response := Response(comments, total)
+ConversationEndpoint-->ConversationHTTPTransport: response
+ConversationHTTPTransport-->Router: response
+Router-->FEConversationService: response
+FEConversationService-->EventCommentsContainer: response
+EventCommentsContainer->CommentComponent: Render "Comment" Component
+CommentComponent->CommentFormComponent: Render "Comment Form" Component
+CommentFormComponent-->CommentComponent: rendered
+CommentComponent-->EventCommentsContainer: rendered
+EventCommentsContainer-->EventPage: rendered
+EventPage-->Member: rendered
+
+@enduml

@@ -5,46 +5,31 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Component: Shift Table" as ShiftTable
+participant "Component: Class Form" as ClassForm
+participant "Service: Shift Service" as FEShiftService
 participant "Router" as Router
 participant "Shift: HTTP Transport" as ShiftHTTPTransport
 participant "Shift: Endpoint" as ShiftEndpoint
 participant "Shift: Service" as ShiftService
 participant "Shift: Query" as ShiftQuery
 
-activate Admin
-
-Admin->ShiftTable: Render "Shift Table"
-activate ShiftTable
-ShiftTable-->Admin: rendered
-ShiftTable->ShiftTable: Choose Shift
-ShiftTable->Router: route("GET", "v2/shift/available?date=YOUR_DATE")
-activate Router
+Admin->ClassForm: Choose Date 
+ClassForm->ClassForm: fetchAvailableShifts(date)
+ClassForm->FEShiftService: fetchAvailableShifts(date)
+FEShiftService->Router: route("GET", "v2/shift/available?date=YOUR_DATE")
 Router->ShiftHTTPTransport: FindAvailableShift(ShiftService, []ServerOption)
-activate ShiftHTTPTransport
 ShiftHTTPTransport->ShiftEndpoint: FindAvailableShift(ShiftService)
-activate ShiftEndpoint
-ShiftEndpoint->ShiftService: Available(params)
+ShiftEndpoint->ShiftService: Available(context, params)
 
-activate ShiftService
-ShiftService->ShiftQuery: Available(date)
-activate ShiftQuery
+ShiftService->ShiftQuery: Available(context, date)
 ShiftQuery-->ShiftService: shifts
-deactivate ShiftQuery
 ShiftService-->ShiftEndpoint: shifts
-deactivate ShiftService
 
 ShiftEndpoint->ShiftEndpoint: response := Response(shifts, nil)
 ShiftEndpoint-->ShiftHTTPTransport: response
-deactivate ShiftEndpoint
 ShiftHTTPTransport-->Router: response
-deactivate ShiftHTTPTransport
-Router-->ShiftTable: response
-deactivate Router
-ShiftTable->ShiftTable: display Shifts options to field
-ShiftTable-->Admin: rendered
-deactivate ShiftTable
-
-deactivate Admin
+Router-->FEShiftService: response
+FEShiftService-->ClassForm: response
+ClassForm-->Admin: rendered
 
 @enduml

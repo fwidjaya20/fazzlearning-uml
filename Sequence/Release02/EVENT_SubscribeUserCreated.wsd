@@ -9,18 +9,9 @@ actor Caller
 participant "UserETL: NATS Transport" as UserETLNATSTransport
 participant "UserETL: Service" as UserETLService
 
-activate Caller
-
-Caller->UserETLNATSTransport: userCreatedSubscriber
-activate UserETLNATSTransport
-UserETLNATSTransport->UserETLNATSTransport: parse message
-UserETLNATSTransport->UserETLService: Create(User)
-activate UserETLService
+Caller->UserETLNATSTransport: userCreatedSubscriber(conn, logger, service)
+UserETLNATSTransport->UserETLService: ReplicaPersistance(context, payload)
 UserETLService-->UserETLNATSTransport: subscribed
-deactivate UserETLService
 UserETLNATSTransport-->Caller: subscribed
-deactivate UserETLNATSTransport
-
-deactivate Caller
 
 @enduml

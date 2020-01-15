@@ -1,0 +1,50 @@
+@startuml ViewComment_Member
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Admin" as Admin
+participant "Page: Detail Event" as DetailEventPage
+participant "Container: Detail Event" as DetailEventContainer
+participant "Container: Wall Post" as WallPostContainer
+participant "Component: Comment" as CommentComponent
+participant "Service: Conversation Service" as FEConversationService
+participant "Router" as Router
+participant "Conversation: HTTP Transport" as ConversationHTTPTransport
+participant "Conversation: Endpoint" as ConversationEndpoint
+participant "Conversation: Service" as ConversationService
+participant "Conversation: Query" as ConversationQuery
+
+Admin->DetailEventPage: Open "Detail Event" Page
+DetailEventPage->DetailEventContainer: Render "Detail Event" Container
+DetailEventContainer->WallPostContainer: fetchComment()
+WallPostContainer->FEConversationService: fetchComments(eventId)
+FEConversationService->Router: route("GET", "v2/event/{event_id}/comments")
+Router->ConversationHTTPTransport: FetchCommentsByEventId(ConversationService, []ServerOption)
+ConversationHTTPTransport->ConversationEndpoint: FetchCommentsByEventId(ConversationService)
+ConversationEndpoint->ConversationService: FindCommentsByEvent(context, parameters)
+ConversationService->ConversationQuery: FindComment(context, []SliceCondition)
+ConversationQuery-->ConversationService: comments
+loop "for each comment"
+    ConversationService->ConversationService: FindRepliesByComment(context, payload)
+end
+ConversationService-->ConversationEndpoint: comments
+
+ConversationEndpoint->ConversationService: GetCommentsCountByEvent(context, parameters)
+ConversationService->ConversationQuery: CountComments(context, []SliceCondition)
+ConversationQuery-->ConversationService: total
+ConversationService-->ConversationEndpoint: total
+ConversationEndpoint->ConversationEndpoint: response := Response(comments, total)
+ConversationEndpoint-->ConversationHTTPTransport: response
+ConversationHTTPTransport-->Router: response
+Router-->FEConversationService: response
+FEConversationService-->WallPostContainer: response
+
+WallPostContainer->CommentComponent: Render "Comment" Component
+CommentComponent-->WallPostContainer: rendered
+WallPostContainer-->DetailEventContainer: rendered
+DetailEventContainer-->DetailEventPage: rendered
+DetailEventPage-->Admin: rendered
+
+@enduml

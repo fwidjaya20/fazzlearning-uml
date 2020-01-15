@@ -28,12 +28,13 @@ start
 
 |System|
 :Validate Data;
+
 if (Valid ?) then (Yes)
-    :Check the Class is Valid on Transaction;
+    :Check validity of the transaction;
 
     if (Valid ?) then (Yes)
-
-        :Insert "Class" data to Database;
+        :Mark "Committed" attribute of Class as False;
+        :Insert "Class" to Database;
         if (IsCreated ?) then (Yes)
             if (Has Material ?) then (Yes)
                 :Zip Materials;
@@ -46,6 +47,7 @@ if (Valid ?) then (Yes)
             :Adding Error Information;
         endif
     else (No)
+        :Adding Error Information;
     endif
 else (No)
 endif

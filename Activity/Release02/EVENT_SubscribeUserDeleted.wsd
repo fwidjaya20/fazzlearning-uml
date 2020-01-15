@@ -10,15 +10,10 @@ start
 :Subscribe User.UserDeleted;
 
 |System|
-:Parsing Event Message;
+:Delete Replica User from UserETL;
 
-if (Valid ?) then (Yes)
-    :Delete Replica User from UserETL;
-
-    if (Is Error ?) then (Yes)
-        :Adding Error Information;
-    endif
-else (No)
+if (Is Error ?) then (Yes)
+    :Adding Error Information;
 endif
 stop
 

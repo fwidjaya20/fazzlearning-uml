@@ -9,16 +9,15 @@ skinparam packageStyle rectangle
 actor Admin
 actor Member
 
-rectangle "Conversation System" {
-    Admin --> (Post)
-    Admin --> (View)
-    Admin --> (Reply)
-    Admin --> (Delete)
+rectangle "Conversation Sub System" {
+    Admin --> (Post Comment)
+    Admin --> (View Reply)
+    Admin --> (View Comment)
+    Admin --> (Post Reply)
 
-    (Post) <-- Member
-    (View) <-- Member
-    (Reply) <-- Member
-    (Delete) <-- Member
+    (View Reply) <-- Member
+    (View Comment) <-- Member
+    (Post Comment) <-- Member
 }
 
 @enduml

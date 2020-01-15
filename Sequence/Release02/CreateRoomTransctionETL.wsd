@@ -9,23 +9,15 @@ actor Caller
 participant "RoomTransactionETL: Service" as RoomTransactionETLService
 participant "RoomTransactionETL: Command" as RoomTransactionETLCommand
 
-activate Caller
-
-Caller->RoomTransactionETLService: ReplicaPersistance()
-activate RoomTransactionETLService
+Caller->RoomTransactionETLService: ReplicaPersistance(conn, logger, service)
 
 loop "for each payload"
     RoomTransactionETLService->RoomTransactionETLService: m := RoomTransactionETLModel()
     RoomTransactionETLService->RoomTransactionETLService: etls := append(etls, m)
 end
 
-RoomTransactionETLService->RoomTransactionETLCommand: CreateBulk(etls)
-activate RoomTransactionETLCommand
+RoomTransactionETLService->RoomTransactionETLCommand: CreateBulk(context, etls)
 RoomTransactionETLCommand-->RoomTransactionETLService: Is Creataed
-deactivate RoomTransactionETLCommand
 RoomTransactionETLService-->Caller: Is Created
-deactivate RoomTransactionETLService
-
-deactivate Caller
 
 @enduml

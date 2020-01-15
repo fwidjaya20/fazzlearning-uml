@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Room" as RoomPage
 participant "Container: Room Table" as RoomTableContainer
 participant "Component: Room Table" as RoomTable
+participant "Service: Room Service" as FERoomService
 participant "Router" as Router
 participant "Room: HTTP Transport" as RoomHTTPTransport
 participant "Room: Endpoint" as RoomEndpoint
@@ -15,49 +16,8 @@ participant "Room: Service" as RoomService
 participant "Room: Command" as RoomCommand
 participant "Room: Query" as RoomQuery
 
-activate Admin
-
 Admin->RoomPage: Open "Manage Room" Page
-activate RoomPage
 RoomPage->RoomTableContainer: Render "Room Table" Container
-activate RoomTableContainer
-RoomTableContainer->RoomTable: Render "Room Table"
-activate RoomTable
-RoomTable-->RoomTableContainer: rendered
-RoomTableContainer->Router: route("GET", "v2/rooms")
-activate Router
-Router->RoomHTTPTransport: FetchPaginatedRooms(RoomService, []ServerOption)
-activate RoomHTTPTransport
-RoomHTTPTransport->RoomEndpoint: All(RoomService, withPaginated)
-activate RoomEndpoint
-RoomEndpoint->RoomService: All(params)
-
-activate RoomService
-activate RoomQuery
-alt "With Paginate"
-    RoomService->RoomQuery: All([]SliceConditions, PaginateModel)
-else
-    RoomService->RoomQuery: All([]SliceConditions, nil)
-end
-RoomQuery-->RoomService: rooms
-RoomService-->RoomEndpoint: rooms
-
-opt "With Paginate"
-    RoomEndpoint->RoomService: GetPagination(PaginateModel)
-    RoomService->RoomQuery: Count([]SliceConditions)
-    RoomQuery-->RoomService: total
-    RoomService-->RoomEndpoint: total
-end
-deactivate RoomQuery
-deactivate RoomService
-
-RoomEndpoint->RoomEndpoint: response := Response(Rooms, paginateMetadata)
-RoomEndpoint-->RoomHTTPTransport: response
-deactivate RoomEndpoint
-RoomHTTPTransport-->Router: response
-deactivate RoomHTTPTransport
-Router-->RoomTableContainer: response
-deactivate Router
 RoomTableContainer->RoomTable: Render "Room Table"
 RoomTable-->RoomTableContainer: rendered
 RoomTableContainer-->RoomPage: rendered
@@ -67,53 +27,39 @@ Admin->RoomPage: Mark "Room"
 RoomPage->RoomTableContainer: Mark "Room"
 RoomTableContainer->RoomTable: Mark "Room"
 RoomTable-->RoomTableContainer: marked
-deactivate RoomTable
 RoomTableContainer-->RoomPage: marked
 RoomPage-->Admin: marked
 
 Admin->RoomPage: Click "Delete Selected" Button
-RoomPage->RoomTableContainer: Click "Delete Selected" Button
-RoomTableContainer->RoomTableContainer: Show Dialod Confirmation
+RoomPage->RoomTableContainer: showDeleteConfirmation(item)
 
 alt "Cancel Delete"
     RoomTableContainer-->RoomPage: Close Dialog
     RoomPage-->Admin: Close Dialog
 else
-    RoomTableContainer->Router: route("DELETE", "v2/rooms", formData)
-    activate Router
-    Router->RoomHTTPTransport: DeleteRooms(RoomService, []ServerOption)
-    activate RoomHTTPTransport
+    RoomTableContainer->RoomTableContainer: handleDeleteConfirmation(item)
+    RoomTableContainer->FERoomService: deleteRoom(id)
+    FERoomService->Router: route("DELETE", "v2/rooms", formData)
+    Router->RoomHTTPTransport: DeleteRoom(RoomService, []ServerOption)
     RoomHTTPTransport->RoomEndpoint: Delete(RoomService)
-    activate RoomEndpoint
-    RoomEndpoint->RoomService: DeleteMany([]id)
+    RoomEndpoint->RoomService: DeleteMany(context, payload)
 
-    activate RoomService
     loop "for each id"
-        RoomService->RoomQuery: Find(id)
-        activate RoomQuery
+        RoomService->RoomQuery: Find(context, []SliceCondition)
         RoomQuery-->RoomService: room
-        deactivate RoomQuery
 
-        RoomService->RoomCommand: Delete(room)
-        activate RoomCommand
+        RoomService->RoomCommand: Delete(context, room)
         RoomCommand-->RoomService: isDeleted
-        deactivate RoomCommand
     end
-    deactivate RoomService
+
     RoomService-->RoomEndpoint: isDeleted
     RoomEndpoint->RoomEndpoint: response := Response(isDeleted, nil)
     RoomEndpoint-->RoomHTTPTransport: response
-    deactivate RoomEndpoint
     RoomHTTPTransport-->Router: response
-    deactivate RoomHTTPTransport
-    Router-->RoomTableContainer: response
-    deactivate Router
+    Router-->FERoomService: response
+    FERoomService-->RoomTableContainer: response
     RoomTableContainer-->RoomPage: response
-    deactivate RoomTableContainer
     RoomPage-->Admin: response
-    deactivate RoomPage
 end
-
-deactivate Admin
 
 @enduml

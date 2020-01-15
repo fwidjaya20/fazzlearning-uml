@@ -6,52 +6,29 @@ hide footbox
 
 actor Admin
 participant "Page: Dashboard" as Dashboard
-participant "Container: Calendar Container" as CalendarContainer
-participant "Component: Calendar" as Calendar
+participant "Service: Statistic Service" as FEStatisticService
 participant "Router" as Router
 participant "Statistic: HTTP Transport" as StatisticHTTPTransport
 participant "Statistic: Endpoint" as StatisticEndpoint
 participant "Statistic: Service" as StatisticService
 participant "Statistic: Query" as StatisticQuery
 
-activate Admin
-
 Admin->Dashboard: Open "Dashboard" Page
-activate Dashboard
-Dashboard->CalendarContainer: Render "Benchmark" Container
-activate CalendarContainer
-CalendarContainer->Calendar: Render "Event" Calendar
-activate Calendar
-Calendar-->CalendarContainer: rendered
-CalendarContainer->Router: route("GET", "v2/statistic/calendar")
-activate Router
+Dashboard->Dashboard: fetchCalendar()
+Dashboard->FEStatisticService: fetchCalendar(date)
+FEStatisticService->Router: route("GET", "v2/statistic/calendar")
 Router->StatisticHTTPTransport: FetchCalendar(StatisticService, []ServerOption)
-activate StatisticHTTPTransport
 StatisticHTTPTransport->StatisticEndpoint: GetCalendar(StatisticService)
-activate StatisticEndpoint
-StatisticEndpoint->StatisticService: Calendar(date)
-activate StatisticService
-StatisticService->StatisticQuery: FindCalendar(date)
-activate StatisticQuery
+StatisticEndpoint->StatisticService: Calendar(context, date)
+StatisticService->StatisticQuery: FindCalendar(context, date)
 StatisticQuery-->StatisticService: calendar
-deactivate StatisticQuery
 StatisticService-->StatisticEndpoint: calendar
-deactivate StatisticService
 StatisticEndpoint->StatisticEndpoint: response := Response(calendar, nil)
 StatisticEndpoint-->StatisticHTTPTransport: response
-deactivate StatisticEndpoint
 StatisticHTTPTransport-->Router: response
-deactivate StatisticHTTPTransport
-Router-->CalendarContainer: response
-deactivate Router
-CalendarContainer->Calendar: Render "Calendar"
-Calendar-->CalendarContainer: rendered
-deactivate Calendar
-CalendarContainer-->Dashboard: rendered
-deactivate CalendarContainer
+Router-->FEStatisticService: response
+FEStatisticService-->Dashboard: response
+Dashboard->Dashboard: Render "Calendar"
 Dashboard-->Admin: rendered
-deactivate Dashboard
-
-deactivate Admin
 
 @enduml

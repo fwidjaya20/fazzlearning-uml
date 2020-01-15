@@ -7,21 +7,14 @@ skinparam Shadowing false
 
 |Member|
 start
-:Open "Ticket" Page;
+:Open "Ticket Detail" Page;
 :Click "Cancel" Button;
-
-|System|
-:Open "Class Detail" Page;
-
-|Member|
-:Fill "Reason" field (Opt);
-:Hit "Register" Button;
 
 |System|
 :Validate;
 
 if (Data Valid ?) then (Yes)
-    :Insert "Requester" data to Database;
+    :Delete "Requester" data from Database;
 
     if (Valid ?) then (Yes)
         :Add Success Information;

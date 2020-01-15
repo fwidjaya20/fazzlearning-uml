@@ -9,17 +9,9 @@ actor Caller
 participant "UserETL: Service" as UserETLService
 participant "UserETL: Command" as UserETLCommand
 
-activate Caller
-
-Caller->UserETLService: CreatePersistance()
-activate UserETLService
-UserETLService->UserETLCommand: Create(payload)
-activate UserETLCommand
+Caller->UserETLService: ReplicaPersistance(context, payload)
+UserETLService->UserETLCommand: Create(context, user)
 UserETLCommand-->UserETLService: Is Created
-deactivate UserETLCommand
 UserETLService-->Caller: Is Created
-deactivate UserETLService
-
-deactivate Caller
 
 @enduml

@@ -10,15 +10,11 @@ start
 :Subscribe Class.ClassDeleted;
 
 |System|
-:Parsing Event Message;
 
-if (Valid ?) then (Yes)
-    :Delete Room Transaction;
+:Delete Room Transaction;
 
-    if (Is Error ?) then (Yes)
-        :Adding Error Information;
-    endif
-else (No)
+if (Is Error ?) then (Yes)
+    :Adding Error Information;
 endif
 stop
 

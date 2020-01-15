@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Ticket" as TicketPage
-participant "Container: Ticket List" as TicketListContainer
-participant "Component: Ticket" as Ticket
+participant "Page: Ticket Detail" as TicketPage
+participant "Container: Ticket Detail Container" as TicketDetailContainer
+participant "Service: Class Service" as FEClassService
 participant "Router" as Router
 participant "Ticket: HTTP Transport" as TicketHTTPTransport
 participant "Ticket: Endpoint" as TicketEndpoint
@@ -15,97 +15,43 @@ participant "Ticket: Service" as TicketService
 participant "Ticket: Command" as TicketCommand
 participant "Ticket: Query" as TicketQuery
 
-activate Member
-
-Member->TicketPage: Open "Ticket" Page
-activate TicketPage
-TicketPage->TicketListContainer: render "Ticket" List
-activate TicketListContainer
-TicketListContainer->Ticket: render "Ticket" component
-activate Ticket
-Ticket-->TicketListContainer: rendered
-TicketListContainer->Router: route("GET", "v2/tickets")
-activate Router
-Router->TicketHTTPTransport: GetTickets(RequestService, []ServerOption)
-activate TicketHTTPTransport
-TicketHTTPTransport->TicketEndpoint: GetTickets(RequestService)
-activate TicketEndpoint
-TicketEndpoint->TicketService: GetTicket(payload)
-activate TicketService
-TicketService->TicketQuery: FindTicket([]SliceCondition)
-activate TicketQuery
-TicketQuery-->TicketService: tickets
-deactivate TicketQuery
-TicketService-->TicketEndpoint: tickets
-deactivate TicketService
-TicketEndpoint->TicketEndpoint: response := Response(tickets, nil)
-TicketEndpoint-->TicketHTTPTransport: response
-deactivate TicketEndpoint
-TicketHTTPTransport-->Router: response
-deactivate TicketHTTPTransport
-Router-->TicketListContainer: response
-deactivate Router
-TicketListContainer->Ticket: render "Ticket"
-Ticket-->TicketListContainer: rendered
-TicketListContainer-->TicketPage: display data as list view
-TicketPage-->Member: rendered
-
 Member->TicketPage: Click "Cancel Request" Button
-TicketPage->TicketListContainer: Click "Cancel Request" Button
-TicketListContainer->Ticket: Click "Cancel Request" Button
-Ticket-->TicketListContainer: Open Dialog Confirmation
-deactivate Ticket
-
+TicketPage->TicketDetailContainer: showCancelRegistrationConfirmation()
 
 alt "Decline Cancel Register"
-    TicketListContainer-->TicketPage: close dialog
+    TicketDetailContainer-->TicketPage: close dialog
     TicketPage-->Member: close dialog
 else
-    TicketListContainer->Router: route("DELETE", "v2/class/{class_id}/unregister")
-    activate Router
-    Router->TicketHTTPTransport: Unregister(TicketService, []ServerOption)
-    activate TicketHTTPTransport
-    TicketHTTPTransport->TicketEndpoint: Unregister(TicketService)
-    activate TicketEndpoint
-    TicketEndpoint->TicketService: Unregister(TicketService)
-    activate TicketService
+    TicketDetailContainer->TicketDetailContainer: handleCancelation()
+    TicketDetailContainer->FEClassService: unregisterClass(classId)
+    FEClassService->Router: route("DELETE", "v2/class/{class_id}/unregister")
+    Router->TicketHTTPTransport: Unregister(RequesterService, []ServerOption)
+    TicketHTTPTransport->TicketEndpoint: Unregister(RequesterService)
+    TicketEndpoint->TicketService: Unregister(context, payload)
     TicketService->TicketService: Validate()
     
     alt "Data Not Valid"
         TicketService-->TicketEndpoint: UnprocessableEntity
         TicketEndpoint-->TicketHTTPTransport: UnprocessableEntity
         TicketHTTPTransport-->Router: UnprocessableEntity
-        Router-->TicketListContainer: UnprocessableEntity
-        TicketListContainer-->TicketPage: UnprocessableEntity
+        Router-->FEClassService: UnprocessableEntity
+        FEClassService-->TicketDetailContainer: UnprocessableEntity
+        TicketDetailContainer-->TicketPage: UnprocessableEntity
         TicketPage-->Member: UnprocessableEntity
     else
-        TicketService->TicketQuery: GetPureModel([]SliceCondition)
-        activate TicketQuery
+        TicketService->TicketQuery: GetPureModel(context, []SliceCondition)
         TicketQuery-->TicketService: ticket
-        deactivate TicketQuery
-        TicketService->TicketCommand: Delete(ticket)
-        activate TicketCommand
+        TicketService->TicketCommand: Delete(context, ticket)
         TicketCommand-->TicketService: Is Deleted
-        deactivate TicketCommand
         TicketService-->TicketEndpoint: response
-        deactivate TicketService
         TicketEndpoint->TicketEndpoint: response := Response(IsDeleted, nil)
         TicketEndpoint-->TicketHTTPTransport: response
-        deactivate TicketEndpoint
         TicketHTTPTransport-->Router: response
-        deactivate TicketHTTPTransport
-        Router-->TicketListContainer: response
-        deactivate Router
-        TicketListContainer->TicketListContainer: fetchTickets()
-        TicketListContainer-->TicketPage: response
-        deactivate TicketListContainer
-
+        Router-->FEClassService: response
+        FEClassService-->TicketDetailContainer: response
+        TicketDetailContainer-->TicketPage: response
         TicketPage-->Member: response
     end
 end
-
-deactivate TicketPage
-
-deactivate Member
 
 @enduml

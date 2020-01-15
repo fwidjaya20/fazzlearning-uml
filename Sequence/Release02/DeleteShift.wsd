@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Shift" as ShiftPage
 participant "Container: Shift Table" as ShiftTableContainer
 participant "Component: Shift Table" as ShiftTable
+participant "Service: Shift Service" as FEShiftService
 participant "Router" as Router
 participant "Shift: HTTP Transport" as ShiftHTTPTransport
 participant "Shift: Endpoint" as ShiftEndpoint
@@ -15,49 +16,8 @@ participant "Shift: Service" as ShiftService
 participant "Shift: Command" as ShiftCommand
 participant "Shift: Query" as ShiftQuery
 
-activate Admin
-
 Admin->ShiftPage: Open "Manage Shift" Page
-activate ShiftPage
 ShiftPage->ShiftTableContainer: Render "Shift Table" Container
-activate ShiftTableContainer
-ShiftTableContainer->ShiftTable: Render "Shift Table"
-activate ShiftTable
-ShiftTable-->ShiftTableContainer: rendered
-ShiftTableContainer->Router: route("GET", "v2/shifts")
-activate Router
-Router->ShiftHTTPTransport: FetchPaginatedShifts(ShiftService, []ServerOption)
-activate ShiftHTTPTransport
-ShiftHTTPTransport->ShiftEndpoint: All(ShiftService, withPaginated)
-activate ShiftEndpoint
-ShiftEndpoint->ShiftService: All(params)
-
-activate ShiftService
-activate ShiftQuery
-alt "With Paginate"
-    ShiftService->ShiftQuery: All([]SliceConditions, PaginateModel)
-else
-    ShiftService->ShiftQuery: All([]SliceConditions, nil)
-end
-ShiftQuery-->ShiftService: shifts
-ShiftService-->ShiftEndpoint: shifts
-
-opt "With Paginate"
-    ShiftEndpoint->ShiftService: GetPagination(PaginateModel)
-    ShiftService->ShiftQuery: Count([]SliceConditions)
-    ShiftQuery-->ShiftService: total
-    ShiftService-->ShiftEndpoint: total
-end
-deactivate ShiftQuery
-deactivate ShiftService
-
-ShiftEndpoint->ShiftEndpoint: response := Response(Shifts, paginateMetadata)
-ShiftEndpoint-->ShiftHTTPTransport: response
-deactivate ShiftEndpoint
-ShiftHTTPTransport-->Router: response
-deactivate ShiftHTTPTransport
-Router-->ShiftTableContainer: response
-deactivate Router
 ShiftTableContainer->ShiftTable: Render "Shift Table"
 ShiftTable-->ShiftTableContainer: rendered
 ShiftTableContainer-->ShiftPage: rendered
@@ -67,51 +27,51 @@ Admin->ShiftPage: Mark "Shift"
 ShiftPage->ShiftTableContainer: Mark "Shift"
 ShiftTableContainer->ShiftTable: Mark "Shift"
 ShiftTable-->ShiftTableContainer: marked
-deactivate ShiftTable
 ShiftTableContainer-->ShiftPage: marked
 ShiftPage-->Admin: marked
 
 Admin->ShiftPage: Click "Delete Selected" Button
-ShiftPage->ShiftTableContainer: Click "Delete Selected" Button
-ShiftTableContainer->ShiftTableContainer: Show Dialod Confirmation
+ShiftPage->ShiftTableContainer: showDeleteConfirmation(item)
 
 alt "Cancel Delete"
-    ShiftTableContainer-->ShiftPage
-    ShiftPage-->Admin
+    ShiftTableContainer-->ShiftPage: Close Dialog
+    ShiftPage-->Admin: Close Dialog
 else
-    ShiftTableContainer->Router: route("DELETE", "v2/Shifts", formData)
-    activate Router
+    ShiftTableContainer->ShiftTableContainer: handleDeleteConfirmation(item)
+    ShiftTableContainer->FEShiftService: deleteShift(payload)
+    FEShiftService->Router: route("DELETE", "v2/Shifts", formData)
     Router->ShiftHTTPTransport: DeleteShifts(ShiftService, []ServerOption)
-    activate ShiftHTTPTransport
     ShiftHTTPTransport->ShiftEndpoint: Delete(ShiftService)
-    activate ShiftEndpoint
-    ShiftEndpoint->ShiftService: DeleteMany([]id)
+    ShiftEndpoint->ShiftService: DeleteMany(context, payload)
+    ShiftService->ShiftService: Validate()
 
-    activate ShiftService
-    loop "for each id"
-        ShiftService->ShiftQuery: Find(id)
-        activate ShiftQuery
-        ShiftQuery-->ShiftService: shift
-        deactivate ShiftQuery
+    alt "Is Not Valid"
+        ShiftService-->ShiftEndpoint: UnprocessableEntity
+        ShiftEndpoint->ShiftEndpoint: UnprocessableEntity
+        ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+        ShiftHTTPTransport-->Router: UnprocessableEntity
+        Router-->FEShiftService: UnprocessableEntity
+        FEShiftService-->ShiftTableContainer: UnprocessableEntity
+        ShiftTableContainer-->ShiftPage: UnprocessableEntity
+        ShiftPage-->Admin: UnprocessableEntity
+    else
+        loop "for each id"
+            ShiftService->ShiftQuery: Find(context, []SliceCondition)
+            ShiftQuery-->ShiftService: shift
 
-        ShiftService->ShiftCommand: Delete(shift)
-        activate ShiftCommand
-        ShiftCommand-->ShiftService: isDeleted
-        deactivate ShiftCommand
+            ShiftService->ShiftCommand: Delete(context, shift)
+            ShiftCommand-->ShiftService: isDeleted
+        end
+
+        ShiftService-->ShiftEndpoint: isDeleted
+        ShiftEndpoint->ShiftEndpoint: response := Response(isDeleted, nil)
+        ShiftEndpoint-->ShiftHTTPTransport: response
+        ShiftHTTPTransport-->Router: response
+        Router-->FEShiftService: response
+        FEShiftService-->ShiftTableContainer: response
+        ShiftTableContainer-->ShiftPage: response
+        ShiftPage-->Admin: response
     end
-    deactivate ShiftService
-    ShiftService-->ShiftEndpoint: isDeleted
-    ShiftEndpoint->ShiftEndpoint: response := Response(isDeleted, nil)
-    ShiftEndpoint-->ShiftHTTPTransport: response
-    deactivate ShiftEndpoint
-    ShiftHTTPTransport-->Router: response
-    deactivate ShiftHTTPTransport
-    Router-->ShiftTableContainer: response
-    deactivate Router
-    ShiftTableContainer-->ShiftPage: response
-    deactivate ShiftTableContainer
-    ShiftPage-->Admin: response
-    deactivate ShiftPage
 end
 
 deactivate Admin

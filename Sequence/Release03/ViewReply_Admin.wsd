@@ -1,0 +1,50 @@
+@startuml ViewReply_Member
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Admin" as Admin
+participant "Page: Detail Event" as DetailEventPage
+participant "Container: Detail Event" as DetailEventContainer
+participant "Container: Wall Post" as WallPostContainer
+participant "Component: Comment" as CommentComponent
+participant "Service: Conversation Service" as FEConversationService
+participant "Router" as Router
+participant "Conversation: HTTP Transport" as ConversationHTTPTransport
+participant "Conversation: Endpoint" as ConversationEndpoint
+participant "Conversation: Service" as ConversationService
+participant "Conversation: Query" as ConversationQuery
+
+Admin->DetailEventPage: Open "Detail Event" Page
+DetailEventPage->DetailEventContainer: Render "Detail Event" Container
+DetailEventContainer->WallPostContainer:  Render "Wall Post" Container
+WallPostContainer->CommentComponent: fetchReply()
+CommentComponent->FEConversationService: fetchReplies(commentId)
+FEConversationService->Router: route("GET", "v2/event/{event_id}/comment/{comment_id}/replies")
+Router->ConversationHTTPTransport: FetchRepliesByCommentId(ConversationService, []ServerOption)
+ConversationHTTPTransport->ConversationEndpoint: FetchRepliesByCommentId(ConversationService)
+ConversationEndpoint->ConversationService: FindRepliesByComment(context, parameters)
+ConversationService->ConversationQuery: FindReplies(context, []SliceCondition)
+ConversationQuery-->ConversationService: replies
+ConversationService-->ConversationEndpoint: replies
+
+ConversationEndpoint->ConversationService: GetRepliesCountByComment(context, parameters)
+ConversationService->ConversationQuery: CountReplies(context, []SliceCondition)
+ConversationQuery-->ConversationService: total
+ConversationService-->ConversationEndpoint: total
+ConversationEndpoint->ConversationEndpoint: response := Response(replies, total)
+ConversationEndpoint-->ConversationHTTPTransport: response
+ConversationHTTPTransport-->Router: response
+Router-->FEConversationService: response
+FEConversationService-->CommentComponent: rendered
+
+CommentComponent->WallPostContainer: Render "Wall Post" Container
+WallPostContainer-->CommentComponent: rendered
+
+CommentComponent-->WallPostContainer: rendered
+WallPostContainer-->DetailEventContainer: rendered
+DetailEventContainer-->DetailEventPage: rendered
+DetailEventPage-->Admin: rendered
+
+@enduml

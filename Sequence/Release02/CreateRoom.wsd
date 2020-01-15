@@ -8,6 +8,7 @@ actor Admin
 participant "Page: Add Room" as AddRoomPage
 participant "Container: Add Room Form" as AddRoomFormContainer
 participant "Component: Room Form" as RoomForm
+participant "Service: Room Service" as FERoomService
 participant "Router" as Router
 participant "Room: HTTP Transport" as RoomHTTPTransport
 participant "Room: Endpoint" as RoomEndpoint
@@ -15,14 +16,9 @@ participant "Room: Service" as RoomService
 participant "Room: Command" as RoomCommand
 participant "Room: Query" as RoomQuery
 
-activate Admin
-
 Admin->AddRoomPage: Open "Add Room" Page
-activate AddRoomPage
 AddRoomPage->AddRoomFormContainer: Render "Add Room Form" Container
-activate AddRoomFormContainer
 AddRoomFormContainer->RoomForm: Render "Room Form"
-activate RoomForm
 RoomForm-->AddRoomFormContainer: rendered
 AddRoomFormContainer-->AddRoomPage: rendered
 AddRoomPage-->Admin: rendered
@@ -31,54 +27,40 @@ Admin->AddRoomPage: Fill Form
 AddRoomPage->AddRoomFormContainer: Fill Form
 AddRoomFormContainer->RoomForm: Fill Form
 RoomForm-->AddRoomFormContainer: form data
-deactivate RoomForm
 AddRoomFormContainer-->AddRoomPage: form data
 AddRoomPage-->Admin: form data
 
 Admin->AddRoomPage: Click "Create Room" Button
-AddRoomPage->AddRoomFormContainer: Click "Create Room" Button
-AddRoomFormContainer->Router: route("POST", "v2/room", formData)
-activate Router
+AddRoomPage->AddRoomFormContainer: handleRoomFormSubmitted()
+AddRoomFormContainer->FERoomService: createRoom(payload)
+FERoomService->Router: route("POST", "v2/room", formData)
 Router->RoomHTTPTransport: CreateRoom(RoomService, []ServerOption)
-activate RoomHTTPTransport
 RoomHTTPTransport->RoomEndpoint: Create(RoomService)
-activate RoomEndpoint
-RoomEndpoint->RoomService: Create(payload)
-activate RoomService
+RoomEndpoint->RoomService: Create(context, payload)
 RoomService->RoomService: Validate()
 
 alt "Data not valid"
     RoomService-->RoomEndpoint: UnprocessableEntity
     RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
     RoomHTTPTransport-->Router: UnprocessableEntity
-    Router-->AddRoomFormContainer: UnprocessableEntity
+    Router-->FERoomService: UnprocessableEntity
+    FERoomService-->AddRoomFormContainer: UnprocessableEntity
     AddRoomFormContainer-->AddRoomPage: UnprocessableEntity
     AddRoomPage-->Admin: UnprocessableEntity
 else
     RoomService->RoomService: room := RoomModel()
-    RoomService->RoomCommand: Create(room)
-    activate RoomCommand
+    RoomService->RoomCommand: Create(context, room)
     RoomCommand-->RoomService: uuid
-    deactivate RoomCommand
-    RoomService->RoomQuery: Find(uuid)
-    activate RoomQuery
+    RoomService->RoomQuery: Find(context, uuid)
     RoomQuery-->RoomService: room
-    deactivate RoomQuery
     RoomService-->RoomEndpoint: room
-    deactivate RoomService
     RoomEndpoint->RoomEndpoint: response := Response(room, nil)
     RoomEndpoint-->RoomHTTPTransport: response
-    deactivate RoomEndpoint
     RoomHTTPTransport-->Router: response
-    deactivate RoomHTTPTransport
-    Router-->AddRoomFormContainer: response
-    deactivate Router
+    Router-->FERoomService: response
+    FERoomService-->AddRoomFormContainer: response
     AddRoomFormContainer-->AddRoomPage: response
-    deactivate AddRoomFormContainer
     AddRoomPage-->Admin: response
-    deactivate AddRoomPage
 end
-
-deactivate Admin
 
 @enduml

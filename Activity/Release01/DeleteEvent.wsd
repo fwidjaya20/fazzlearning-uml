@@ -27,9 +27,12 @@ start
 :Show Confirmation Dialog;
 
 |Admin|
-if (Agree Delete ?) then (Yes)
+if (Agree Delete ?) then (No)
+    :Show Dialog;
+else (Yes)
     |System|
     :Delete "Event" from Database;
+    
     |System|
     if (Is Deleted ?) then (Yes)
         :Delete Related Poster if Exists;
@@ -38,7 +41,6 @@ if (Agree Delete ?) then (Yes)
     else (No)
         :Adding Error Information;
     endif
-else (No)
 endif
 stop
 

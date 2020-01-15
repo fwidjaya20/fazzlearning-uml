@@ -7,7 +7,7 @@ skinparam Shadowing false
 
 |Member|
 start
-:Open "Ticket" Page;
+:Open "Ticket List" Page;
 
 |System|
 :Get "Requested Class" of User from Database;

@@ -1,17 +1,17 @@
-@startuml GetRequester
+@startuml GetClassBasedOnUserAvailability
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 
-|Admin|
+|Member|
 start
-:Open "Detail Class" Page;
+:Open "Class List" Page;
 
 |System|
-:Get "Requester" data from Database;
-:Display the data to table;
+:Get Available data of "Class" from Database;
+:Display the data from card;
 
 stop
 

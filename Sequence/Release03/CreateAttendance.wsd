@@ -8,12 +8,9 @@ actor Caller
 participant "Attendance: Service" as AttendanceService
 participant "Attendance: Command" as AttendanceCommand
 
-activate Caller
-
-Caller->AttendanceService: Register(payload)
+Caller->AttendanceService: Register(context, []payload)
 
 loop "for each payload"
-    activate AttendanceService
     AttendanceService->AttendanceService: Validate()
 
     alt "Data not valid"
@@ -26,14 +23,8 @@ loop "for each payload"
     end
 end
 
-AttendanceService->AttendanceCommand: CreateBulk(classes)
-activate AttendanceCommand
+AttendanceService->AttendanceCommand: CreateBulk(context, classes)
 AttendanceCommand-->AttendanceService: is created
-deactivate AttendanceCommand
-
 AttendanceService-->Caller: response
-deactivate AttendanceService
-
-deactivate Caller
 
 @enduml

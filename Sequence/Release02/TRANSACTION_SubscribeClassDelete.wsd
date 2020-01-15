@@ -14,7 +14,7 @@ activate Caller
 Caller->RoomTransactionNATSTransport: classDeletedSubscriber
 activate RoomTransactionNATSTransport
 RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message
-RoomTransactionNATSTransport->RoomTransactionService: Delete(TransactionClass)
+RoomTransactionNATSTransport->RoomTransactionService: Delete(context, TransactionClass)
 activate RoomTransactionService
 RoomTransactionService-->RoomTransactionNATSTransport: subscribed
 deactivate RoomTransactionService

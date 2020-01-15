@@ -1,4 +1,4 @@
-@startuml GetClassAvailability
+@startuml RegisterClass
 
 skinparam Monochrome true
 skinparam Shadowing false
@@ -6,106 +6,62 @@ hide footbox
 
 actor Member
 participant "Page: Class" as ClassPage
-participant "Page: Class Detail" as ClassDetailPage
-participant "Container: Class List View" as ClassListViewContainer
-participant "Component: Class Card" as ClassCard
+participant "Container: Class Action Container" as ClassActionContainer
+participant "Service: Class Service" as FEClassService
 participant "Router" as Router
-participant "Class: HTTP Transport" as ClassHTTPTransport
 participant "Requester: HTTP Transport" as RequesterHTTPTransport
-participant "Class: Endpoint" as ClassEndpoint
 participant "Requester: Endpoint" as RequesterEndpoint
-participant "Class: Service" as ClassService
 participant "Requester: Service" as RequesterService
-participant "Class: Command" as ClassCommand
 participant "Requester: Command" as RequesterCommand
-participant "Class: Query" as ClassQuery
+participant "Requester: Query" as RequesterQuery
 
 activate Member
 
-Member->ClassPage: Open "Class List" Page
-activate ClassPage
-ClassPage->ClassListViewContainer: Render "Class List View" Container
-activate ClassListViewContainer
-ClassListViewContainer->ClassCard: Render "Class Card"
-activate ClassCard
-ClassCard-->ClassListViewContainer: rendered
-ClassListViewContainer->Router: route("GET", "v2/event/{event_id}/classes/available")
-activate Router
-Router->ClassHTTPTransport: FetchAvailableToJoin(ClassService, []ServerOption)
-activate ClassHTTPTransport
-ClassHTTPTransport->ClassEndpoint: UserAvailability(ClassService)
-activate ClassEndpoint
-ClassEndpoint->ClassService: FindClassByUserAvailability(payload)
-
-activate ClassService
-ClassService->ClassQuery: FindUserAvailabilityRegistered([]SliceConditions)
-activate ClassQuery
-ClassQuery-->ClassService: classes
-deactivate ClassQuery
-
-ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
-ClassEndpoint-->ClassHTTPTransport: response
-deactivate ClassEndpoint
-ClassHTTPTransport-->Router: response
-deactivate ClassHTTPTransport
-Router-->ClassListViewContainer: response
-deactivate Router
-ClassListViewContainer->ClassCard: Render "Class Card"
-deactivate ClassCard
-ClassCard-->ClassListViewContainer: rendered
-ClassListViewContainer-->ClassPage: rendered
-deactivate ClassListViewContainer
+Member->ClassPage: Open "Class" Page
+ClassPage->ClassActionContainer: Render "Class Action" Container
+ClassActionContainer-->ClassPage: rendered
 ClassPage-->Member: rendered
 
+opt "Fill Reason (optional)"
+    Member->ClassPage: Fill Form
+    ClassPage->ClassActionContainer: handleInputReason()
+    ClassActionContainer-->ClassPage: form data
+    ClassPage-->Member: form data
+end
+
 Member->ClassPage: Click "Register" Button
-ClassPage->ClassListViewContainer: Click "Register" Button
-ClassListViewContainer->ClassCard: Click "Register" Button
-ClassCard-->ClassListViewContainer: redirect to class detail
-ClassListViewContainer-->ClassPage: redirect to class detail
-ClassPage-->Member: redirect to class detail
-deactivate ClassPage
-
-Member->ClassDetailPage: Open "Class Detail" Page
-activate ClassDetailPage
-ClassDetailPage-->Member: rendered
-
-Member->ClassDetailPage: Fill "Reason" Field (Opt)
-Member->ClassDetailPage: Click "Register" Button
-activate Router
-ClassDetailPage->Router: route("POST", "v2/class/{class_id}/register")
-Router->RequesterHTTPTransport: Register(RequestService, []ServerOption)
-activate RequesterHTTPTransport
-RequesterHTTPTransport->RequesterEndpoint: Register(RequestService)
-activate RequesterEndpoint
-RequesterEndpoint->RequesterService: Register(payload
-activate RequesterService
+ClassPage->ClassActionContainer: handleJoinClassClicked()
+ClassActionContainer->FEClassService: registerClass(classId, payload)
+FEClassService->Router: route("POST", "v2/class/{class_id}/register")
+Router->RequesterHTTPTransport: Register(RequesterService, []ServerOption)
+RequesterHTTPTransport->RequesterEndpoint: Register(RequesterService)
+RequesterEndpoint->RequesterService: Register(context, payload)
 RequesterService->RequesterService: Validate()
 
 alt "Data Not Valid"
     RequesterService-->RequesterEndpoint: UnprocessableEntity
     RequesterEndpoint-->RequesterHTTPTransport: UnprocessableEntity
     RequesterHTTPTransport-->Router: UnprocessableEntity
-    Router-->ClassDetailPage: UnprocessableEntity
-    ClassDetailPage->Member: UnprocessableEntity
+    Router-->FEClassService: UnprocessableEntity
+    FEClassService-->ClassActionContainer: UnprocessableEntity
+    ClassActionContainer-->ClassPage: UnprocessableEntity
+    ClassPage-->Member: UnprocessableEntity
 else
     RequesterService->RequesterService: m := RequestModel()
-    RequesterService->RequesterCommand: Create(m)
-    activate RequesterCommand
-    RequesterCommand-->RequesterService: Is Created
-    deactivate RequesterCommand
+    RequesterService->RequesterCommand: Create(context, m)
+    RequesterCommand-->RequesterService: uuid
+
+    RequesterService->RequesterQuery: PureModel(context, []SliceCondition)
+    RequesterQuery-->RequesterService: requester
 end
 
-RequesterService-->RequesterEndpoint: IsCreated
-deactivate RequesterService
-RequesterEndpoint->RequesterEndpoint: response := Response(IsCreated, nil)
+RequesterService-->RequesterEndpoint: requester
+RequesterEndpoint->RequesterEndpoint: response := Response(requester, nil)
 RequesterEndpoint-->RequesterHTTPTransport: response
-deactivate RequesterEndpoint
 RequesterHTTPTransport-->Router: response
-deactivate RequesterHTTPTransport
-Router-->ClassDetailPage: response
-deactivate Router
-
-ClassDetailPage-->Member: response
-deactivate Member
+Router-->FEClassService: response
+FEClassService-->ClassActionContainer: response
+ClassActionContainer-->ClassPage: response
+ClassPage-->Member: response
 
 @enduml

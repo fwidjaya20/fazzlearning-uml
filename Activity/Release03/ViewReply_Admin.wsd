@@ -1,4 +1,4 @@
-@startuml GetRequester
+@startuml ViewReply_Admin
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
@@ -7,11 +7,11 @@ skinparam Shadowing false
 
 |Admin|
 start
-:Open "Detail Class" Page;
+:Open "Detail Event" Page;
 
 |System|
-:Get "Requester" data from Database;
-:Display the data to table;
+:Get Thread related comment replies on Event;
+:Display the Data;
 
 stop
 

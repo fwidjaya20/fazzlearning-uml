@@ -10,14 +10,9 @@ start
 :Subscribe Transaction.TransactionCreated;
 
 |System|
-:Parsing Event Message;
-
-if (Valid ?) then (Yes)
-    :Create Replica Room Transaction to RoomTransactionETL;
-    if (Is Error ?) then (Yes)
-        :Adding Error Information;
-    endif
-else (No)
+:Create Replica Room Transaction to RoomTransactionETL;
+if (Is Error ?) then (Yes)
+    :Adding Error Information;
 endif
 stop
 

@@ -14,7 +14,7 @@ activate Caller
 Caller->RoomTransactionNATSTransport: classCreatedSubscriber
 activate RoomTransactionNATSTransport
 RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message
-RoomTransactionNATSTransport->RoomTransactionService: Create(TransactionClass)
+RoomTransactionNATSTransport->RoomTransactionService: Create(context, TransactionClass)
 activate RoomTransactionService
 RoomTransactionService-->RoomTransactionNATSTransport: subscribed
 deactivate RoomTransactionService

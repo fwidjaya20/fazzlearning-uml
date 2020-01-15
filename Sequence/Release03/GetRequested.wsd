@@ -5,50 +5,32 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Ticket" as TicketPage
-participant "Container: Ticket List View" as TicketListViewContainer
-participant "Component: Card" as Ticket
+participant "Page: Ticket List" as TicketListPage
+participant "Container: Ticket List" as TicketListContainer
+participant "Service: Ticket Service" as FETicketService
 participant "Router" as Router
 participant "Requester: HTTP Transport" as RequestHTTPTransport
 participant "Requester: Endpoint" as RequestEndpoint
 participant "Requester: Service" as RequestService
 participant "Requester: Query" as RequestQuery
 
-activate Member
-
-Member->TicketPage: Open "Ticket" Page
-activate TicketPage
-TicketPage->TicketListViewContainer: render "Ticket" List
-activate TicketListViewContainer
-TicketListViewContainer->Ticket: render "Ticket" component
-activate Ticket
-Ticket-->TicketListViewContainer: rendered
-TicketListViewContainer->Router: route("GET", "v2/tickets")
-activate Router
-Router->RequestHTTPTransport: GetTickets(RequestService, []ServerOption)
-activate RequestHTTPTransport
-RequestHTTPTransport->RequestEndpoint: GetTickets(RequestService)
-activate RequestEndpoint
-RequestEndpoint->RequestService: GetTicket(payload)
-activate RequestService
-RequestService->RequestQuery: FindTicket([]SliceCondition)
-activate RequestQuery
+Member->TicketListPage: Open "Ticket List" Page
+TicketListPage->TicketListContainer: fetchTickets()
+TicketListContainer->FETicketService: fetchTicket()
+FETicketService->Router: route("GET", "v2/tickets")
+Router->RequestHTTPTransport: GetTickets(RequesterService, []ServerOption)
+RequestHTTPTransport->RequestEndpoint: GetTickets(RequesterService)
+RequestEndpoint->RequestService: GetTicket(context, payload)
+RequestService->RequestQuery: FindTicket(context, []SliceCondition)
 RequestQuery-->RequestService: tickets
-deactivate RequestQuery
 RequestService-->RequestEndpoint: tickets
-deactivate RequestService
 RequestEndpoint->RequestEndpoint: response := Response(tickets, nil)
 RequestEndpoint-->RequestHTTPTransport: response
-deactivate RequestEndpoint
 RequestHTTPTransport-->Router: response
-deactivate RequestHTTPTransport
-Router-->TicketListViewContainer: response
-deactivate Router
-TicketListViewContainer->Ticket: render "Ticket"
-Ticket-->TicketListViewContainer: rendered
-TicketListViewContainer-->TicketPage: display data as list view
-TicketPage-->Member: rendered
-
-deactivate Member
+Router-->FETicketService: response
+FETicketService-->TicketListContainer: response
+TicketListContainer->TicketListContainer: re render
+TicketListContainer-->TicketListPage: rendered
+TicketListPage-->Member: rendered
 
 @enduml
