@@ -11,13 +11,9 @@ start
 :Hit "Logout" Button;
 
 |System|
+:Get Logged User Token;
+:Get Token from Database;
 :Delete Session Data from Database;
-|System|
-if (Is Deleted ?) then (Yes)
-    :Adding Success Information;
-else (No)
-    :Adding Error Information;
-endif
 stop
 
 @enduml

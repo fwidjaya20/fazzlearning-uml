@@ -1,16 +1,16 @@
-@startuml GetProfile
+@startuml SearchRole
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 
-|Admin,Member|
+|Admin|
 start
-:Open "Profile" Page;
+:Search Role by Keyword;
 
 |System|
-:Get "User" data from Database;
+:Get "Role" data by Keyword from Database;
 :Display the data to its field;
 stop
 

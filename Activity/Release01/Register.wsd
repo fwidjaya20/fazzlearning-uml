@@ -9,28 +9,45 @@ skinparam Shadowing false
 start
 :Open "Fulfilment" Page;
 
-
 |System|
-:Get "Roles" data from Database;
 :Get "Division" data from Database;
-:Display fetched data into its own field;
+:Display the data to its field;
 
 |Member|
-:Fill "Fulfilment" Form;
+:Fill "Division Fulfilment" Form;
+:Hit "Next" Button;
+
+:Fill "Indentity Fulfilment" Form;
+:Hit "Next" Button;
+
 :Hit "Complete" Button;
 
 |System|
 :Validate;
 
 if (Valid ?) then (Yes)
-    :Insert User Data to Database;
-    if (IsCreated ?) then (Yes)
-        :Adding Success Information;
+    if (Source is WEB ?) then (Yes)
+        :Get "User" from Database;
     else (No)
-        :Adding Error Information;
+        :Get "User" from Database;
+
+        if (DeletedAt of User is not empty) then (Yes)
+            :Set DeletedAt of "User" into NULL;
+            :Update "User" from Database;
+        else (No)
+            :Register the "User" to Database;
+        endif
     endif
 else (No)
 endif
+
+if (User Not Found) then (Yes)
+    :Adding "Error" Information;
+else (No)
+    :Generate User Token;
+    :Create "Session" data to the Database;
+endif
+
 stop
 
 @enduml

@@ -1,16 +1,16 @@
-@startuml GetProfile
+@startuml GetBooked
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 
-|Admin,Member|
+|Admin|
 start
-:Open "Profile" Page;
+:Open "Add Event" Page;
 
 |System|
-:Get "User" data from Database;
+:Get "Booked Class" data by User from Database;
 :Display the data to its field;
 stop
 
