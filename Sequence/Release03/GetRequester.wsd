@@ -5,49 +5,33 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Class Detail" as ClassDetailPage
-participant "Container: Requester Table" as RequesterTableContainer
-participant "Component: Table" as RequesterTable
+participant "Page: Detail Class" as DetailClassPage
+participant "Container: List Requestors" as ListRequestorContainer
+participant "Service: Requestor Service" as FERequestorService
 participant "Router" as Router
 participant "Requester: HTTP Transport" as RequestHTTPTransport
 participant "Requester: Endpoint" as RequestEndpoint
 participant "Requester: Service" as RequestService
 participant "Requester: Query" as RequestQuery
 
-activate Admin
-
-Admin->ClassDetailPage: Open "Class Detail" Page
-activate ClassDetailPage
-ClassDetailPage->RequesterTableContainer: render "Requester Table"
-activate RequesterTableContainer
-RequesterTableContainer->RequesterTable: render "RequesterTable" component
-activate RequesterTable
-RequesterTable-->RequesterTableContainer: rendered
-RequesterTableContainer->Router: route("GET", "v2/class/{class_id}/requester")
-activate Router
-Router->RequestHTTPTransport: GetByClass(RequestService, []ServerOption)
-activate RequestHTTPTransport
-RequestHTTPTransport->RequestEndpoint: GetByClass(RequestService)
-activate RequestEndpoint
-RequestEndpoint->RequestService: GetByClassId(classId)
-activate RequestService
-RequestService->RequestQuery: Find([]SliceCondition)
-activate RequestQuery
+Admin->DetailClassPage: Open "Detail Class" Page
+DetailClassPage->ListRequestorContainer: fetchRequester()
+ListRequestorContainer->FERequestorService: fetchClassRequestor(classId)
+FERequestorService->Router: route("GET", "v2/class/{class_id}/requester")
+Router->RequestHTTPTransport: GetByClass(RequesterService, []ServerOption)
+RequestHTTPTransport->RequestEndpoint: GetByClass(RequesterService)
+RequestEndpoint->RequestService: GetByClassId(context, classId)
+RequestService->RequestQuery: Find(context, []SliceCondition)
 RequestQuery-->RequestService: requester
-deactivate RequestQuery
 RequestService-->RequestEndpoint: requester
-deactivate RequestService
 RequestEndpoint->RequestEndpoint: response := Response(requester, nil)
 RequestEndpoint-->RequestHTTPTransport: response
-deactivate RequestEndpoint
 RequestHTTPTransport-->Router: response
-deactivate RequestHTTPTransport
-Router-->RequesterTableContainer: response
-deactivate Router
-RequesterTableContainer->RequesterTable: render "Requester Table"
-RequesterTable-->RequesterTableContainer: rendered
-RequesterTableContainer-->ClassDetailPage: display data as list view
-ClassDetailPage-->Admin: rendered
+Router-->FERequestorService: responses
+FERequestorService-->ListRequestorContainer: responses
+ListRequestorContainer->ListRequestorContainer: Render "List Requestor" Container
+ListRequestorContainer-->DetailClassPage: rendered
+DetailClassPage-->Admin: rendered
 
 deactivate Admin
 

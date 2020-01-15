@@ -7,11 +7,7 @@ skinparam Shadowing false
 
 |Member|
 start
-:Open "Class List" Page;
-:Click "Register" Button;
-
-|System|
-:Open "Class Detail" Page;
+:Open "Class" Page;
 
 |Member|
 :Fill "Reason" field (Opt);

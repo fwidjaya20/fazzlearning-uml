@@ -1,4 +1,4 @@
-@startuml ReplyConversation
+@startuml PostComment_Admin
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
@@ -10,15 +10,14 @@ start
 :Open "Detail Event" Page;
 
 |Admin|
-:Fill "Reply" Field;
-:Hit "Enter";
+:Fill "Post" Field;
+:Hit "Post" Button;
 
 |System|
 :Validate Data;
 
 if (Valid ?) then (Yes)
-    :Insert "Reply" data to Database;
-    
+    :Insert "Post" data to Database;
     if (IsCreated ?) then (Yes)
         :Adding Success Information;
     else (No)

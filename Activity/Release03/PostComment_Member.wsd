@@ -1,24 +1,21 @@
-@startuml PostConversation
+@startuml PostComment_Member
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 
-|Member,Admin|
+|Admin|
 start
-:Open "Event Detail" Page;
+:Open "Event" Page;
 
-|System|
-:Get Thread related on Event;
-:Display the data on Post Card;
-
-|Member,Admin|
+|Admin|
 :Fill "Post" Field;
 :Hit "Post" Button;
 
 |System|
 :Validate Data;
+
 if (Valid ?) then (Yes)
     :Insert "Post" data to Database;
     if (IsCreated ?) then (Yes)

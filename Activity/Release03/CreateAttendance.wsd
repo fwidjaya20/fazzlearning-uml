@@ -7,21 +7,23 @@ skinparam Shadowing false
 
 |Caller|
 start
-:Migrate "Approved" requester to Attendance;
+:Register "Approved" to Attendance;
 
 |System|
-:Validate Data;
+while (For each approved) is (Has Approved)
+    :Validate Data;
 
-if (Valid ?) then (Yes)
-    :Insert "Attendance" data to Database;
-    
-    if (Is Created ?) then (Yes)
-        :Adding Success Information;
+    if (Valid ?) then (Yes)
+        :Insert "Attendance" data to Database;
+        
+        if (Is Created ?) then (Yes)
+            :Adding Success Information;
+        else (No)
+            :Adding Error Information;
+        endif
     else (No)
-        :Adding Error Information;
     endif
-else (No)
-endif
+endwhile
 stop
 
 @enduml

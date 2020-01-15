@@ -7,7 +7,7 @@ skinparam Shadowing false
 
 |Member|
 start
-:Open "Approved" Request;
+:Open "Ticket Detail" Request;
 :Click Confirmation Button;
 
 |System|

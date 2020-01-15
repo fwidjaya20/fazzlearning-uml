@@ -1,17 +1,17 @@
-@startuml GetClassAvailability
+@startuml ViewComment_Admin
 
 skinparam ConditionEndStyle hline
 skinparam conditionStyle diamond
 skinparam Monochrome true
 skinparam Shadowing false
 
-|Member|
+|Admin|
 start
-:Open "Class List" Page;
+:Open "Detail Event" Page;
 
 |System|
-:Get Available data of "Class" from Database;
-:Display the data from card;
+:Get Thread related on Event;
+:Display the Data;
 
 stop
 
