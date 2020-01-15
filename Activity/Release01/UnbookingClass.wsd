@@ -21,6 +21,7 @@ start
 
 |Admin|
 if (Agree Delete ?) then (No)
+    :Show Dialog;
 else (Yes)
     |System|
     :Delete "Class" from Database;

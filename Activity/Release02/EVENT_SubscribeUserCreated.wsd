@@ -10,15 +10,10 @@ start
 :Subscribe User.UserCreated;
 
 |System|
-:Parsing Event Message;
+:Create Replica User to UserETL;
 
-if (Valid ?) then (Yes)
-    :Create Replica User to UserETL;
-
-    if (Is Error ?) then (Yes)
-        :Adding Error Information;
-    endif
-else (No)
+if (Is Error ?) then (Yes)
+    :Adding Error Information;
 endif
 stop
 

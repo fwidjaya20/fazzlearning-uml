@@ -20,7 +20,9 @@ start
 :Show Confirmation Dialog;
 
 |Admin|
-if (Agree Delete ?) then (Yes)
+if (Agree Delete ?) then (No)
+    :Close Dialog;
+else (Yes)
     |System|
     while (For each uuid) is (uuid)
         :Delete "Class" from Database;
@@ -32,7 +34,6 @@ if (Agree Delete ?) then (Yes)
             :Adding Error Information;
         endif
     endwhile
-else (No)
 endif
 stop
 

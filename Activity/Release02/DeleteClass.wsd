@@ -21,6 +21,7 @@ start
 
 |Admin|
 if (Agree Delete ?) then (No)
+    :Close Dialog;
 else (Yes)
     |System|
     while (For each uuid) is (uuid)
