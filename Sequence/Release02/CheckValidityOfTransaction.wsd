@@ -10,21 +10,11 @@ participant "RoomTransaction: GRPC Transport" as RoomTransactionGRPCTransport
 participant "RoomTransaction: Service" as RoomTransactionService
 participant "RoomTransaction: Query" as RoomTransactionQuery
 
-activate Caller
-
-Caller->RoomTransactionGRPCTransport: IsValidTransaction(ProfoBuf)
-activate RoomTransactionGRPCTransport
-RoomTransactionGRPCTransport->RoomTransactionService: IsValidTransaction(payload)
-activate RoomTransactionService
-RoomTransactionService->RoomTransactionQuery: Count()
-activate RoomTransactionQuery
+Caller->RoomTransactionGRPCTransport: IsValidTransaction(ProtoBuffer)
+RoomTransactionGRPCTransport->RoomTransactionService: IsValidTransaction(context, payload)
+RoomTransactionService->RoomTransactionQuery: Count(context, []SliceCondition)
 RoomTransactionQuery-->RoomTransactionService: total
-deactivate RoomTransactionQuery
 RoomTransactionService-->RoomTransactionGRPCTransport: total == 0
-deactivate RoomTransactionService
 RoomTransactionGRPCTransport-->Caller: total == 0
-deactivate RoomTransactionGRPCTransport
-
-deactivate Caller
 
 @enduml

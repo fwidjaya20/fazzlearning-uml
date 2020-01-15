@@ -83,7 +83,7 @@ else
     UserCommand-->UserService: uuid
     UserService->UserQuery: Find(context, []SliceCondition)
     UserQuery-->UserService: user
-    UserService->UserEndpoint: user
+    UserService-->UserEndpoint: user
     UserEndpoint->UserEndpoint:  response := Response(user, nil)
     UserEndpoint-->UserHTTPTransport: response
     UserHTTPTransport-->Route: response

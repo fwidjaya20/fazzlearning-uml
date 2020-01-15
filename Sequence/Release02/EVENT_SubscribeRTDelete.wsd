@@ -9,18 +9,9 @@ actor Caller
 participant "RoomTransactionETL: NATS Transport" as RoomTransactionETLNATSTransport
 participant "RoomTransactionETL: Service" as RoomTransactionETLService
 
-activate Caller
-
-Caller->RoomTransactionETLNATSTransport: roomTransactionDeletedSubscriber
-activate RoomTransactionETLNATSTransport
-RoomTransactionETLNATSTransport->RoomTransactionETLNATSTransport: parse message
-RoomTransactionETLNATSTransport->RoomTransactionETLService: DeletePersistance()
-activate RoomTransactionETLService
+Caller->RoomTransactionETLNATSTransport: roomTransactionDeletedSubscriber(conn, logger, service)
+RoomTransactionETLNATSTransport->RoomTransactionETLService: DeletePersistance(context, []id)
 RoomTransactionETLService-->RoomTransactionETLNATSTransport: subscribed
-deactivate RoomTransactionETLService
 RoomTransactionETLNATSTransport-->Caller: subscribed
-deactivate RoomTransactionETLNATSTransport
-
-deactivate Caller
 
 @enduml

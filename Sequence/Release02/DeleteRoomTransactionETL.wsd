@@ -9,17 +9,9 @@ actor Caller
 participant "RoomTransactionETL: Service" as RoomTransactionETLService
 participant "RoomTransactionETL: Command" as RoomTransactionETLCommand
 
-activate Caller
-
-Caller->RoomTransactionETLService: DeletePersistance()
-activate RoomTransactionETLService
+Caller->RoomTransactionETLService: DeletePersistance(conn, looger, service)
 RoomTransactionETLService->RoomTransactionETLCommand: DeleteBulk([]id)
-activate RoomTransactionETLCommand
 RoomTransactionETLCommand-->RoomTransactionETLService: Is Deleted
-deactivate RoomTransactionETLCommand
 RoomTransactionETLService-->Caller: Is Deleted
-deactivate RoomTransactionETLService
-
-deactivate Caller
 
 @enduml

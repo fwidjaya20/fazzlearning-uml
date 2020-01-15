@@ -5,7 +5,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Component: Room Table" as RoomTable
+participant "Component: Class Form" as ClassForm
+participant "Service: Room Service" as FERoomService
 participant "Router" as Router
 participant "Room: HTTP Transport" as RoomHTTPTransport
 participant "Room: Endpoint" as RoomEndpoint
@@ -14,36 +15,24 @@ participant "Room: Query" as RoomQuery
 
 activate Admin
 
-Admin->RoomTable: Render "Room Table"
-activate RoomTable
-RoomTable-->Admin: rendered
-RoomTable->RoomTable: Choose Shift
-RoomTable->Router: route("GET", "v2/shift/available?date=YOUR_DATE&shift=YOUR_SHIFTS")
-activate Router
+Admin->ClassForm: Choose Shift
+ClassForm->ClassForm: fetchAvailableRooms(date, []shift)
+ClassForm->FERoomService: fetchAvailableRooms(date, []shift)
+FERoomService->Router: route("GET", "v2/shift/available?date=YOUR_DATE&shift=YOUR_SHIFTS")
 Router->RoomHTTPTransport: FindAvailableRoom(RoomService, []ServerOption)
-activate RoomHTTPTransport
 RoomHTTPTransport->RoomEndpoint: FindAvailableRoom(RoomService)
-activate RoomEndpoint
-RoomEndpoint->RoomService: Available(params)
+RoomEndpoint->RoomService: Available(context, params)
 
-activate RoomService
-RoomService->RoomQuery: Available(date, shiftId)
-activate RoomQuery
+RoomService->RoomQuery: Available(context, date, shiftId)
 RoomQuery-->RoomService: rooms
-deactivate RoomQuery
 RoomService-->RoomEndpoint: rooms
-deactivate RoomService
-
 RoomEndpoint->RoomEndpoint: response := Response(rooms, nil)
 RoomEndpoint-->RoomHTTPTransport: response
-deactivate RoomEndpoint
 RoomHTTPTransport-->Router: response
-deactivate RoomHTTPTransport
-Router-->RoomTable: response
-deactivate Router
-RoomTable->RoomTable: display rooms options to field
-RoomTable-->Admin: rendered
-deactivate RoomTable
+Router-->FERoomService: response
+FERoomService-->ClassForm: response
+ClassForm->ClassForm: display rooms options to field
+ClassForm-->Admin: rendered
 
 deactivate Admin
 

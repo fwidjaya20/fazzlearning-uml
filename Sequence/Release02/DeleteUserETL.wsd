@@ -9,17 +9,9 @@ actor Caller
 participant "UserETL: Service" as UserETLService
 participant "UserETL: Command" as UserETLCommand
 
-activate Caller
-
-Caller->UserETLService: DeletePersistance()
-activate UserETLService
-UserETLService->UserETLCommand: Delete(id)
-activate UserETLCommand
+Caller->UserETLService: DeletePersistance(context, payload)
+UserETLService->UserETLCommand: Delete(context, []email)
 UserETLCommand-->UserETLService: Is Deleted
-deactivate UserETLCommand
 UserETLService-->Caller: Is Deleted
-deactivate UserETLService
-
-deactivate Caller
 
 @enduml

@@ -10,28 +10,21 @@ participant "RoomTransaction: Service" as RoomTransactionService
 participant "RoomTransaction: Command" as RoomTransactionCommand
 participant "Nats Streaming" as NatsStreaming
 
-activate Caller
-
-Caller->RoomTransactionService: Create(payload)
-activate RoomTransactionService
+Caller->RoomTransactionService: Create(context, payload)
 RoomTransactionService->RoomTransactionService: Validate()
+
 alt "Data Not Valid"
     RoomTransactionService-->Caller: UnprocessableEntity
 else
     loop "For each shift"
         RoomTransactionService->RoomTransactionService: rt := RoomTransactionModel()
-        RoomTransactionService->RoomTransactionCommand: Create(rt)
-        activate RoomTransactionCommand
+        RoomTransactionService->RoomTransactionCommand: Create(context, rt)
         RoomTransactionCommand-->RoomTransactionService: uuid
-        deactivate RoomTransactionCommand
     end
 
-    RoomTransactionService->NatsStreaming: Publish Event Subject Transaction.TransactionCreated
-    activate NatsStreaming
+    RoomTransactionService->NatsStreaming: publishTransactionCreated(context, []uuid)
     NatsStreaming-->RoomTransactionService: published
-    deactivate NatsStreaming
     RoomTransactionService-->Caller: created
-    deactivate RoomTransactionService
 end
 
 deactivate Caller

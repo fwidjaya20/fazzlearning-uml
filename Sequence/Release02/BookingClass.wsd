@@ -6,193 +6,104 @@ hide footbox
 
 actor Admin
 participant "Page: Add Event" as AddEventPage
-participant "Container: Attach Class" as AttachClassListContainer
+participant "Container: Add Event Form" as AddEventFormContainer
+participant "Container: Add Class Popup" as AddClassPopupContainer
 participant "Component: Class Form" as ClassForm
-participant "Component: Class List View" as ClassListView
+participant "Service: Class Service" as FEClassService
+participant "Service: Shift Service" as FEShiftService
 participant "Router" as Router
 participant "Class: HTTP Transport" as ClassHTTPTransport
-participant "Shift: HTTP Transport" as ShiftHTTPTransport
-participant "Room: HTTP Transport" as RoomHTTPTransport
 participant "Class: Endpoint" as ClassEndpoint
-participant "Shift: Endpoint" as ShiftEndpoint
-participant "Room: Endpoint" as RoomEndpoint
 participant "Class: Service" as ClassService
-participant "Shift: Service" as ShiftService
-participant "Room: Service" as RoomService
 participant "Class: Command" as ClassCommand
 participant "Class: Query" as ClassQuery
-participant "Shift: Query" as ShiftQuery
-participant "Room: Query" as RoomQuery
+participant "Transaction: GRPC Transport" as TransactionGRPCTransport
 participant "Storage: GRPC Transport" as StorageGRPCTransport
 participant "Material: Service" as MaterialService
 participant "Nats Streaming" as NatsStreaming
 
-activate Admin
+Admin->AddEventPage: Click "Attach New Class" Button
+AddEventPage->AddEventFormContainer: attachClass()
+AddEventFormContainer-->AddEventPage: attach
+AddEventPage-->Admin: attach
 
-Admin->AddEventPage: Open "Add Event" Page
-activate AddEventPage
-AddEventPage->AttachClassListContainer: Render "Attach Class List" Container
-activate AttachClassListContainer
-AttachClassListContainer->Router: route("GET", "v2/bookings")
-activate Router
-Router->ClassHTTPTransport: FetchBookedRoomByUser(ClassService, []ServerOption)
-activate ClassHTTPTransport
-ClassHTTPTransport->ClassEndpoint: BookedByUser(ClassService, withPaginated)
-activate ClassEndpoint
-ClassEndpoint->ClassService: AllBooked(params)
+Admin->AddClassPopupContainer: Render "Add Class Popup" Container
+AddClassPopupContainer->ClassForm: render
+ClassForm-->AddClassPopupContainer: rendered
+AddClassPopupContainer-->Admin: Rendered
 
-activate ClassService
-ClassService->ClassQuery: FindBooked([]SliceConditions)
-activate ClassQuery
-ClassQuery-->ClassService: classes
-deactivate ClassQuery
-ClassService-->ClassEndpoint: classes
-deactivate ClassService
-ClassEndpoint->ClassEndpoint: repsonse := Repsonse(classes, nil)
-ClassEndpoint-->ClassHTTPTransport: response
-deactivate ClassEndpoint
-ClassHTTPTransport-->Router: response
-deactivate ClassHTTPTransport
-Router-->AttachClassListContainer: response
-deactivate Router
-AttachClassListContainer->ClassListView: render "Class List View"
-activate ClassListView
-ClassListView-->AttachClassListContainer: rendered
-deactivate ClassListView
-AttachClassListContainer-->AddEventPage: rendered
-AddEventPage-->Admin: rendered
+Admin->AddClassPopupContainer: choose date
+AddClassPopupContainer->ClassForm: handleDateChange(value)
+ClassForm->FEShiftService: fetchAvailableShifts(date)
+FEShiftService-->ClassForm: shifts
+ClassForm-->AddClassPopupContainer: form data
+AddClassPopupContainer-->Admin: form data
 
-Admin->AddEventPage: Click "Attach Class" Button
-AddEventPage->AttachClassListContainer: Click "Attach Class" Button
-AttachClassListContainer->ClassForm: Show "Class Form" Popup
-activate ClassForm
-ClassForm-->AttachClassListContainer
-AttachClassListContainer-->AddEventPage
-AddEventPage-->Admin
+Admin->AddClassPopupContainer: choose shift
+AddClassPopupContainer->ClassForm: handleShiftChange()
+ClassForm->FEShiftService: fetchAvailableShifts(date, []shift)
+FEShiftService-->ClassForm: rooms
+ClassForm-->AddClassPopupContainer: form data
+AddClassPopupContainer-->Admin: form data
 
-Admin->AddEventPage: Fill Form
-AddEventPage->AttachClassListContainer: Fill Form
-AttachClassListContainer->ClassForm: Fill Form
+Admin->AddClassPopupContainer: Fill Form
+AddClassPopupContainer-->Admin: form data
 
-ClassForm->ClassForm: Choose Date
-ClassForm->Router: route("GET", "v2/shift/available?date=YOUR_DATE")
-activate Router
-Router->ShiftHTTPTransport: FindAvailableShift(ShiftService, []ServerOption)
-activate ShiftHTTPTransport
-ShiftHTTPTransport->ShiftEndpoint: FindAvailableShift(ShiftService)
-activate ShiftEndpoint
-ShiftEndpoint->ShiftService: Available(params)
-activate ShiftService
-ShiftService->ShiftQuery: Available(date)
-activate ShiftQuery
-ShiftQuery-->ShiftService: shifts
-deactivate ShiftQuery
-ShiftService-->ShiftEndpoint: shifts
-deactivate ShiftService
-ShiftEndpoint->ShiftEndpoint: response := Response(shifts, nil)
-ShiftEndpoint-->ShiftHTTPTransport: response
-deactivate ShiftEndpoint
-ShiftHTTPTransport-->Router: response
-deactivate ShiftHTTPTransport
-Router-->ClassForm: Display the data to field
-deactivate Router
+Admin->AddClassPopupContainer: Click "Create Class" Button
+AddClassPopupContainer->AddClassPopupContainer: handleClassFormSubmitted()
+AddClassPopupContainer->FEClassService: bookingClass(payload)
 
-ClassForm->ClassForm: Choose Shift
-ClassForm->Router: route("GET", "v2/room/available?date=YOUR_DATE&shift=YOUR_SHIFTS")
-activate Router
-Router->RoomHTTPTransport: FindAvailableRoom(RoomService, []ServerOption)
-activate RoomHTTPTransport
-RoomHTTPTransport->RoomEndpoint: FindAvailableRoom(RoomService)
-activate RoomEndpoint
-RoomEndpoint->RoomService: Available(params)
-activate RoomService
-RoomService->RoomQuery: Available(date)
-activate RoomQuery
-RoomQuery-->RoomService: rooms
-deactivate RoomQuery
-RoomService-->RoomEndpoint: rooms
-deactivate RoomService
-RoomEndpoint->RoomEndpoint: response := Response(rooms, nil)
-RoomEndpoint-->RoomHTTPTransport: response
-deactivate RoomEndpoint
-RoomHTTPTransport-->Router: response
-deactivate RoomHTTPTransport
-Router-->ClassForm: Display the data to field
-deactivate Router
-
-ClassForm-->AttachClassListContainer: form data
-deactivate ClassForm
-AttachClassListContainer-->AddEventPage: form data
-AddEventPage-->Admin: form data
-
-Admin->AddEventPage: Click "Create Class" Button
-AddEventPage->AttachClassListContainer: Click "Create Class" Button
-AttachClassListContainer->Router: route("POST", "v2/booking", formData)
-activate Router
-Router->ClassHTTPTransport: CreateClass(ClassService, []ServerOption)
-activate ClassHTTPTransport
-ClassHTTPTransport->ClassEndpoint: Create(ClassService)
-activate ClassEndpoint
-ClassEndpoint->ClassService: Create(payload)
-
-activate ClassService
+FEClassService->Router: route("GET", "v2/booking")
+Router->ClassHTTPTransport: BookingClass(ClassService, []ServerOption)
+ClassHTTPTransport->ClassEndpoint: Booking(ClassService, withPaginated)
+ClassEndpoint->ClassService: Create(context, params)
 ClassService->ClassService: Validate()
 
 alt "Data not valid"
     ClassService-->ClassEndpoint: UnprocessableEntity
     ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
     ClassHTTPTransport-->Router: UnprocessableEntity
-    Router-->AttachClassListContainer: UnprocessableEntity
-    AttachClassListContainer-->AddEventPage: UnprocessableEntity
-    AddEventPage-->Admin: UnprocessableEntity
+    Router-->FEClassService: UnprocessableEntity
+    FEClassService-->AddClassPopupContainer: UnprocessableEntity
+    AddClassPopupContainer-->Admin: UnprocessableEntity
 else
-    ClassService->ClassService: class := ClassModel()
-    ClassService->ClassService: Mark "Committed" attribute of class into false
-    ClassService->ClassCommand: Create(class)
-    activate ClassCommand
-    ClassCommand-->ClassService: uuid
-    deactivate ClassCommand
+    ClassService->TransactionGRPCTransport: IsValidTransaction(ProtoBuffer)
+    TransactionGRPCTransport-->ClassService: ProtoResponse
 
-    opt "has materials"
-        ClassService->StorageGRPCTransport: Zip()
-        activate StorageGRPCTransport
-        StorageGRPCTransport-->ClassService: zipName
-        deactivate StorageGRPCTransport
+    alt "Is Not Valid Transaction"
+        ClassService-->ClassEndpoint: BadRequest
+        ClassEndpoint-->ClassHTTPTransport: BadRequest
+        ClassHTTPTransport-->Router: BadRequest
+        Router-->FEClassService: BadRequest
+        FEClassService-->AddClassPopupContainer: BadRequest
+        AddClassPopupContainer-->Admin: BadRequest
+    else
+        ClassService->ClassService: class := ClassModel()
+        ClassService->ClassCommand: Create(context, class)
+        ClassCommand-->ClassService: uuid
 
-        ClassService->MaterialService: Create(payload)
-        activate MaterialService
-        MaterialService-->ClassService: isCreated
-        deactivate MaterialService
+        opt "has materials"
+            ClassService->StorageGRPCTransport: CommitFile(context, ProtoBuffer)
+            StorageGRPCTransport-->ClassService: link
+
+            ClassService->MaterialService: Create(context, payload)
+            MaterialService-->ClassService: isCreated
+        end
+
+        ClassService->ClassQuery: Find(context, []SliceConditions)
+        ClassQuery-->ClassService: classes
+
+        ClassService->NatsStreaming: publishClassCreated(context, data)
+        NatsStreaming-->ClassService: published
     end
-
-    ClassService->ClassQuery: Find(uuid)
-    activate ClassQuery
-    ClassQuery-->ClassService: booked_classes
-    deactivate ClassQuery
-    ClassService->NatsStreaming: Publish Event Subject Class.ClassCreated
-    activate NatsStreaming
-    NatsStreaming-->ClassService: published
-    deactivate NatsStreaming
 end
 
-ClassService-->ClassEndpoint: booked_classes
-deactivate ClassService
-ClassEndpoint->ClassEndpoint: response := Response(booked_classes, nil)
+ClassService-->ClassEndpoint: class
+ClassEndpoint->ClassEndpoint: response := Response(class, nil)
 ClassEndpoint-->ClassHTTPTransport: response
-deactivate ClassEndpoint
 ClassHTTPTransport-->Router: response
-deactivate ClassHTTPTransport
-Router-->ClassListView: response
-deactivate Router
-activate ClassListView
-ClassListView->ClassListView: render "Class List View"
-ClassListView-->AttachClassListContainer: rendered
-deactivate ClassListView
-AttachClassListContainer-->AddEventPage: rendered
-deactivate AttachClassListContainer
-AddEventPage-->Admin: rendered
-deactivate AddEventPage
-
-deactivate Admin
+Router-->FEClassService: response
+FEClassService-->AddClassPopupContainer: response
+AddClassPopupContainer-->Admin: response
 
 @enduml
