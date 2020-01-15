@@ -35,7 +35,7 @@ EditDivisionPage->EditDivisionFormContainer: handleDivisionFormSubmitted()
 EditDivisionFormContainer->FEDivisionService: updateDivision(divisionId, payload)
 FEDivisionService->Router: route("PUT", "v2/division/{division_id}", formData)
 Router->DivisionHTTPTransport: UpdateDivision(DivisionService, []ServerOption)
-DivisionHTTPTransport->DivisionEndpoint: Update(DivisionService)
+DivisionHTTPTransport->DivisionEndpoint: Update(DivisionService, id)
 DivisionEndpoint->DivisionService: UpdateDivision(context, payload, id)
 DivisionService->DivisionService: Validate()
 

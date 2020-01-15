@@ -34,7 +34,7 @@ FulfilmentPage->FEAuthService: login(email, name, identityNumber, divisionId)
 FEAuthService->Route: route("POST", "v2/auth/login")
 
 Route->SessionTransport: Authenticate(SessionService, []ServerOption)
-SessionTransport->SessionEndpoint: Login(SessionService, UserService)
+SessionTransport->SessionEndpoint: Login(SessionService)
 SessionEndpoint->SessionService: Login(context, source, payload)
 SessionService->SessionService: Validate()
 

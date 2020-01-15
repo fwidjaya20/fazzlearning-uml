@@ -13,7 +13,7 @@ activate Caller
 
 Caller->StorageGRPCTransport: Upload(ProtoBuffer)
 activate StorageGRPCTransport
-StorageGRPCTransport->StorageService: Upload(bytes)
+StorageGRPCTransport->StorageService: Upload(context, bytes)
 activate StorageService
 StorageService->StorageService: Validate()
 

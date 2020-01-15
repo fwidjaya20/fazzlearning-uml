@@ -35,7 +35,7 @@ EditRolePage->EditRoleFormContainer: handleRoleFormSubmitted()
 EditRoleFormContainer->FERoleService: updateRole(id, payload)
 FERoleService->Router: route("PUT", "v2/role/{role_id}", formData)
 Router->RoleHTTPTransport: UpdateRole(RoleService, []ServerOption)
-RoleHTTPTransport->RoleEndpoint: Update(RoleService)
+RoleHTTPTransport->RoleEndpoint: Update(RoleService, id)
 RoleEndpoint->RoleService: UpdateRole(context, payload, id)
 RoleService->RoleService: Validate()
 

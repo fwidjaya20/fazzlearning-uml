@@ -12,8 +12,8 @@ participant "Storage: Service" as StorageService
 participant "AWS: S3" as AWSS3
 
 Caller->Router: route("GET", "v2/resolve/{file_name}")
-Router->StorageHTTPTransport: ResolveURL(UploaderService, []ServerOption)
-StorageHTTPTransport->StorageEndpoint: ResolveURL(UploaderService, key)
+Router->StorageHTTPTransport: ResolveURL(StorageService, []ServerOption)
+StorageHTTPTransport->StorageEndpoint: ResolveURL(StorageService, key)
 StorageEndpoint->StorageService: ResolveURL(context, key)
 StorageService->AWSS3: GetResourceURL(key)
 AWSS3-->StorageService: link, error
