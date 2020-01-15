@@ -69,7 +69,7 @@ EditUserPage->EditUserFormContainer: handleUserFormSubmitted()
 EditUserFormContainer->FEUserService: updateUser(userId, payload)
 FEUserService->Router: Router("PUT", "v2/user/{email}", formData)
 Router->UserHTTPTransport: UpdateUser(UserService, []ServerOption)
-UserHTTPTransport->UserEndpoint: Update(UserService)
+UserHTTPTransport->UserEndpoint: Update(UserService, email)
 UserEndpoint->UserService: UpdateUser(context, payload, email)
 UserService->UserService: Validate()
 

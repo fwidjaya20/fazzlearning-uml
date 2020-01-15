@@ -9,7 +9,7 @@ participant "Storage: Service" as StorageService
 participant "Library: Storage" as StorageLib
 participant "AWS: S3" as S3
 
-Caller->StorageService: CommitFile()
+Caller->StorageService: CommitFile(context)
 StorageService->StorageLib: RenameAllDirectoryFiles(outPath, path)
 StorageLib-->StorageService: is exists
 StorageService->StorageLib: Zip(path)
