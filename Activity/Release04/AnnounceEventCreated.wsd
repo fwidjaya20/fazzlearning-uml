@@ -9,9 +9,6 @@ skinparam Shadowing false
 start
 :Announce Event Created;
 
-|System|
-:Build Template Tag Payload;
-
 |Template Tag CMS|
 :Compile Message;
 

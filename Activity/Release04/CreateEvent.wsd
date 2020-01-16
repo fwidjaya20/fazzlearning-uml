@@ -13,7 +13,6 @@ start
 
 |System|
 :Validate Data;
-
 if (Valid ?) then (Yes)
     :Insert "Event" data to Database;
     if (IsCreated ?) then (Yes)
@@ -24,8 +23,8 @@ if (Valid ?) then (Yes)
     else (No)
         :Adding Error Information;
     endif
+else (No)
 endif
-
 stop
 
 @enduml

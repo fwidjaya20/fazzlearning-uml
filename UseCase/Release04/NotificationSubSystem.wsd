@@ -16,7 +16,6 @@ rectangle "Notification System" {
     (Subscribe Event Created) ..> (Post Notification) : include
     (Subscribe Commit Request) ..> (Post Notification) : include
 
-    Member --> (Unread Notification)
     Member --> (Read Notification)
     Member --> (Get Notification)
 }

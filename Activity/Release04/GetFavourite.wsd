@@ -11,7 +11,7 @@ start
 
 |System|
 :Get Favourite "Class" from Database;
-:Display the data from card;
+:Display the data to its list;
 stop
 
 @enduml

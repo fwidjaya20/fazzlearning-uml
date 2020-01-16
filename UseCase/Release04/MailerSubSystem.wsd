@@ -14,9 +14,6 @@ rectangle "Mailer System" {
 
     (Subscribe Event Created) ..> (Announce Event Created) : include
     (Subscribe Commit Request) ..> (Announce Request) : include
-    
-    (Announce Event Created) ..> (Send Email) : include
-    (Announce Request) ..> (Send Email) : include
 }
 
 @enduml

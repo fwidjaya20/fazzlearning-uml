@@ -7,11 +7,7 @@ skinparam Shadowing false
 
 |Admin|
 start
-:Open "Class Detail" Page;
-
-|System|
-:Get "Requester" List from Database;
-:Show the data on the table;
+:Open "Detail Class" Page;
 
 |Admin|
 :Change requester status;
@@ -26,6 +22,7 @@ while (For each requester) is (Has Requester)
 
         if (Valid ?) then (Yes)
             :Add Success Information;
+
             :Publish Subject Based Message on Request Updated;
         else (No)
             :Add Error Information;

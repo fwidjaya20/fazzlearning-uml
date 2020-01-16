@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Notification" as NotificationPage
-participant "Container: Notification List" as NotificationListContainer
-participant "Component: Notification" as Notification
+participant "Page: Notification Detail" as NotificationDetailPage
+participant "Container: Notification Detail" as NotificationContainer
+participant "Service: Notification Service" as FENotificationService
 participant "Router" as Router
 participant "Notification: HTTP Transport" as NotificationHTTPTransport
 participant "Notification: Endpoint" as NotificationEndpoint
@@ -15,71 +15,27 @@ participant "Notification: Service" as NotificationService
 participant "Notification: Query" as NotificationQuery
 participant "Notification: Command" as NotificationCommand
 
-activate Member
-
-Member->NotificationPage: Open "Notification" Pages
-activate NotificationPage
-NotificationPage->NotificationListContainer: render notification list container
-activate NotificationListContainer
-NotificationListContainer->Notification: render notification
-activate Notification
-Notification-->NotificationListContainer: rendered
-NotificationListContainer->Router: router("GET", "v2/notifications")
-activate Router
-Router->NotificationHTTPTransport: All(NotificationService, []ServerOption)
-activate NotificationHTTPTransport
-NotificationHTTPTransport->NotificationEndpoint: All(NotificationService)
-activate NotificationEndpoint
-NotificationEndpoint->NotificationService: All()
-activate NotificationService
-NotificationService->NotificationQuery: Find([]SliceCondition)
-activate NotificationQuery
-NotificationQuery-->NotificationService: notifications
-deactivate NotificationQuery
-NotificationService-->NotificationEndpoint: notifications
-deactivate NotificationService
-NotificationEndpoint->NotificationEndpoint: response := Response(notifications, nil)
-NotificationEndpoint-->NotificationHTTPTransport: response
-deactivate NotificationEndpoint
-NotificationHTTPTransport-->Router: response
-deactivate NotificationHTTPTransport
-Router-->NotificationListContainer: response
-deactivate Router
-NotificationListContainer->Notification: render notifications
-Notification-->NotificationListContainer: rendered
-NotificationListContainer-->NotificationPage: rendered
-NotificationPage-->Member: rendered
-
-Member->NotificationPage: Click "Notification" Item
-NotificationPage->NotificationListContainer: Click "Notification" Item
-NotificationListContainer->Notification: Click "Notification" Item
-Notification->Router: route("PATCH", "v2/notification/{notification_id}")
-activate Router
+Member->NotificationDetailPage: Open "Notification Detail" Pages
+NotificationDetailPage->NotificationContainer: markNotificationAsRead()
+NotificationContainer->FENotificationService: readNotif(notifId)
+FENotificationService->Router: router("PATCH", "v2/notification/{notif_id}")
 Router->NotificationHTTPTransport: Read(NotificationService, []ServerOption)
-activate NotificationHTTPTransport
 NotificationHTTPTransport->NotificationEndpoint: Read(NotificationService)
-activate NotificationEndpoint
-NotificationEndpoint->NotificationService: Read(payload)
-activate NotificationService
-NotificationService->NotificationCommand: Update(payload)
-activate NotificationCommand
-NotificationCommand-->NotificationService: isUpdated
-deactivate NotificationCommand
-NotificationService-->NotificationEndpoint: isUpdated
+NotificationEndpoint->NotificationService: Read(context, payload)
+
+NotificationService->NotificationQuery: Find(context, []SliceCondition)
+NotificationQuery-->NotificationService: notification
+
+NotificationService->NotificationCommand: Update(context, notif)
+NotificationCommand-->NotificationService: is updated
+
+NotificationService-->NotificationEndpoint: is updated
 NotificationEndpoint->NotificationEndpoint: response := Response(isUpdated, nil)
 NotificationEndpoint-->NotificationHTTPTransport: response
-deactivate NotificationEndpoint
 NotificationHTTPTransport-->Router: response
-deactivate NotificationHTTPTransport
-Router-->Notification: response
-deactivate Router
-Notification-->NotificationListContainer: response
-deactivate Notification
-NotificationListContainer-->NotificationPage: response
-deactivate NotificationListContainer
-NotificationPage-->Member: response
-deactivate NotificationPage
-
-deactivate Member
+Router-->FENotificationService: response
+FENotificationService-->NotificationContainer: response
+NotificationContainer-->NotificationDetailPage: response
+NotificationDetailPage-->Member: response
 
 @enduml

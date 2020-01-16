@@ -6,52 +6,30 @@ hide footbox
 
 actor Member
 participant "Page: Favourite" as FavouritePage
-participant "Container: Favourite List" as FavouriteListContainer
-participant "Component: Class Card" as ClassCard
+participant "Container: Favourite" as FavouriteContainer
+participant "Service: Favourite Service" as FEFavouriteService
 participant "Router" as Router
 participant "Favourite: HTTP Transport" as FavouriteHTTPTransport
 participant "Favourite: Endpoint" as FavouriteEndpoint
 participant "Favourite: Service" as FavouriteService
 participant "Favourite: Query" as FavouriteQuery
 
-activate Member
-
 Member->FavouritePage: Open "Favourite" Pages
-activate FavouritePage
-FavouritePage->FavouriteListContainer: render favourite list container
-activate FavouriteListContainer
-FavouriteListContainer->ClassCard: render favourite
-activate ClassCard
-ClassCard-->FavouriteListContainer: rendered
-FavouriteListContainer->Router: router("GET", "v2/favourites")
-activate Router
+FavouritePage->FavouriteContainer: fetchFavouriteList()
+FavouriteContainer->FEFavouriteService: fetchFavourite()
+FEFavouriteService->Router: router("GET", "v2/favourites")
 Router->FavouriteHTTPTransport: FetchUserFavourites(FavouriteService, []ServerOption)
-activate FavouriteHTTPTransport
 FavouriteHTTPTransport->FavouriteEndpoint: All(FavouriteService)
-activate FavouriteEndpoint
-FavouriteEndpoint->FavouriteService: All()
-activate FavouriteService
-FavouriteService->FavouriteQuery: All([]SliceCondition, email)
-activate FavouriteQuery
+FavouriteEndpoint->FavouriteService: All(context, params)
+FavouriteService->FavouriteQuery: All(context, []SliceCondition, email, paginateModel)
 FavouriteQuery-->FavouriteService: favourites
-deactivate FavouriteQuery
 FavouriteService-->FavouriteEndpoint: favourites
-deactivate FavouriteService
 FavouriteEndpoint->FavouriteEndpoint: response := Response(favourites, nil)
 FavouriteEndpoint-->FavouriteHTTPTransport: response
-deactivate FavouriteEndpoint
 FavouriteHTTPTransport-->Router: response
-deactivate FavouriteHTTPTransport
-Router-->FavouriteListContainer: response
-deactivate Router
-FavouriteListContainer->ClassCard: render favourite
-ClassCard-->FavouriteListContainer: rendered
-deactivate ClassCard
-FavouriteListContainer-->FavouritePage: rendered
-deactivate FavouriteListContainer
+Router-->FEFavouriteService: response
+FEFavouriteService-->FavouriteContainer: response
+FavouriteContainer-->FavouritePage: rendered
 FavouritePage-->Member: rendered
-deactivate FavouritePage
-
-deactivate Member
 
 @enduml

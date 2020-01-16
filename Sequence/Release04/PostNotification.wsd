@@ -6,13 +6,12 @@ hide footbox
 
 actor "Caller" as Caller
 participant "Notification: Service" as NotificationService
-participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
 participant "User: GRPC Transport" as UserGRPCTransport
 participant "Notification: Command" as NotificationCommand
 
 activate Caller
 
-Caller->NotificationService: Post(payload)
+Caller->NotificationService: Post(context, payload)
 
 loop "for each notification"
     NotificationService->NotificationService: Validate()
@@ -26,10 +25,8 @@ loop "for each notification"
                 NotificationService->NotificationService: datas := append(datas, notif)
             end
         else
-            NotificationService->UserGRPCTransport: All()
-            activate UserGRPCTransport
+            NotificationService->UserGRPCTransport: GetMember(context, ProtoBuffer)
             UserGRPCTransport-->NotificationService: users
-            deactivate UserGRPCTransport
 
             loop "for each users"
                 NotificationService->NotificationService: notif := NotificationModel()
@@ -37,15 +34,10 @@ loop "for each notification"
             end
         end
 
-        NotificationService->NotificationCommand: Create(datas)
-        activate NotificationCommand
+        NotificationService->NotificationCommand: Create(context, datas)
         NotificationCommand-->NotificationService: is created
-        deactivate NotificationCommand
         NotificationService-->Caller: is created
-        deactivate NotificationService
     end
 end
-
-deactivate Caller
 
 @enduml

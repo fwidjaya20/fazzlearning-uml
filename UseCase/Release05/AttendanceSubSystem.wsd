@@ -12,8 +12,6 @@ actor Member
 rectangle "Attendance System" {
     Admin --> (Generate QR Code)
     Member --> (Attend)
-
-    (Attend) ..> (Update Attendance) : include
 }
 
 @enduml
