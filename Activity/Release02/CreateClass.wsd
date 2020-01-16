@@ -33,7 +33,6 @@ if (Valid ?) then (Yes)
     :Check validity of the transaction;
 
     if (Valid ?) then (Yes)
-        :Mark "Committed" attribute of Class as False;
         :Insert "Class" to Database;
         if (IsCreated ?) then (Yes)
             if (Has Material ?) then (Yes)

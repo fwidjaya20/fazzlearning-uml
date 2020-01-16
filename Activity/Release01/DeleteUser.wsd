@@ -22,7 +22,7 @@ start
 
 |Admin|
 if (Agree Delete ?) then (No)
-    :Show Dialog;
+    :Delete Dialog;
 else (Yes)
     |System|
     while (For each users) is (user)

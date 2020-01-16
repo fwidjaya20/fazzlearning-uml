@@ -22,7 +22,7 @@ start
 
 |Admin|
 if (Agree Delete ?) then (No)
-    :Show Dialog;
+    :Close Dialog;
 else (Yes)
     |System|
     :Delete "User" from Database;
