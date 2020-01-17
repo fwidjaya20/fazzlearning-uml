@@ -18,15 +18,13 @@ alt "Data Not Valid"
     RoomTransactionService-->Caller: UnprocessableEntity
 else
     RoomTransactionService->RoomTransactionQuery: Find(context, []SliceCondition)
-    activate RoomTransactionQuery
     RoomTransactionQuery-->RoomTransactionService: roomTrans
-    deactivate RoomTransactionQuery
     
     loop "For each roomTrans"
         RoomTransactionService->RoomTransactionCommand: Delete(context, roomTransaction)
-        activate RoomTransactionCommand
+
         RoomTransactionCommand-->RoomTransactionService: boolean
-        deactivate RoomTransactionCommand
+
     end
 
     RoomTransactionService->NatsStreaming: publishTransactionDeleted(context, []id)

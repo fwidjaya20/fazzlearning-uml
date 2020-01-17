@@ -74,6 +74,4 @@ else
     end
 end
 
-deactivate Admin
-
 @enduml

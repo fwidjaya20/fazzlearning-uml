@@ -16,8 +16,6 @@ participant "Event: Service" as EventService
 participant "Event: Command" as EventCommand
 participant "Event: Query" as EventQuery
 
-activate Admin
-
 Admin->EventPage: Open "Manage Event" Page
 EventPage->EventTableContainer: Render "Event Table" Container
 EventTableContainer->EventTable: Render "Event Table"

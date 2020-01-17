@@ -16,8 +16,6 @@ participant "Requester: Query" as RequestQuery
 participant "Requester: Command" as RequestCommand
 participant "Nats Streaming" as NatsStreaming
 
-activate Admin
-
 Admin->DetailClassPage: Change "Requester" Status
 DetailClassPage->ListRequestorContainer: handleResponseChange(id, value)
 ListRequestorContainer-->DetailClassPage: changed

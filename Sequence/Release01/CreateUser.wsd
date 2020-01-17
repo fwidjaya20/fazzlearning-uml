@@ -93,6 +93,4 @@ else
     CreateUserPage-->Admin: response
 end
 
-deactivate Admin
-
 @enduml

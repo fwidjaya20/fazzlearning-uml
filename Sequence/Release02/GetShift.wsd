@@ -15,8 +15,6 @@ participant "Shift: Endpoint" as ShiftEndpoint
 participant "Shift: Service" as ShiftService
 participant "Shift: Query" as ShiftQuery
 
-activate Admin
-
 Admin->ShiftPage: Open "Manage Shift" Page
 ShiftPage->ShiftTableContainer: Render "Shift Table" Container
 ShiftTableContainer->ShiftTable: Render "Shift Table"

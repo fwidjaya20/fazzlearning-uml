@@ -9,8 +9,6 @@ participant "Mailer: Mailer Service" as MailerService
 participant "Message: Message Service" as MessageService
 participant "Payfazz Messenger" as PayfazzMessanger
 
-activate Caller
-
 Caller->MailerService: AnnounceRequest(context, []acceptedRequestor, []lowPriorRequestor, []rejectdRequestor)
 
 loop "for each accepted requestor"

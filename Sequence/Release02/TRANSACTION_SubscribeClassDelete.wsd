@@ -9,18 +9,12 @@ actor Caller
 participant "RoomTransaction: NATS Transport" as RoomTransactionNATSTransport
 participant "RoomTransaction: Service" as RoomTransactionService
 
-activate Caller
 
 Caller->RoomTransactionNATSTransport: classDeletedSubscriber
-activate RoomTransactionNATSTransport
 RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message
 RoomTransactionNATSTransport->RoomTransactionService: Delete(context, TransactionClass)
-activate RoomTransactionService
 RoomTransactionService-->RoomTransactionNATSTransport: subscribed
-deactivate RoomTransactionService
 RoomTransactionNATSTransport-->Caller: subscribed
-deactivate RoomTransactionNATSTransport
 
-deactivate Caller
 
 @enduml

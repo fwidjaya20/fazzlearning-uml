@@ -16,6 +16,4 @@ else
     MailerNATSTransport->MailerService: AnnounceRequest(context, approvedRequest, lowPriorRequest, rejectedRequest)
 end
 
-deactivate Caller
-
 @enduml

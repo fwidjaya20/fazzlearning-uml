@@ -17,8 +17,6 @@ participant "Event: Query" as EventQuery
 participant "Class: Service" as ClassService
 participant "Poster: Service" as PosterService
 
-activate Admin
-
 Admin->DetailEventPage: Click "Delete" Button
 DetailEventPage->DetailEventContainer: showDeleteConfirmation(item)
 

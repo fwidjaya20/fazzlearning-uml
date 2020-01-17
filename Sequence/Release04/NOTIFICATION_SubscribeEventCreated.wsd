@@ -9,8 +9,6 @@ participant "Notification: NATS Transport" as NotificationNATSTransport
 participant "Notification: Service" as NotificationService
 participant "Message: Service" as MessageService
 
-activate Caller
-
 Caller->NotificationNATSTransport: eventCreatedSubscriber(conn, logger, notifService, messageService)
 
 alt "Data Not Valid"

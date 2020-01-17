@@ -9,8 +9,6 @@ participant "Notification: Service" as NotificationService
 participant "User: GRPC Transport" as UserGRPCTransport
 participant "Notification: Command" as NotificationCommand
 
-activate Caller
-
 Caller->NotificationService: Post(context, payload)
 
 loop "for each notification"

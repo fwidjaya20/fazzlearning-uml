@@ -15,8 +15,6 @@ participant "Requester: Service" as RequesterService
 participant "Requester: Command" as RequesterCommand
 participant "Requester: Query" as RequesterQuery
 
-activate Member
-
 Member->ClassPage: Open "Class" Page
 ClassPage->ClassActionContainer: Render "Class Action" Container
 ClassActionContainer-->ClassPage: rendered

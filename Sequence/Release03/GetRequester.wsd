@@ -33,6 +33,4 @@ ListRequestorContainer->ListRequestorContainer: Render "List Requestor" Containe
 ListRequestorContainer-->DetailClassPage: rendered
 DetailClassPage-->Admin: rendered
 
-deactivate Admin
-
 @enduml

@@ -16,8 +16,6 @@ participant "Event: Service" as EventService
 participant "Event: Command" as EventCommand
 participant "Event: Query" as EventQuery
 
-activate Member
-
 Member->HomePage: Open "Home" Page
 HomePage->ListEventContainer: Render "Event Group" Container
 ListEventContainer->EventGroup: Render "Event Card"
