@@ -5,20 +5,20 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Add Class" as AddClassPage
-participant "Container: Add Class Form" as AddClassFormContainer
-participant "Component: Class Form" as ClassForm
-participant "Service: Class Service" as FEClassService
-participant "Router" as Router
-participant "Class: HTTP Transport" as ClassHTTPTransport
-participant "Class: Endpoint" as ClassEndpoint
-participant "Class: Service" as ClassService
-participant "Class: Command" as ClassCommand
-participant "Class: Query" as ClassQuery
-participant "Transaction: GRPC Transport" as TransactionGRPCTransport
-participant "Storage: GRPC Transport" as StorageGRPCTransport
-participant "Material: Service" as MaterialService
-participant "Nats Streaming" as NatsStreaming
+participant ":AddClassPage" as AddClassPage
+participant ":AddClassFormContainer" as AddClassFormContainer
+participant ":ClassForm" as ClassForm
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
+participant ":TransactionGRPCTransport" as TransactionGRPCTransport
+participant ":StorageGRPC Transport" as StorageGRPCTransport
+participant ":MaterialService" as MaterialService
+participant ":NatsStreaming" as NatsStreaming
 
 Admin->AddClassPage: Open "Add Class" Page
 AddClassPage->AddClassFormContainer: Render "Add Class Form" Container

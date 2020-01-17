@@ -5,15 +5,15 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Ticket Detail" as TicketPage
-participant "Container: Ticket Detail Container" as TicketDetailContainer
-participant "Service: Class Service" as FEClassService
-participant "Router" as Router
-participant "Ticket: HTTP Transport" as TicketHTTPTransport
-participant "Ticket: Endpoint" as TicketEndpoint
-participant "Ticket: Service" as TicketService
-participant "Ticket: Command" as TicketCommand
-participant "Ticket: Query" as TicketQuery
+participant ":TicketDetailPage" as TicketPage
+participant ":TicketDetailContainer" as TicketDetailContainer
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":TicketHTTPTransport" as TicketHTTPTransport
+participant ":TicketEndpoint" as TicketEndpoint
+participant ":TicketService" as TicketService
+participant ":TicketCommand" as TicketCommand
+participant ":TicketQuery" as TicketQuery
 
 Member->TicketPage: Click "Cancel Request" Button
 TicketPage->TicketDetailContainer: showCancelRegistrationConfirmation()

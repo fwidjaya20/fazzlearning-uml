@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "Storage: Service" as StorageService
-participant "Library: Storage" as StorageLib
-participant "AWS: S3" as S3
+participant ":StorageService" as StorageService
+participant ":LibraryStorage" as StorageLib
+participant ":AWSS3" as S3
 
 Caller->StorageService: CommitFile(context)
 StorageService->StorageLib: RenameAllDirectoryFiles(outPath, path)

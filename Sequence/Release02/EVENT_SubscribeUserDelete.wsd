@@ -6,8 +6,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "UserETL: NATS Transport" as UserETLNATSTransport
-participant "UserETL: Service" as UserETLService
+participant ":UserETLNATSTransport" as UserETLNATSTransport
+participant ":UserETLService" as UserETLService
 
 Caller->UserETLNATSTransport: userDeletedSubscriber(conn, logger, service)
 UserETLNATSTransport->UserETLService: DeletePersistance(context, payload)

@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Room" as RoomPage
-participant "Container: Room Table" as RoomTableContainer
-participant "Component: Room Table" as RoomTable
-participant "Service: Room Service" as FERoomService
-participant "Router" as Router
-participant "Room: HTTP Transport" as RoomHTTPTransport
-participant "Room: Endpoint" as RoomEndpoint
-participant "Room: Service" as RoomService
-participant "Room: Command" as RoomCommand
-participant "Room: Query" as RoomQuery
+participant ":RoomPage" as RoomPage
+participant ":RoomTableContainer" as RoomTableContainer
+participant ":RoomTable" as RoomTable
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomCommand" as RoomCommand
+participant ":RoomQuery" as RoomQuery
 
 Admin->RoomPage: Open "Manage Room" Page
 RoomPage->RoomTableContainer: Render "Room Table" Container

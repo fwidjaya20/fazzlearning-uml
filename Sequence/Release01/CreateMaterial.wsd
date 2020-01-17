@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "Material: Service" as MaterialService
-participant "Material: Command" as MaterialCommand
-participant "Material: Query" as MaterialQuery
+participant ":MaterialService" as MaterialService
+participant ":MaterialCommand" as MaterialCommand
+participant ":MaterialQuery" as MaterialQuery
 
 Caller->MaterialService: Create(context, payload)
 MaterialService->MaterialService: Validate()

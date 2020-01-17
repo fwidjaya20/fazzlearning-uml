@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Edit Room" as EditRoomPage
-participant "Container: Edit Room Form" as EditRoomFormContainer
-participant "Component: Room Form" as RoomForm
-participant "Service: Room Service" as FERoomService
-participant "Router" as Router
-participant "Room: HTTP Transport" as RoomHTTPTransport
-participant "Room: Endpoint" as RoomEndpoint
-participant "Room: Service" as RoomService
-participant "Room: RoomCommand" as RoomCommand
-participant "Room: RoomQuery" as RoomQuery
+participant ":EditRoomPage" as EditRoomPage
+participant ":EditRoomFormContainer" as EditRoomFormContainer
+participant ":RoomForm" as RoomForm
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomRoomCommand" as RoomCommand
+participant ":RoomRoomQuery" as RoomQuery
 
 Admin->EditRoomPage: Open "Edit Room" Page
 EditRoomPage->EditRoomFormContainer: Render "Edit Room Form" Container

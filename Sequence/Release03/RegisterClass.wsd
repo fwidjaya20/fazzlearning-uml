@@ -5,15 +5,15 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Class" as ClassPage
-participant "Container: Class Action Container" as ClassActionContainer
-participant "Service: Class Service" as FEClassService
-participant "Router" as Router
-participant "Requester: HTTP Transport" as RequesterHTTPTransport
-participant "Requester: Endpoint" as RequesterEndpoint
-participant "Requester: Service" as RequesterService
-participant "Requester: Command" as RequesterCommand
-participant "Requester: Query" as RequesterQuery
+participant ":ClassPage" as ClassPage
+participant ":ClassActionContainer" as ClassActionContainer
+participant ":ClassService" as FEClassService
+participant ":Router" as Router
+participant ":RequesterHTTPTransport" as RequesterHTTPTransport
+participant ":RequesterEndpoint" as RequesterEndpoint
+participant ":RequesterService" as RequesterService
+participant ":RequesterCommand" as RequesterCommand
+participant ":RequesterQuery" as RequesterQuery
 
 Member->ClassPage: Open "Class" Page
 ClassPage->ClassActionContainer: Render "Class Action" Container

@@ -5,19 +5,19 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Add Event" as AddEventPage
-participant "Container: Add Event Form" as AddEventFormContainer
-participant "Component: Event Form" as EventForm
-participant "Service: Event Service" as FEEventService
-participant "Router" as Router
-participant "Event: HTTP Transport" as EventHTTPTransport
-participant "Event: Endpoint" as EventEndpoint
-participant "Event: Service" as EventService
-participant "Event: Command" as EventCommand
-participant "Event: Query" as EventQuery
-participant "Storage: GRPC Transport" as StorageGRPCTransport
-participant "Class: Service" as ClassService
-participant "Poster: Service" as PosterService
+participant ":AddEventPage" as AddEventPage
+participant ":AddEventFormContainer" as AddEventFormContainer
+participant ":EventForm" as EventForm
+participant ":EventService (Frontend)" as FEEventService
+participant ":Router" as Router
+participant ":EventHTTPTransport" as EventHTTPTransport
+participant ":EventEndpoint" as EventEndpoint
+participant ":EventService" as EventService
+participant ":EventCommand" as EventCommand
+participant ":EventQuery" as EventQuery
+participant ":StorageGRPCTransport" as StorageGRPCTransport
+participant ":ClassService" as ClassService
+participant ":PosterService" as PosterService
 
 Admin->AddEventPage: Open "Add Event" Page
 AddEventPage->AddEventFormContainer: Render "Add Event Form" Container

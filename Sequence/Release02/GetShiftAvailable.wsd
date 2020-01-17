@@ -5,13 +5,13 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Component: Class Form" as ClassForm
-participant "Service: Shift Service" as FEShiftService
-participant "Router" as Router
-participant "Shift: HTTP Transport" as ShiftHTTPTransport
-participant "Shift: Endpoint" as ShiftEndpoint
-participant "Shift: Service" as ShiftService
-participant "Shift: Query" as ShiftQuery
+participant ":ClassForm" as ClassForm
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ShiftHTTPTransport" as ShiftHTTPTransport
+participant ":ShiftEndpoint" as ShiftEndpoint
+participant ":ShiftService" as ShiftService
+participant ":ShiftQuery" as ShiftQuery
 
 Admin->ClassForm: Choose Date 
 ClassForm->ClassForm: fetchAvailableShifts(date)

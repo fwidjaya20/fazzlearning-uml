@@ -6,8 +6,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "RoomTransactionETL: NATS Transport" as RoomTransactionETLNATSTransport
-participant "RoomTransactionETL: Service" as RoomTransactionETLService
+participant ":RoomTransactionETLNATS Transport" as RoomTransactionETLNATSTransport
+participant ":RoomTransactionETLService" as RoomTransactionETLService
 
 Caller->RoomTransactionETLNATSTransport: replicaRoomTransctionSubscriber(conn, logger, service)
 RoomTransactionETLNATSTransport->RoomTransactionETLService: ReplicaPersistance(context, payload)

@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Edit Role" as EditRolePage
-participant "Container: Edit Role Form" as EditRoleFormContainer
-participant "Component: Role Form" as RoleForm
-participant "Service: Role Service" as FERoleService
-participant "Router" as Router
-participant "Role: HTTP Transport" as RoleHTTPTransport
-participant "Role: Endpoint" as RoleEndpoint
-participant "Role: Service" as RoleService
-participant "Role: RoleCommand" as RoleCommand
-participant "Role: RoleQuery" as RoleQuery
+participant ":EditRolePage" as EditRolePage
+participant ":EditRoleFormContainer" as EditRoleFormContainer
+participant ":RoleForm" as RoleForm
+participant ":RoleService (Frontend)" as FERoleService
+participant ":Router" as Router
+participant ":RoleHTTPTransport" as RoleHTTPTransport
+participant ":RoleEndpoint" as RoleEndpoint
+participant ":RoleService" as RoleService
+participant ":RoleRoleCommand" as RoleCommand
+participant ":RoleRoleQuery" as RoleQuery
 
 Admin->EditRolePage: Open "Edit Role" Page
 EditRolePage->EditRoleFormContainer: Render "Edit Role Form" Container

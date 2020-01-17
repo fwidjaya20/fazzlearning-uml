@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Shift" as ShiftPage
-participant "Container: Shift Table" as ShiftTableContainer
-participant "Component: Shift Table" as ShiftTable
-participant "Service: Shift Service" as FEShiftService
-participant "Router" as Router
-participant "Shift: HTTP Transport" as ShiftHTTPTransport
-participant "Shift: Endpoint" as ShiftEndpoint
-participant "Shift: Service" as ShiftService
-participant "Shift: Command" as ShiftCommand
-participant "Shift: Query" as ShiftQuery
+participant ":ShiftPage" as ShiftPage
+participant ":ShiftTableContainer" as ShiftTableContainer
+participant ":ShiftTable" as ShiftTable
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ShiftHTTPTransport" as ShiftHTTPTransport
+participant ":ShiftEndpoint" as ShiftEndpoint
+participant ":ShiftService" as ShiftService
+participant ":ShiftCommand" as ShiftCommand
+participant ":ShiftQuery" as ShiftQuery
 
 Admin->ShiftPage: Open "Manage Shift" Page
 ShiftPage->ShiftTableContainer: Render "Shift Table" Container

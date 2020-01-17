@@ -6,10 +6,10 @@ hide footbox
 
 actor Caller
 participant "Router" as Router
-participant "Storage: HTTP Transport" as StorageHTTPTransport
-participant "Storage: Endpoint" as StorageEndpoint
-participant "Storage: Service" as StorageService
-participant "AWS: S3" as AWSS3
+participant ":StorageHTTPTransport" as StorageHTTPTransport
+participant ":StorageEndpoint" as StorageEndpoint
+participant ":StorageService" as StorageService
+participant ":AWSS3" as AWSS3
 
 Caller->Router: route("GET", "v2/resolve/{file_name}")
 Router->StorageHTTPTransport: ResolveURL(StorageService, []ServerOption)

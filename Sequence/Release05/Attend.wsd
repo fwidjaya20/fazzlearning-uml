@@ -5,15 +5,15 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Home" as HomePage
-participant "Page: Scan" as ScanPage
-participant "Service: Attendance Service" as FEAttendanceService
-participant "Router" as Router
-participant "Attendance: HTTP Transport" as AttendanceHTTPTransport
-participant "Attendance: Endpoint" as AttendanceEndpoint
-participant "Attendance: Service" as AttendanceService
-participant "Attendance: Query" as AttendanceQuery
-participant "Attendance: Command" as AttendanceCommand
+participant ":HomePage" as HomePage
+participant ":ScanPage" as ScanPage
+participant ":AttendanceService (Frontend)" as FEAttendanceService
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceService
+participant ":AttendanceQuery" as AttendanceQuery
+participant ":AttendanceCommand" as AttendanceCommand
 
 Member->HomePage: Open "Home" Page
 HomePage-->Member: rendered

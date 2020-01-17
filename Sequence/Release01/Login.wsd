@@ -5,15 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Employee
-participant "Page: Login" as LoginPage
-participant "Service: Auth Service" as FEAuthService
-participant "Route" as Route
-participant "Session: Transport" as SessionTransport
-participant "Session: Endpoint" as SessionEndpoint
-participant "Session: Service" as SessionService
-participant "Session: Stategy" as SessionStrategy
-participant "Session: Command" as SessionCommand
-participant "User: Query" as UserQuery
+participant ":LoginPage" as LoginPage
+participant ":AuthService (Frontend)" as FEAuthService
+participant ":Route" as Route
+participant ":SessionTransport" as SessionTransport
+participant ":SessionEndpoint" as SessionEndpoint
+participant ":SessionService" as SessionService
+participant ":SessionStategy" as SessionStrategy
+participant ":SessionCommand" as SessionCommand
+participant ":UserQuery" as UserQuery
+participant ":UserCommand" as UserCommand
 
 Employee->LoginPage: Click "Login" Button
 LoginPage->LoginPage: handleGoogleResponse(response)

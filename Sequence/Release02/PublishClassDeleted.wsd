@@ -6,8 +6,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "Fazzlearning Kit: Event" as FazzlearningKitEvent
-participant "Nats Streaming" as NatsStreaming
+participant ":FazzlearningKitEvent" as FazzlearningKitEvent
+participant ":NatsStreaming" as NatsStreaming
 
 Caller->FazzlearningKitEvent: GetGlobalPublisher()
 FazzlearningKitEvent-->Caller: publisher

@@ -5,13 +5,13 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Dashboard" as Dashboard
-participant "Service: Statistic Service" as FEStatisticService
-participant "Router" as Router
-participant "Statistic: HTTP Transport" as StatisticHTTPTransport
-participant "Statistic: Endpoint" as StatisticEndpoint
-participant "Statistic: Service" as StatisticService
-participant "Statistic: Query" as StatisticQuery
+participant ":DashboardPage" as Dashboard
+participant ":StatisticService (Frontend)" as FEStatisticService
+participant ":Router" as Router
+participant ":StatisticHTTPTransport" as StatisticHTTPTransport
+participant ":StatisticEndpoint" as StatisticEndpoint
+participant ":StatisticService" as StatisticService
+participant ":StatisticQuery" as StatisticQuery
 
 Admin->Dashboard: Open "Dashboard" Page
 Dashboard->Dashboard: fetchStatistic()

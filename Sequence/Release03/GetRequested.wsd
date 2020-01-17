@@ -5,14 +5,14 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Ticket List" as TicketListPage
-participant "Container: Ticket List" as TicketListContainer
-participant "Service: Ticket Service" as FETicketService
-participant "Router" as Router
-participant "Requester: HTTP Transport" as RequestHTTPTransport
-participant "Requester: Endpoint" as RequestEndpoint
-participant "Requester: Service" as RequestService
-participant "Requester: Query" as RequestQuery
+participant ":TicketListPage" as TicketListPage
+participant ":TicketListContainer" as TicketListContainer
+participant ":TicketService (Frontend)" as FETicketService
+participant ":Router" as Router
+participant ":RequesterHTTPTransport" as RequestHTTPTransport
+participant ":RequesterEndpoint" as RequestEndpoint
+participant ":RequesterService" as RequestService
+participant ":RequesterQuery" as RequestQuery
 
 Member->TicketListPage: Open "Ticket List" Page
 TicketListPage->TicketListContainer: fetchTickets()

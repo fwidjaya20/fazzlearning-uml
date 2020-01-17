@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor "Caller" as Caller
-participant "Mailer: Mailer Service" as MailerService
-participant "Message: Message Service" as MessageService
-participant "Payfazz Messenger" as PayfazzMessanger
+participant ":MailerService" as MailerService
+participant ":MessageService (Template Tag)" as MessageService
+participant ":PayfazzMessenger" as PayfazzMessanger
 
 Caller->MailerService: AnnounceRequest(context, []acceptedRequestor, []lowPriorRequestor, []rejectdRequestor)
 

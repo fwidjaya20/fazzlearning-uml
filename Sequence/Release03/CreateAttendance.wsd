@@ -5,8 +5,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "Attendance: Service" as AttendanceService
-participant "Attendance: Command" as AttendanceCommand
+participant ":AttendanceService" as AttendanceService
+participant ":AttendanceCommand" as AttendanceCommand
 
 Caller->AttendanceService: Register(context, []payload)
 

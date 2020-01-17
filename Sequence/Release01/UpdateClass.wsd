@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Edit Class" as EditClassPage
-participant "Container: Edit Class Form" as EditClassFormContainer
-participant "Component: Class Form" as ClassForm
-participant "Service: Class Service" as FEClassService
-participant "Router" as Router
-participant "Class: HTTP Transport" as ClassHTTPTransport
-participant "Class: Endpoint" as ClassEndpoint
-participant "Class: Service" as ClassService
-participant "Class: Command" as ClassCommand
-participant "Class: Query" as ClassQuery
+participant ":EditClassPage" as EditClassPage
+participant ":EditClassFormContainer" as EditClassFormContainer
+participant ":ClassForm" as ClassForm
+participant ":ClassService" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
 
 Admin->EditClassPage: Open "Edit Class" Page
 EditClassPage->EditClassFormContainer: Render "Edit Class Form" Container

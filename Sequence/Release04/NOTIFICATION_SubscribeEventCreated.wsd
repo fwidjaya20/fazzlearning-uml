@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor "Caller" as Caller
-participant "Notification: NATS Transport" as NotificationNATSTransport
-participant "Notification: Service" as NotificationService
-participant "Message: Service" as MessageService
+participant ":NotificationNATSTransport" as NotificationNATSTransport
+participant ":NotificationService" as NotificationService
+participant ":MessageService (Template Tag)" as MessageService
 
 Caller->NotificationNATSTransport: eventCreatedSubscriber(conn, logger, notifService, messageService)
 

@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Class List" as ClassListPage
-participant "Container: Class List" as ClassListContainer
-participant "Component: Class Card" as ClassCard
-participant "Service: Class Service" as FEClassService
-participant "Router" as Router
-participant "Class: HTTP Transport" as ClassHTTPTransport
-participant "Class: Endpoint" as ClassEndpoint
-participant "Class: Service" as ClassService
-participant "Class: Command" as ClassCommand
-participant "Class: Query" as ClassQuery
+participant ":ClassListPage" as ClassListPage
+participant ":ClassListContainer" as ClassListContainer
+participant ":ClassCard" as ClassCard
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
 
 Member->ClassListPage: Open "Class List" Page
 ClassListPage->ClassListContainer: Render "Class List" Container

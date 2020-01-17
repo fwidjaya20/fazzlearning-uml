@@ -5,22 +5,22 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Add Event" as AddEventPage
-participant "Container: Add Event Form" as AddEventFormContainer
-participant "Container: Add Class Popup" as AddClassPopupContainer
-participant "Component: Class Form" as ClassForm
-participant "Service: Class Service" as FEClassService
-participant "Service: Shift Service" as FEShiftService
-participant "Router" as Router
-participant "Class: HTTP Transport" as ClassHTTPTransport
-participant "Class: Endpoint" as ClassEndpoint
-participant "Class: Service" as ClassService
-participant "Class: Command" as ClassCommand
-participant "Class: Query" as ClassQuery
-participant "Transaction: GRPC Transport" as TransactionGRPCTransport
-participant "Storage: GRPC Transport" as StorageGRPCTransport
-participant "Material: Service" as MaterialService
-participant "Nats Streaming" as NatsStreaming
+participant ":AddEventPage" as AddEventPage
+participant ":AddEventFormContainer" as AddEventFormContainer
+participant ":AddClassPopupContainer" as AddClassPopupContainer
+participant ":ClassForm" as ClassForm
+participant ":ClassService (Frontend)" as FEClassService
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
+participant ":TransactionGRPCTransport" as TransactionGRPCTransport
+participant ":StorageGRPC Transport" as StorageGRPCTransport
+participant ":MaterialService" as MaterialService
+participant ":NatsStreaming" as NatsStreaming
 
 Admin->AddEventPage: Click "Attach New Class" Button
 AddEventPage->AddEventFormContainer: attachClass()

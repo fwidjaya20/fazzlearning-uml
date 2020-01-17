@@ -5,14 +5,14 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Detail Class" as DetailClassPage
-participant "Container: List Requestors" as ListRequestorContainer
-participant "Service: Requestor Service" as FERequestorService
-participant "Router" as Router
-participant "Requester: HTTP Transport" as RequestHTTPTransport
-participant "Requester: Endpoint" as RequestEndpoint
-participant "Requester: Service" as RequestService
-participant "Requester: Query" as RequestQuery
+participant ":DetailClassPage" as DetailClassPage
+participant ":ListRequestorsContainer" as ListRequestorContainer
+participant ":RequestorService (Frontend)" as FERequestorService
+participant ":Router" as Router
+participant ":RequesterHTTP Transport" as RequestHTTPTransport
+participant ":RequesterEndpoint" as RequestEndpoint
+participant ":RequesterService" as RequestService
+participant ":RequesterQuery" as RequestQuery
 
 Admin->DetailClassPage: Open "Detail Class" Page
 DetailClassPage->ListRequestorContainer: fetchRequester()

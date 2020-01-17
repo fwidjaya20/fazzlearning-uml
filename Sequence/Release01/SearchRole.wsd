@@ -5,13 +5,13 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Component: User Form" as UserFormComponent
-participant "Service: Role Service" as FERoleService
-participant "Route" as Route
-participant "Role: HTTP Transport" as RoleHTTPTransport
-participant "Role: Endpoint" as RoleEndpoint
-participant "Role: Service" as RoleService
-participant "Role: Query" as RoleQuery
+participant ":UserForm" as UserFormComponent
+participant ":RoleService (Frontend)" as FERoleService
+participant ":Route" as Route
+participant ":RoleHTTPTransport" as RoleHTTPTransport
+participant ":RoleEndpoint" as RoleEndpoint
+participant ":RoleService" as RoleService
+participant ":RoleQuery" as RoleQuery
 
 Admin->UserFormComponent: type search keyword
 UserFormComponent->UserFormComponent: fetchRoles()
