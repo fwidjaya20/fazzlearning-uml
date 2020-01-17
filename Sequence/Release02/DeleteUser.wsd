@@ -17,8 +17,6 @@ participant "User: Command" as UserCommand
 participant "User: Query" as UserQuery
 participant "Nats Streaming" as NatsStreaming
 
-activate Admin
-
 Admin->UserPage: Open "Manage User" Page
 UserPage->UserTableContainer: Render "User Table" Container
 UserTableContainer->UserTable: Render "User Table"

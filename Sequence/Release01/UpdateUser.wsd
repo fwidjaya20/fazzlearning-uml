@@ -18,13 +18,9 @@ participant "User: Service" as UserService
 participant "User: Query" as UserQuery
 participant "User: Command" as UserCommand
 
-activate Admin
-
 ' Load Data
 Admin->EditUserPage: Open "Edit User" Page
-activate EditUserPage
 EditUserPage->EditUserFormContainer: Render "Edit User Form" Container
-activate EditUserFormContainer
 EditUserFormContainer->UserFormComponent: Render "Edit User Form"
 
 ' Fetch Roles

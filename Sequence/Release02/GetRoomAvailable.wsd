@@ -13,8 +13,6 @@ participant "Room: Endpoint" as RoomEndpoint
 participant "Room: Service" as RoomService
 participant "Room: Query" as RoomQuery
 
-activate Admin
-
 Admin->ClassForm: Choose Shift
 ClassForm->ClassForm: fetchAvailableRooms(date, []shift)
 ClassForm->FERoomService: fetchAvailableRooms(date, []shift)
@@ -33,7 +31,5 @@ Router-->FERoomService: response
 FERoomService-->ClassForm: response
 ClassForm->ClassForm: display rooms options to field
 ClassForm-->Admin: rendered
-
-deactivate Admin
 
 @enduml

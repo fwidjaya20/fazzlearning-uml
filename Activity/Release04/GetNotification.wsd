@@ -11,7 +11,7 @@ start
 
 |System|
 :Get "Notification" Data from Database;
-:Display the data to list;
+:Display the data to its list;
 stop
 
 @enduml

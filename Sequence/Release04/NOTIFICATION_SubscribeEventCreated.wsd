@@ -7,30 +7,19 @@ hide footbox
 actor "Caller" as Caller
 participant "Notification: NATS Transport" as NotificationNATSTransport
 participant "Notification: Service" as NotificationService
-participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
+participant "Message: Service" as MessageService
 
-activate Caller
-
-Caller->NotificationNATSTransport: Subscribe Event.EventCreated
-activate NotificationNATSTransport
-NotificationNATSTransport->NotificationNATSTransport: Parse Event Message
+Caller->NotificationNATSTransport: eventCreatedSubscriber(conn, logger, notifService, messageService)
 
 alt "Data Not Valid"
     NotificationNATSTransport-->Caller: panic
 else
-    NotificationNATSTransport->NotificationNATSTransport: build template tag payload
-    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
-    activate TTCMSHTTPTransport
-    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
-    deactivate TTCMSHTTPTransport
-    NotificationNATSTransport->NotificationService: Post(payload)
-    activate NotificationService
-    NotificationService-->NotificationNATSTransport: subscribed
-    deactivate NotificationService
-    NotificationNATSTransport-->Caller: subscribed
-    deactivate NotificationNATSTransport
-end
+    NotificationNATSTransport->MessageService: GetCompileMessage(context, type, payload)
+    MessageService-->NotificationNATSTransport: compiled message
 
-deactivate Caller
+    NotificationNATSTransport->NotificationService: Post(context, []payload)
+    NotificationService-->NotificationNATSTransport: subscribed
+    NotificationNATSTransport-->Caller: subscribed
+end
 
 @enduml

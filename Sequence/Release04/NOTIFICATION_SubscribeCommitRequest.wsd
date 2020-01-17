@@ -7,43 +7,42 @@ hide footbox
 actor "Caller" as Caller
 participant "Notification: NATS Transport" as NotificationNATSTransport
 participant "Notification: Service" as NotificationService
-participant "Template Tag CMS: HTTP Transport" as TTCMSHTTPTransport
+participant "Message: Service" as MessageService
 
-activate Caller
-
-Caller->NotificationNATSTransport: Subscribe Requests.RequestUpdated
-activate NotificationNATSTransport
-NotificationNATSTransport->NotificationNATSTransport: Parse Event Message
+Caller->NotificationNATSTransport: requestUpdatedSubscriber(conn, logger, notifService, messageService)
 
 alt "Data Not Valid"
     NotificationNATSTransport-->Caller: panic
 else
-    NotificationNATSTransport->NotificationNATSTransport: Filter each requester by status
-    NotificationNATSTransport->NotificationNATSTransport: build template tag payload "Accepted" Status
-    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
-    activate TTCMSHTTPTransport
-    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
-    NotificationNATSTransport->NotificationService: Post(payload)
-    activate NotificationService
+    loop "for each requester"
+        alt "status is Approved"
+            NotificationNATSTransport->MessageService: GetCompiledMessage(context, type, payload)
+            MessageService-->NotificationNATSTransport: compiled message
+        else "status is Low Priority"
+            NotificationNATSTransport->MessageService: GetCompiledMessage(context, type, payload)
+            MessageService-->NotificationNATSTransport: compiled message
+        else "status is Rejected"
+            NotificationNATSTransport->MessageService: GetCompiledMessage(context, type, payload)
+            MessageService-->NotificationNATSTransport: compiled message
+        end
+    end
 
-    NotificationNATSTransport->NotificationNATSTransport: Filter each requester by status
-    NotificationNATSTransport->NotificationNATSTransport: build template tag payload "Low Priority" Status
-    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
-    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
-    NotificationNATSTransport->NotificationService: Post(payload)
+    opt "there is approved"
+        NotificationNATSTransport->NotificationService: Post(context, []payload)
+        NotificationService-->NotificationNATSTransport: subscribed
+    end
 
-    NotificationNATSTransport->NotificationNATSTransport: Filter each requester by status
-    NotificationNATSTransport->NotificationNATSTransport: build template tag payload "Rejected" Status
-    NotificationNATSTransport->TTCMSHTTPTransport: GetCompileMessage(payload)
-    TTCMSHTTPTransport-->NotificationNATSTransport: compiled message
-    deactivate TTCMSHTTPTransport
-    NotificationNATSTransport->NotificationService: Post(payload)
-    
-    NotificationService-->NotificationNATSTransport: subscribed
-    deactivate NotificationService
+    opt "there is lowPriorities"
+        NotificationNATSTransport->NotificationService: Post(context, []payload)
+        NotificationService-->NotificationNATSTransport: subscribed
+    end
+
+    opt "there is rejected"
+        NotificationNATSTransport->NotificationService: Post(context, []payload)
+        NotificationService-->NotificationNATSTransport: subscribed
+    end
+
     NotificationNATSTransport-->Caller: subscribed
 end
-
-deactivate Caller
 
 @enduml

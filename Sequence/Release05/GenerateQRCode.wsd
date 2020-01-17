@@ -5,45 +5,35 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Class Detail" as ClassDetailPage
+participant "Page: Detail Class" as DetailClassPage
+participant "Container: Detail Class" as DetailClassContainer
+participant "Service: Class Service" as FEClassService
 participant "Router" as Router
 participant "Class: HTTP Transport" as ClassHTTPTransport
 participant "Class: Endpoint" as ClassEndpoint
 participant "Class: Service" as ClassService
 participant "Class: Query" as ClassQuery
+participant "Library: QRCode" as QRCode
 
-activate Admin
-
-Admin->ClassDetailPage: Open "Class Detail" Page
-activate ClassDetailPage
-ClassDetailPage-->Admin: rendered
-Admin->ClassDetailPage: Hit "Generate QR Code" Button
-ClassDetailPage->Router: route("GET", "v2/class/{class_id}/qrcode")
-activate Router
-Router->ClassHTTPTransport: GenerateQRCode(ClassService, []ServerOption)
-activate ClassHTTPTransport
-ClassHTTPTransport->ClassEndpoint: GenerateQRCode(ClassService)
-activate ClassEndpoint
-ClassEndpoint->ClassService: GenerateQRCode(ClassService, classId)
-activate ClassService
-ClassService->ClassQuery: Find([]SliceCondition)
-activate ClassQuery
+Admin->DetailClassPage: Open "Detail Class" Page
+DetailClassPage->DetailClassContainer: generateQRCode()
+DetailClassContainer->FEClassService: generateQRCode(classId)
+FEClassService->Router: route("GET", "v2/class/{class_id}/qrcode")
+Router->ClassHTTPTransport: QRCode(ClassService, []ServerOption)
+ClassHTTPTransport->ClassEndpoint: QRCode(ClassService)
+ClassEndpoint->ClassService: QRCode(context, ClassService, classId)
+ClassService->ClassQuery: GetPureModel(context, []SliceCondition)
 ClassQuery-->ClassService: class
-deactivate ClassQuery
-ClassService->ClassService: GenerateQRCode
+ClassService->QRCode: PNG()
+QRCode-->ClassService: qrCode
 ClassService-->ClassEndpoint: qrCode
-deactivate ClassService
 ClassEndpoint->ClassEndpoint: response := Response(qrCode, nil)
 ClassEndpoint-->ClassHTTPTransport: response
-deactivate ClassEndpoint
 ClassHTTPTransport-->Router: response
-deactivate ClassHTTPTransport
-Router-->ClassDetailPage: response
-deactivate Router
-ClassDetailPage->ClassDetailPage: display QR Code
-ClassDetailPage-->Admin: display QR Code
-deactivate ClassDetailPage
-
-deactivate Admin
+Router-->FEClassService: response
+FEClassService-->DetailClassContainer: response
+DetailClassContainer-->DetailClassPage: response
+DetailClassPage->DetailClassPage: display QR Code
+DetailClassPage-->Admin: display QR Code
 
 @enduml

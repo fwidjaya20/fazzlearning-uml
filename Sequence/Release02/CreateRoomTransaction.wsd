@@ -27,6 +27,4 @@ else
     RoomTransactionService-->Caller: created
 end
 
-deactivate Caller
-
 @enduml

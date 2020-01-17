@@ -9,8 +9,6 @@ participant "Material: Service" as MaterialService
 participant "Material: Command" as MaterialCommand
 participant "Material: Query" as MaterialQuery
 
-activate Caller
-
 Caller->MaterialService: Create(context, payload)
 MaterialService->MaterialService: Validate()
 

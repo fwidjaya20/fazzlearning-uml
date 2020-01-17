@@ -9,8 +9,6 @@ participant "Poster: Service" as PosterService
 participant "Poster: Command" as PosterCommand
 participant "Poster: Query" as PosterQuery
 
-activate Caller
-
 Caller->PosterService: Create(context, payload)
 PosterService->PosterService: Validate()
 
@@ -26,9 +24,6 @@ else
         PosterQuery-->PosterService: poster
     end
     PosterService-->Caller: poster
-    deactivate PosterService
 end
-
-deactivate Caller
 
 @enduml

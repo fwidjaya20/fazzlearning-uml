@@ -1,74 +1,34 @@
-@startuml GetRequester
+@startuml CommitRequest
 
 skinparam Monochrome true
 skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Class Detail" as ClassDetailPage
-participant "Container: Requester Table" as RequesterTableContainer
-participant "Component: Table" as RequesterTable
+participant "Page: Detail Class" as DetailClassPage
+participant "Container: List Requestor Container" as ListRequestorContainer
+participant "Service: Requestor Service" as FERequestorService
 participant "Router" as Router
 participant "Requester: HTTP Transport" as RequestHTTPTransport
 participant "Requester: Endpoint" as RequestEndpoint
 participant "Requester: Service" as RequestService
 participant "Requester: Query" as RequestQuery
 participant "Requester: Command" as RequestCommand
+participant "Nats Streaming" as NatsStreaming
 
-activate Admin
+Admin->DetailClassPage: Change "Requester" Status
+DetailClassPage->ListRequestorContainer: handleResponseChange(id, value)
+ListRequestorContainer-->DetailClassPage: changed
+DetailClassPage-->Admin: changed
 
-Admin->ClassDetailPage: Open "Class Detail" Page
-activate ClassDetailPage
-ClassDetailPage->RequesterTableContainer: render "Requester Table"
-activate RequesterTableContainer
-RequesterTableContainer->RequesterTable: render "RequesterTable" component
-activate RequesterTable
-RequesterTable-->RequesterTableContainer: rendered
-RequesterTableContainer->Router: route("GET", "v2/class/{class_id}/requester")
-activate Router
-Router->RequestHTTPTransport: GetByClass(RequestService, []ServerOption)
-activate RequestHTTPTransport
-RequestHTTPTransport->RequestEndpoint: GetByClass(RequestService)
-activate RequestEndpoint
-RequestEndpoint->RequestService: GetByClassId(classId)
-activate RequestService
-RequestService->RequestQuery: Find([]SliceCondition)
-activate RequestQuery
-RequestQuery-->RequestService: requester
-deactivate RequestQuery
-RequestService-->RequestEndpoint: requester
-deactivate RequestService
-RequestEndpoint->RequestEndpoint: response := Response(requester, nil)
-RequestEndpoint-->RequestHTTPTransport: response
-deactivate RequestEndpoint
-RequestHTTPTransport-->Router: response
-deactivate RequestHTTPTransport
-Router-->RequesterTableContainer: response
-deactivate Router
-RequesterTableContainer->RequesterTable: render "Requester Table"
-RequesterTable-->RequesterTableContainer: rendered
-RequesterTableContainer-->ClassDetailPage: rendered
-ClassDetailPage-->Admin: rendered
-
-Admin->ClassDetailPage: Change "Requester" Status
-ClassDetailPage->RequesterTableContainer: Change "Requester" Status
-RequesterTableContainer->RequesterTable: Change "Requester" Status
-RequesterTable-->RequesterTableContainer: changed
-deactivate RequesterTable
-RequesterTableContainer-->ClassDetailPage: changed
-ClassDetailPage-->Admin: changed
-
-Admin->ClassDetailPage: Click "Submit" Button
-ClassDetailPage->RequesterTableContainer: Click "Submit" Button
-
-RequesterTableContainer->Router: route("PATCH", "v2/class/{class_id}/requester/commit")
-activate Router
+Admin->DetailClassPage: Click "Submit" Button
+DetailClassPage->ListRequestorContainer: handleResponseSubmit()
+ListRequestorContainer->FERequestorService: commitRequestor(classId, []payload)
+FERequestorService->Router: route("PATCH", "v2/class/{class_id}/requester/commit")
 Router->RequestHTTPTransport: CommitStatus(RequestService, []ServerOption)
-activate RequestHTTPTransport
 RequestHTTPTransport->RequestEndpoint: Commit(RequestService)
-activate RequestEndpoint
-RequestEndpoint->RequestService: CommitRequest(payload)
-activate RequestService
+RequestEndpoint->RequestService: CommitRequest(context, payload)
+
 loop "For each Requester"
     RequestService->RequestService: Validate()
     
@@ -76,34 +36,28 @@ loop "For each Requester"
         RequestService-->RequestEndpoint: UnprocessableEntity
         RequestEndpoint-->RequestHTTPTransport: UnprocessableEntity
         RequestHTTPTransport-->Router: UnprocessableEntity
-        Router-->RequesterTableContainer: UnprocessableEntity
-        RequesterTableContainer-->ClassDetailPage: UnprocessableEntity
-        ClassDetailPage-->Admin: UnprocessableEntity
+        Router-->FERequestorService: UnprocessableEntity
+        FERequestorService-->ListRequestorContainer: UnprocessableEntity
+        ListRequestorContainer-->DetailClassPage: UnprocessableEntity
+        DetailClassPage-->Admin: UnprocessableEntity
     else
-        RequestService->RequestQuery: GetPureModel(conditions)
-        activate RequestQuery
+        RequestService->RequestQuery: GetPureModel(context, []SliceCondition)
         RequestQuery-->RequestService: requester
-        deactivate RequestQuery
-        RequestService->RequestService: binding requester status
-        RequestService->RequestCommand: CommitStatus(requester)
-        activate RequestCommand
+
+        RequestService->RequestCommand: CommitStatus(context, requester)
         RequestCommand-->RequestService: is commited
-        deactivate RequestCommand
-        RequestService->RequestService: publishRequestUpdated()
     end
 end
-deactivate RequestService
+
+RequestService->NatsStreaming: publishRequestUpdated(context, id)
+NatsStreaming-->RequestService: published
+
 RequestEndpoint->RequestEndpoint: response := Response(isCommited)
 RequestEndpoint-->RequestHTTPTransport: response
-deactivate RequestEndpoint
 RequestHTTPTransport-->Router: response
-deactivate RequestHTTPTransport
-Router-->RequesterTableContainer: response
-deactivate Router
-RequesterTableContainer-->ClassDetailPage: response
-deactivate RequesterTableContainer
-ClassDetailPage-->Admin: response
-deactivate ClassDetailPage
-deactivate Admin
+Router-->FERequestorService: response
+FERequestorService-->ListRequestorContainer: response
+ListRequestorContainer-->DetailClassPage: response
+DetailClassPage-->Admin: response
 
 @enduml
