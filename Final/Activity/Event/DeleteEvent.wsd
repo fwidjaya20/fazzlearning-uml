@@ -1,0 +1,48 @@
+@startuml DeleteEvent
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Manage Event Page;
+
+|System|
+:Get Event data from Database;
+:Display the data to table;
+
+|Admin|
+:Hit View Detail Button;
+
+|System|
+:Get selected Event data from Database;
+:Display the data to design given;
+
+|Admin|
+:Hit Delete Button;
+
+|System|
+:Show Confirmation Dialog;
+
+|Admin|
+if (Agree Delete ?) then (No)
+    :Close Dialog;
+else (Yes)
+    |System|
+    :Delete Event from Database;
+
+    split
+        -> DELETED;
+        :Delete Related Poster if Exists;
+        :Delete Related Class if Exists;
+        :Add Success Information;
+    split again
+        -> NOT DELETED;
+        :Add Error Information;
+    end split
+endif
+stop
+
+@enduml

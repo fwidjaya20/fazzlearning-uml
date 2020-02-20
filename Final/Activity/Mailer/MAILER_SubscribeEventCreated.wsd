@@ -1,0 +1,30 @@
+@startuml MAILER_SubscribeEventCreated
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Subscribe Event.EventCreated;
+
+|System|
+:Parsing Event Message;
+split
+    -> VALID;
+    :Send Announcement of Event Created to Payfazz Member;
+    split
+        -> SUCCESS;
+        :Add Success Information;
+    split again
+        -> FAILED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

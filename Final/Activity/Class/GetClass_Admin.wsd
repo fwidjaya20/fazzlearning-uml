@@ -1,0 +1,18 @@
+@startuml GetClass_Admin
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Event Detail Page;
+
+|System|
+:Get Class data from Database;
+:Display the data to table;
+
+stop
+
+@enduml

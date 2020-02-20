@@ -1,0 +1,20 @@
+@startuml AttendanceSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Member
+
+rectangle "Attendance System" {
+    Admin --> (Generate QR Code)
+    
+    Member --> (Confirm Attendance)
+    Member --> (Attend)
+
+    (Confirm Attendance) ..> (Create Attendance) : include
+}
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml GetFavourite
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Favourite Page;
+
+|System|
+:Get Favourite Class from Database;
+:Display the data to its list;
+stop
+
+@enduml

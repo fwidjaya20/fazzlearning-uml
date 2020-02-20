@@ -1,0 +1,34 @@
+@startuml CommitRequest
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Detail Class Page;
+
+|Admin|
+:Change requester status;
+:Hit Submit Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Update Requester new status from Database;
+    split
+        -> UPDATED;
+        :Add Success Information;
+    split again
+        -> NOT UPDATED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

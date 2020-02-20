@@ -1,0 +1,19 @@
+@startuml GetRoomAvailability
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Class Form;
+:Fill Shift Field;
+
+|System|
+:Get Available Room data from Database;
+:Display the data to room field;
+
+stop
+
+@enduml

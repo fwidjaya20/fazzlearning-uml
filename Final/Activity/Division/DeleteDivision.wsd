@@ -1,0 +1,39 @@
+@startuml DeleteDivision
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Manage Division Page;
+
+|System|
+:Get Division data from Database;
+:Display the data to table;
+
+|Admin|
+:Mark Division to Delete;
+:Hit Delete Selected Button;
+
+|System|
+:Show Confirmation Dialog;
+
+|Admin|
+if (Agree Delete ?) then (No)
+    :Close Dialog;
+else (Yes)
+    |System|
+    :Delete Selected Division from Database;
+    split
+        -> DELETED;
+        :Add Success Information;
+    split again
+        -> NOT DELETED;
+        :Add Error Information;
+    end split
+endif
+stop
+
+@enduml

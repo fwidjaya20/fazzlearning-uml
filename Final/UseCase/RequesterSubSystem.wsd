@@ -1,0 +1,24 @@
+@startuml RequesterSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+actor Member
+
+rectangle "Requester System" {
+    Member --> (Register)
+    Admin --> (Get Requester)
+    
+    Member --> (Cancel Register)
+    Admin --> (Commit Request)
+    Member --> (Get Requested)
+
+    (Register) ..> (Get Class) : include
+    (Commit Request) ..> (Publish Subject Based Message on Commit Request) : include
+}
+
+@enduml

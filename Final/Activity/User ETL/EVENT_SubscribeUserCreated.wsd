@@ -1,0 +1,24 @@
+@startuml EVENT_SubscribeUserCreated
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Subscribe User.UserCreated;
+
+|System|
+:Create Replica User to UserETL;
+split
+    -> SUCCESS;
+    goto END
+split again
+    -> FAILED;
+    :Add Error Information;
+end split
+label END
+stop
+
+@enduml

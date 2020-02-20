@@ -1,0 +1,31 @@
+@startuml MAILER_SubscribeCommitRequest
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Subscribe Requests.RequestUpdated;
+
+|System|
+:Parsing Event Message;
+split
+    -> VALID;
+    :Grouping Requester per Status;
+    :Send Email Announcement for each Requester based on Status;
+    split
+        -> SUCCESS;
+        :Add Success Information;
+    split again
+        -> FAILED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml CreateAttendance
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Register "Approved" to Attendance;
+
+|System|
+:Validate Payload;
+
+split
+    -> VALID;
+    :Insert "Attendance" data to Database;
+    split
+        -> SUCCESS;
+        :Adding Success Information;
+    split again
+        -> FAILED;
+        :Adding Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Adding Error Information;
+end split
+stop
+
+@enduml

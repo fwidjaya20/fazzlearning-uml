@@ -1,0 +1,32 @@
+@startuml DeleteRoomTransaction
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Delete Room Transaction;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Get related Room Transaction;
+    :Delete Room Transaction from Database;
+    split
+        -> DELETED;
+        :Add Success Information;
+        :Publish Subject Based Message on Room Transaction Deleted;
+    split again
+        -> NOT DELETED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

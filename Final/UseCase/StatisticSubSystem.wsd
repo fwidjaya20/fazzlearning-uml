@@ -1,0 +1,16 @@
+@startuml StatisticSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+
+rectangle "Statistic System" {
+    Admin --> (Get Benchmark)
+    Admin --> (Get Calendar View)
+}
+
+@enduml

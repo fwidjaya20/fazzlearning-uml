@@ -1,0 +1,23 @@
+@startuml Like
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Click Empty Love Button;
+
+|System|
+:Insert Favourite data to Database;
+split
+    -> CREATED;
+    :Add Success Information;
+split again
+    -> NOT CREATED;
+    :Add Error Information;
+end split
+stop
+
+@enduml

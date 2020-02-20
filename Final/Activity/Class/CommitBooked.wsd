@@ -1,0 +1,18 @@
+@startuml CommitBooked
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Commit Booked;
+
+|System|
+:Change committed value into true;
+:Attach event_id to committed class;
+:Update Class data from Database;
+stop
+
+@enduml

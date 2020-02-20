@@ -1,0 +1,60 @@
+@startuml UpdateUser
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Edit User Page;
+
+|System|
+:Get Roles and Division from Database;
+:Display fetched data into its own field;
+:Get selected "User" data from Database;
+
+|Admin|
+:Change User Form;
+
+if (Do Search Role ?) then (No)
+    goto CUF1
+else (Yes)
+    |System|
+    :Search Role;
+endif
+
+|Admin|
+label CUF1
+:Change User Form;
+
+|Admin|
+if (Do Search Division ?) then (No)
+    goto UUB
+else (Yes)
+    |System|
+    :Search Division;
+endif
+
+|Admin|
+label UUB
+:Hit Update User Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Update "User" data from Database;
+    split
+        -> UPDATED;
+        :Add Success Information;
+    split again
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

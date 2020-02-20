@@ -1,0 +1,35 @@
+@startuml CreateEvent
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Add Event Page;
+:Fill Event Form;
+:Hit Create Event Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Insert Event data to Database;
+    split
+        -> CREATED;
+        :Create Related Poster;
+        :Create Related Booked Class;
+        :Add Success Information;
+        :Publish Event.EventCreated Event on Stream;
+    split again
+        -> NOT CREATED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml BookingClass
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Attach Class List;
+
+|System|
+:Get Booked Room By Logged User;
+:Display the data to List View;
+
+|Admin|
+:Hit Attach Class Button;
+
+|System|
+:Show Class Form Popup;
+
+|Admin|
+:Fill Class Form;
+:Hit Create Class Button;
+
+|System|
+:Validate Payload;
+
+split
+    -> VALID;
+    :Check validity of the transaction;
+    split
+        -> VALID;
+        :Mark Committed attribute of Class as False;
+        :Insert Class to Database;
+        split
+            -> CREATED;
+            :Process Material if Exist;
+            :Add Success Information;
+            :Publish Class.ClassCreated Event on Stream;
+        split again
+            -> NOT CREATED;
+            :Add Error Information;
+        end split
+    split again
+        -> NOT VALID;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml Register
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open "Fulfilment" Page;
+
+|System|
+:Get "Division" data from Database;
+:Display the data to its field;
+
+|Member|
+:Fill "Division Fulfilment" Form;
+:Hit "Next" Button;
+
+:Fill "Indentity Fulfilment" Form;
+:Hit "Next" Button;
+
+:Hit "Complete" Button;
+
+|System|
+:Validate Payload;
+
+split
+    -> Payload Valid;
+    :Check Provider Source;
+    split
+        -> WEB;
+        :Get User from Database;
+    split again
+        -> PWA;
+        :Get User from Database;
+        :Check User is Deleted or Not;
+        split
+            -> IS DELETED;
+            :Restore User;
+        split again
+            -> USER NOT EXIST;
+            :Register the User to Database;
+        end split
+    end split
+    :User Found;
+    split
+        -> YES;
+        :Generate Token;
+        :Create the Session to Database;
+    split again
+        -> NO;
+        :Add "Error" Information;
+    end split
+split again
+    -> Payload Not Valid;
+    :Add "Error" Information;
+end split
+stop
+
+@enduml

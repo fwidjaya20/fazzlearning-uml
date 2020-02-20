@@ -1,0 +1,17 @@
+@startuml SearchDivision
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin, Member|
+start
+:Search Division by Keyword;
+
+|System|
+:Get Division data by Keyword from Database;
+:Display the data to its field;
+stop
+
+@enduml

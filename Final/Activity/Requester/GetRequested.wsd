@@ -1,0 +1,18 @@
+@startuml GetRequested
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Ticket List Page;
+
+|System|
+:Get Requested Class of User from Database;
+:Display the data to Card;
+
+stop
+
+@enduml

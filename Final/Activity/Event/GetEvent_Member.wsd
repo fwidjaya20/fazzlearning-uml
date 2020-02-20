@@ -1,0 +1,18 @@
+@startuml GetEvent_Member
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Home Page;
+
+|System|
+:Get Event data from Database;
+:Display the data to table;
+
+stop
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml TRANSACTION_SubscribeRTDeleted
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Subscribe Transaction.TransactionDeleted;
+
+|System|
+:Delete Replica Room Transaction from RoomTransactionETL;
+split
+    -> SUCCESS;
+    goto END
+split again
+    -> FAILED;
+    :Add Error Information;
+end split
+label END
+stop
+
+@enduml

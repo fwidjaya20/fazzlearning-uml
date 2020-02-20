@@ -1,0 +1,49 @@
+@startuml Login
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin, Member|
+start
+:Open "Login" Page;
+:Choose "G-Suite" Account;
+
+|System|
+:Validate Payload;
+
+split
+    -> Payload Valid;
+    :Check Provider Source;
+    split
+        -> WEB;
+        :Get User from Database;
+    split again
+        -> PWA;
+        :Get User from Database;
+        :Check User is Deleted or Not;
+        split
+            -> IS DELETED;
+            :Restore User;
+        split again
+            -> USER NOT EXIST;
+            :Register the User to Database;
+        end split
+    end split
+    :User Found;
+    split
+        -> YES;
+        :Generate Token;
+        :Create the Session to Database;
+    split again
+        -> NO;
+        :Add "Error" Information;
+    end split
+split again
+    -> Payload Not Valid;
+    :Add "Error" Information;
+end split
+stop
+
+@enduml

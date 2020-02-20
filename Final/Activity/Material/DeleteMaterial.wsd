@@ -1,0 +1,30 @@
+@startuml DeleteMaterial
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Delete Material by Class;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Delete Material data from Database;
+    split
+        -> DELETED;
+        :Add Success Information;
+    split again
+        -> NOT DELETED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

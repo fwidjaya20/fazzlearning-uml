@@ -1,0 +1,17 @@
+@startuml GetBooked
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Add Event Page;
+
+|System|
+:Get Booked Class data by User from Database;
+:Display the data to its field;
+stop
+
+@enduml

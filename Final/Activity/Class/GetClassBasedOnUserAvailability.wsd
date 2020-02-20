@@ -1,0 +1,18 @@
+@startuml GetClassBasedOnUserAvailability
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Class List Page;
+
+|System|
+:Get Available data of Class from Database;
+:Display the data from card;
+
+stop
+
+@enduml

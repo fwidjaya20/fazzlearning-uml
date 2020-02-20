@@ -1,0 +1,17 @@
+@startuml GetNotification
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Notification Page;
+
+|System|
+:Get Notification Data from Database;
+:Display the data to its list;
+stop
+
+@enduml

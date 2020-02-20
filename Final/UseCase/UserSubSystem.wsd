@@ -1,0 +1,32 @@
+@startuml UserSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+
+rectangle "User System" {
+    Admin --> (Create User)
+    Admin --> (Update User)
+    Admin --> (Delete User)
+    Admin --> (Get User)
+
+    (Create User) ..> (Get Role) : include
+    (Create User) ..> (Get Division) : include
+
+    (Update User) ..> (Get Role) : include
+    (Update User) ..> (Get Division) : include
+
+    (Create User) ..> (Search Role): include
+    (Create User) ..> (Search Division): include
+    (Update User) ..> (Search Role): include
+    (Update User) ..> (Search Division): include
+
+    (Create User) ..> (Publish User Created) : include
+    (Delete User) ..> (Publish User Deleted) : include
+}
+
+@enduml

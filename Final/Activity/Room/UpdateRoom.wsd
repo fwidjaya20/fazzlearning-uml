@@ -1,0 +1,38 @@
+@startuml UpdateRoom
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Edit Room Page;
+
+|System|
+:Get Selected Room data from Database;
+:Display the data to its field;
+
+|Admin|
+:Change form data;
+:Hit Edit Room Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Update Room data from Database;
+    split
+        -> UPDATED;
+        :Add Success Information;
+    split again
+        -> NOT UPDATED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

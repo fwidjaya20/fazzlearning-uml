@@ -1,0 +1,31 @@
+@startuml CreateRoomTransaction
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Create Room Transaction;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Insert Room Transaction to Database;
+    split
+        -> CREATED;
+        :Add Success Information;
+        :Publish Transaction.RoomTransactionCreated Event on Stream;
+    split again
+        -> NOT CREATED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

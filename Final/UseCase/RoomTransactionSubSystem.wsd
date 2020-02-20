@@ -1,0 +1,23 @@
+@startuml RoomTransactionSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Caller
+
+rectangle "Room Transaction System" {
+    (Caller) --> (Create Transaction)
+    (Caller) --> (Delete Transaction)
+    (Caller) --> (Check Validity of Transaction)
+
+    (Create Transaction) ..> (Publish Transaction Created) : include
+    (Delete Transaction) ..> (Publish Transaction Deleted) : include
+
+    (Subscribe Class Created) ..> (Create Transaction) : include
+    (Subscribe Class Deleted) ..> (Delete Transaction) : include
+}
+
+@enduml

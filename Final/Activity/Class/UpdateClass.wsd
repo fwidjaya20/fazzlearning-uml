@@ -1,0 +1,32 @@
+@startuml UpdateClass
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Edit Class Page;
+
+|System|
+:Get Selected Class data from Database;
+:Display the data to its field;
+
+|Admin|
+:Change Class Form;
+:Hit Edit Class Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Update Class data from Database;
+    :Adding Success Information;
+split again
+    -> NOT VALID;
+    :Adding Error Information;
+end split
+stop
+
+@enduml
