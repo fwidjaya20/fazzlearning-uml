@@ -1,0 +1,67 @@
+@startuml UpdateShift
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EditShiftPage" as EditShiftPage
+participant ":EditShiftFormContainer" as EditShiftFormContainer
+participant ":ShiftForm" as ShiftForm
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ShiftHTTPTransport" as ShiftHTTPTransport
+participant ":ShiftEndpoint" as ShiftEndpoint
+participant ":ShiftService" as ShiftService
+participant ":ShiftShiftCommand" as ShiftCommand
+participant ":ShiftShiftQuery" as ShiftQuery
+
+Admin->EditShiftPage: Open "Edit Shift" Page
+EditShiftPage->EditShiftFormContainer: Render "Edit Shift Form" Container
+EditShiftFormContainer->ShiftForm: Render "Shift Form"
+ShiftForm-->EditShiftFormContainer: rendered
+EditShiftFormContainer-->EditShiftPage: rendered
+EditShiftPage-->Admin: rendered
+
+Admin->EditShiftPage: Fill Form
+EditShiftPage->EditShiftFormContainer: Fill Form
+EditShiftFormContainer->ShiftForm: Fill Form
+ShiftForm-->EditShiftFormContainer: form data
+EditShiftFormContainer-->EditShiftPage: form data
+EditShiftPage-->Admin: form data
+
+Admin->EditShiftPage: Click "Update Shift" Button
+EditShiftPage->EditShiftFormContainer: handleShiftFormSubmitted()
+EditShiftFormContainer->FEShiftService: updateShift(id, payload)
+FEShiftService->Router: route("PUT", "v2/shift/{shift_id}", formData)
+
+Router->ShiftHTTPTransport: UpdateShift(ShiftService, []ServerOption)
+ShiftHTTPTransport->ShiftEndpoint: Update(ShiftService)
+ShiftEndpoint->ShiftService: Update(context, payload)
+ShiftService->ShiftService: Validate()
+
+alt "Data not valid"
+    ShiftService-->ShiftEndpoint: UnprocessableEntity
+    ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+    ShiftHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEShiftService: UnprocessableEntity
+    FEShiftService-->EditShiftFormContainer: UnprocessableEntity
+    EditShiftFormContainer-->EditShiftPage: UnprocessableEntity
+    EditShiftPage-->Admin: UnprocessableEntity
+else
+    ShiftService->ShiftQuery: Find(context, []SliceCondition)
+    ShiftQuery-->ShiftService: shift
+
+    ShiftService->ShiftCommand: Update(context, shift)
+    ShiftCommand-->ShiftService: isUpdated
+    ShiftService-->ShiftEndpoint: shift
+    ShiftEndpoint->ShiftEndpoint: response := Response(shift, nil)
+    ShiftEndpoint-->ShiftHTTPTransport: response
+    ShiftHTTPTransport-->Router: response
+    Router-->FEShiftService: response
+    FEShiftService-->EditShiftFormContainer: response
+    EditShiftFormContainer-->EditShiftPage: response
+    EditShiftPage-->Admin: response
+end
+
+@enduml

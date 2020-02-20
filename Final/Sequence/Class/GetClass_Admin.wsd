@@ -1,0 +1,52 @@
+@startuml GetClass_Admin
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DetailEventPage" as DetailEventPage
+participant ":ListEventClassContainer" as ListEventClassContainer
+participant ":ClassTable" as ClassTable
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
+
+Admin->DetailEventPage: Open "Detail Event" Page
+DetailEventPage->ListEventClassContainer: fetchClasses()
+ListEventClassContainer->FEClassService: fetchClasses(eventId)
+FEClassService->Router: route("GET", "v2/event/{event_id}/classes")
+Router->ClassHTTPTransport: FetchPaginatedClasss(ClassService, []ServerOption)
+ClassHTTPTransport->ClassEndpoint: All(ClassService, withPaginated)
+ClassEndpoint->ClassService: All(context, params)
+
+alt "With Paginate"
+    ClassService->ClassQuery: All(context, []SliceConditions, PaginateModel)
+else
+    ClassService->ClassQuery: All(context, []SliceConditions, nil)
+end
+ClassQuery-->ClassService: classes
+ClassService-->ClassEndpoint: classes
+
+opt "With Paginate"
+    ClassEndpoint->ClassService: GetPagination(context, params)
+    ClassService->ClassQuery: Count(context, []SliceConditions)
+    ClassQuery-->ClassService: total
+    ClassService-->ClassEndpoint: total
+end
+
+ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
+ClassEndpoint-->ClassHTTPTransport: response
+ClassHTTPTransport-->Router: response
+Router-->FEClassService: response
+FEClassService-->ListEventClassContainer: response
+ListEventClassContainer->ClassTable: Render "Class Table"
+ClassTable-->ListEventClassContainer: rendered
+ListEventClassContainer-->DetailEventPage: rendered
+DetailEventPage-->Admin: rendered
+
+@enduml

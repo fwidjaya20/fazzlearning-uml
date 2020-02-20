@@ -1,0 +1,35 @@
+@startuml GetNotification
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":NotificationPage" as NotificationPage
+participant ":NotificationContainer" as NotificationContainer
+participant ":NotificationService (Frontend)" as FENotificationService
+participant ":Router" as Router
+participant ":NotificationHTTPTransport" as NotificationHTTPTransport
+participant ":NotificationEndpoint" as NotificationEndpoint
+participant ":NotificationService" as NotificationService
+participant ":NotificationQuery" as NotificationQuery
+
+Member->NotificationPage: Open "Notification" Pages
+NotificationPage->NotificationContainer: fetchNotification()
+NotificationContainer->FENotificationService: fetchNotification()
+FENotificationService->Router: router("GET", "v2/notifications")
+Router->NotificationHTTPTransport: All(NotificationService, []ServerOption)
+NotificationHTTPTransport->NotificationEndpoint: All(NotificationService)
+NotificationEndpoint->NotificationService: All(context)
+NotificationService->NotificationQuery: Find(context, []SliceCondition)
+NotificationQuery-->NotificationService: notifications
+NotificationService-->NotificationEndpoint: notifications
+NotificationEndpoint->NotificationEndpoint: response := Response(notifications, nil)
+NotificationEndpoint-->NotificationHTTPTransport: response
+NotificationHTTPTransport-->Router: response
+Router-->FENotificationService: response
+FENotificationService-->NotificationContainer: response
+NotificationContainer-->NotificationPage: rendered
+NotificationPage-->Member: rendered
+
+@enduml

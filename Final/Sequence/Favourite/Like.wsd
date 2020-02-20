@@ -1,0 +1,46 @@
+@startuml Like
+
+skinparam Monochrome true
+skinparam Shadowing false
+
+actor Member
+participant ":ClassCard" as ClassCard
+participant ":FavouriteService (Frontend)" as FEFavouriteService
+participant ":Router" as Router
+participant ":FavouriteHTTPTransport" as FavouriteHTTPTransport
+participant ":FavouriteEndpoint" as FavouriteEndpoint
+participant ":FavouriteService" as FavouriteService
+participant ":FavouriteCommand" as FavouriteCommand
+hide footbox
+
+Member->ClassCard: Click "Empty Love" Button
+ClassCard->ClassCard: handleFavourite()
+ClassCard->ClassCard: handleLike()
+ClassCard->FEFavouriteService: like(classId)
+FEFavouriteService->Router: route("POST", "v2/class/{class_id}/like")
+Router->FavouriteHTTPTransport: Like(FavouriteService, []ServerOption)
+FavouriteHTTPTransport->FavouriteEndpoint: Like(FavouriteService)
+FavouriteEndpoint->FavouriteService: Like(context, payload)
+FavouriteService->FavouriteService: Validate()
+
+alt "Data Not Valid"
+    FavouriteService-->FavouriteEndpoint: UnprocessableEntity
+    FavouriteEndpoint-->FavouriteHTTPTransport: UnprocessableEntity
+    FavouriteHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEFavouriteService: UnprocessableEntity
+    FEFavouriteService-->ClassCard: UnprocessableEntity
+    ClassCard-->Member: UnprocessableEntity
+else
+    FavouriteService->FavouriteService: m := FavouriteModel()
+    FavouriteService->FavouriteCommand: Create(context, m)
+    FavouriteCommand-->FavouriteService: isCreated
+    FavouriteService-->FavouriteEndpoint: isCreated
+    FavouriteEndpoint->FavouriteEndpoint: response := Response(isCreated, nil)
+    FavouriteEndpoint-->FavouriteHTTPTransport: response
+    FavouriteHTTPTransport-->Router: response
+    Router-->FEFavouriteService: resopnse
+    FEFavouriteService-->ClassCard: resopnse
+    ClassCard-->Member: response
+end
+
+@enduml

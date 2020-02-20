@@ -1,0 +1,18 @@
+@startuml SubscribeClassCreated
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":RoomTransactionNATSTransport" as RoomTransactionNATSTransport
+participant ":RoomTransactionService" as RoomTransactionService
+
+Caller->RoomTransactionNATSTransport: classCreatedSubscriber
+RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message
+RoomTransactionNATSTransport->RoomTransactionService: Create(context, TransactionClass)
+RoomTransactionService-->RoomTransactionNATSTransport: subscribed
+RoomTransactionNATSTransport-->Caller: subscribed
+
+@enduml

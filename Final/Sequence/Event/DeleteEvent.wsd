@@ -1,0 +1,58 @@
+@startuml DeleteEvent
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DetailEventPage" as DetailEventPage
+participant ":DetailEventContainer" as DetailEventContainer
+participant ":EventService (Frontend)" as FEEventService
+participant ":Router" as Router
+participant ":EventHTTPTransport" as EventHTTPTransport
+participant ":EventEndpoint" as EventEndpoint
+participant ":EventService" as EventService
+participant ":EventCommand" as EventCommand
+participant ":EventQuery" as EventQuery
+participant ":ClassService" as ClassService
+participant ":PosterService" as PosterService
+
+Admin->DetailEventPage: Click "Delete" Button
+DetailEventPage->DetailEventContainer: showDeleteConfirmation(item)
+
+alt "Cancel Delete"
+    DetailEventContainer-->DetailEventPage: Close Dialog
+    DetailEventPage-->Admin: Close Dialog
+else
+    DetailEventContainer->DetailEventContainer: handleDeleteConfirmation(item)
+    DetailEventContainer->FEEventService: deleteEvent(payload)
+    FEEventService->Router: route("DELETE", "v2/events", formData)
+    Router->EventHTTPTransport: DeleteEvents(EventService, []ServerOption)
+    EventHTTPTransport->EventEndpoint: Delete(EventService)
+    EventEndpoint->EventService: DeleteMany(context, id)
+
+    loop "for each uuid"
+        EventService->EventQuery: GetPureModel(context, []SliceConditions)
+        EventQuery-->EventService: events
+
+        EventService->EventCommand: Delete(context, event)
+        EventCommand-->EventService: isDeleted
+
+        EventService->ClassService: DeleteByEvent(context, eventId)
+        ClassService-->EventService: isDeleted
+
+        EventService->PosterService: DeleteByEvent(context, eventId)
+        PosterService-->EventService: isDeleted
+    end
+
+    EventService-->EventEndpoint: isDeleted
+    EventEndpoint->EventEndpoint: response := Response(isDeleted, nil)
+    EventEndpoint-->EventHTTPTransport: response
+    EventHTTPTransport-->Router: response
+    Router-->FEEventService: response
+    FEEventService-->DetailEventContainer: response
+    DetailEventContainer-->DetailEventPage: response
+    DetailEventPage-->Admin: response
+end
+
+@enduml

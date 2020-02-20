@@ -1,0 +1,69 @@
+@startuml DeleteClass
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DetailClassPage" as DetailClassPage
+participant ":DetailClassContainer" as DetailClassContainer
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
+participant ":MaterialService" as MaterialService
+participant ":NatsStreaming" as NatsStreaming
+
+Admin->DetailClassPage: Click "Delete" Button
+DetailClassPage->DetailClassContainer: showDeleteConfirmation(item)
+
+alt "Cancel Delete"
+    DetailClassContainer-->DetailClassPage: Close Dialog
+    DetailClassPage-->Admin: Close Dialog
+else
+    DetailClassContainer->DetailClassContainer: handleDelete(item)
+    DetailClassContainer->FEClassService: deleteClasses(eventId)
+    FEClassService->Router: route("DELETE", "v2/{event_id}/class", formData)
+    Router->ClassHTTPTransport: DeleteClass(ClassService, []ServerOption)
+    ClassHTTPTransport->ClassEndpoint: Delete(ClassService)
+    ClassEndpoint->ClassService: DeleteMany(context, payload)
+    ClassService->ClassService: Validate()
+
+    alt "Data Not Valid"
+        ClassService-->ClassEndpoint: UnprocessableEntity
+        ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+        ClassHTTPTransport-->Router: UnprocessableEntity
+        Router-->FEClassService: UnprocessableEntity
+        FEClassService-->DetailClassContainer: UnprocessableEntity
+        DetailClassContainer-->DetailClassPage: UnprocessableEntity
+        DetailClassPage-->Admin: UnprocessableEntity
+    else
+        loop "for each uuid"
+            ClassService->ClassQuery: GetPureModel(context, []SliceConditions)
+            ClassQuery-->ClassService: classes
+
+            ClassService->ClassCommand: Delete(context, class)
+            ClassCommand-->ClassService: isDeleted
+
+            ClassService->MaterialService: DeleteByClass(context, classId)
+            MaterialService-->ClassService: isDeleted
+
+            ClassService->NatsStreaming: publishClassDeleted(context, data)
+            NatsStreaming-->ClassService: published
+        end
+        
+        ClassService-->ClassEndpoint: isDeleted
+        ClassEndpoint->ClassEndpoint: response := Response(isDeleted, nil)
+        ClassEndpoint-->ClassHTTPTransport: response
+        ClassHTTPTransport-->Router: response
+        Router-->FEClassService: response
+        FEClassService-->DetailClassContainer: response
+        DetailClassContainer-->DetailClassPage: response
+        DetailClassPage-->Admin: response
+    end
+end
+
+@enduml

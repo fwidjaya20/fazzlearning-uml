@@ -1,0 +1,20 @@
+@startuml CheckValidityOfTransaction
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":RoomTransactionGRPCTransport" as RoomTransactionGRPCTransport
+participant ":RoomTransactionService" as RoomTransactionService
+participant ":RoomTransactionQuery" as RoomTransactionQuery
+
+Caller->RoomTransactionGRPCTransport: IsValidTransaction(ProtoBuffer)
+RoomTransactionGRPCTransport->RoomTransactionService: IsValidTransaction(context, payload)
+RoomTransactionService->RoomTransactionQuery: Count(context, []SliceCondition)
+RoomTransactionQuery-->RoomTransactionService: total
+RoomTransactionService-->RoomTransactionGRPCTransport: total == 0
+RoomTransactionGRPCTransport-->Caller: total == 0
+
+@enduml

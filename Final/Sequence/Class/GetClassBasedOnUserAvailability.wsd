@@ -1,0 +1,44 @@
+@startuml GetClassBasedOnUserAvailability
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":ClassListPage" as ClassListPage
+participant ":ClassListContainer" as ClassListContainer
+participant ":ClassCard" as ClassCard
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
+
+Member->ClassListPage: Open "Class List" Page
+ClassListPage->ClassListContainer: Render "Class List" Container
+ClassListContainer->ClassCard: Render "Class Card"
+ClassCard-->ClassListContainer: rendered
+ClassListContainer->ClassListContainer: fetchClassesByEventId()
+ClassListContainer->FEClassService: fetchClassesByEventId(eventId)
+
+FEClassService->Router: route("GET", "v2/event/{event_id}/classes/available")
+Router->ClassHTTPTransport: FetchAvailableToJoin(ClassService, []ServerOption)
+ClassHTTPTransport->ClassEndpoint: UserAvailability(ClassService)
+ClassEndpoint->ClassService: FindClassByUserAvailability(context, payload)
+
+ClassService->ClassQuery: FindUserAvailabilityRegistered(context, []SliceConditions)
+ClassQuery-->ClassService: classes
+
+ClassEndpoint->ClassEndpoint: response := Response(classes, paginateMetadata)
+ClassEndpoint-->ClassHTTPTransport: response
+ClassHTTPTransport-->Router: response
+Router-->FEClassService: response
+FEClassService-->ClassListContainer: response
+ClassListContainer->ClassCard: Render "Class Card"
+ClassCard-->ClassListContainer: rendered
+ClassListContainer-->ClassListPage: rendered
+ClassListPage-->Member: rendered
+
+@enduml

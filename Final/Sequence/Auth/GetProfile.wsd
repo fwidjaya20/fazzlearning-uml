@@ -1,0 +1,35 @@
+@startuml GetProfile
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Employee
+participant ":ProfilePage" as ProfilePage
+participant ":ProfileContainer" as ProfileContainer
+participant ":AuthService (Frontend)" as FEAuthService
+participant ":Route" as Route
+participant ":SessionHTTPTransport" as SessionHTTPTransport
+participant ":SessionEndpoint" as SessionEndpoint
+participant ":SessionService" as SessionService
+participant ":UserQuery" as UserQuery
+
+Employee->ProfilePage: Open "Profile" Page
+ProfilePage->ProfileContainer: fetchLoggedAccount()
+ProfileContainer->FEAuthService: loggedAccount()
+FEAuthService->Route: route("POST", "v2/me")
+Route->SessionHTTPTransport: Me(SessionService, []ServerOption)
+SessionHTTPTransport->SessionEndpoint: Me(SessionService)
+SessionEndpoint->SessionService: Me(context)
+SessionService->UserQuery: Find(context, []SliceConditions)
+UserQuery->SessionService: users
+SessionService-->SessionEndpoint: user
+SessionEndpoint->SessionEndpoint: response := Response(user, nil)
+SessionEndpoint-->SessionHTTPTransport: response
+SessionHTTPTransport-->Route: response
+Route-->FEAuthService: response
+FEAuthService-->ProfileContainer: response
+ProfileContainer-->ProfilePage: response
+ProfilePage-->Employee: response
+
+@enduml

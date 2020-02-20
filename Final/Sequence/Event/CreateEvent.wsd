@@ -1,0 +1,97 @@
+@startuml CreateEvent
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":AddEventPage" as AddEventPage
+participant ":AddEventFormContainer" as AddEventFormContainer
+participant ":EventForm" as EventForm
+participant ":EventService (Frontend)" as FEEventService
+participant ":Router" as Router
+participant ":EventHTTPTransport" as EventHTTPTransport
+participant ":EventEndpoint" as EventEndpoint
+participant ":EventService" as EventService
+participant ":EventCommand" as EventCommand
+participant ":EventQuery" as EventQuery
+participant ":StorageGRPCTransport" as StorageGRPCTransport
+participant ":ClassService" as ClassService
+participant ":PosterService" as PosterService
+participant ":NatsStreaming" as NatsStreaming
+
+Admin->AddEventPage: Open "Add Event" Page
+AddEventPage->AddEventFormContainer: Render "Add Event Form" Container
+AddEventFormContainer->EventForm: Render "Event Form"
+EventForm-->AddEventFormContainer: rendered
+AddEventFormContainer-->AddEventPage: rendered
+AddEventPage-->Admin: rendered
+
+Admin->AddEventPage: Fill Form
+AddEventPage->AddEventFormContainer: Fill Form
+AddEventFormContainer->EventForm: Fill Form
+EventForm-->AddEventFormContainer: form data
+AddEventFormContainer-->AddEventPage: form data
+AddEventPage-->Admin: form data
+
+Admin->AddEventPage: Click "Create Event" Button
+AddEventPage->AddEventFormContainer: handleEventFormSubmitted()
+AddEventFormContainer->FEEventService: createEvent(payload)
+FEEventService->Router: route("POST", "v2/event", formData)
+Router->EventHTTPTransport: CreateEvent(EventService, []ServerOption)
+EventHTTPTransport->EventEndpoint: Create(EventService)
+EventEndpoint->EventService: Create(context, payload)
+EventService->EventService: Validate()
+
+alt "Data not valid"
+    EventService-->EventEndpoint: UnprocessableEntity
+    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
+    EventHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEEventService: UnprocessableEntity
+    FEEventService-->AddEventFormContainer: UnprocessableEntity
+    AddEventFormContainer-->AddEventPage: UnprocessableEntity
+    AddEventPage-->Admin: UnprocessableEntity
+else
+    EventService->EventQuery: GetPureModel(context, []SliceConditions)
+    EventQuery-->EventService: events
+
+    alt "there's any event"
+        EventService-->EventEndpoint: BadRequest
+        EventEndpoint-->EventHTTPTransport: BadRequest
+        EventHTTPTransport-->Router: BadRequest
+        Router-->FEEventService: BadRequest
+        FEEventService-->AddEventFormContainer: BadRequest
+        AddEventFormContainer-->AddEventPage: BadRequest
+        AddEventPage-->Admin: BadRequest
+    else
+        EventService->EventService: event := EventModel()
+        EventService->EventCommand: Create(context, event)
+        EventCommand-->EventService: uuid
+
+        EventService->StorageGRPCTransport: Upload(ProtoBuffer)
+        StorageGRPCTransport-->EventService: []url
+
+        EventService->PosterService: Create(context, payload)
+        PosterService-->EventService: isDeleted
+
+        EventService->ClassService: CommitBooked(context, eventId)
+        ClassService-->EventService: isCommitted
+
+        EventService->EventQuery: Find(context, []SliceConditions)
+        EventQuery-->EventService: event
+
+        EventService->NatsStreaming: publishEventCreated(context, payload)
+        NatsStreaming-->EventService: published
+
+        EventService-->EventEndpoint: event
+        EventEndpoint->EventEndpoint: response := Response(event, nil)
+        EventEndpoint-->EventHTTPTransport: response
+        EventHTTPTransport-->Router: response
+        Router-->FEEventService: response
+        FEEventService-->AddEventFormContainer: response
+        AddEventFormContainer-->AddEventPage: response
+        AddEventPage-->Admin: response
+    end
+end
+
+@enduml

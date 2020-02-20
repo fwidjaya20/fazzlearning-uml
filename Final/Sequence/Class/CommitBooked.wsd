@@ -1,0 +1,16 @@
+@startuml CommitBooked
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+
+Caller->ClassService: CommitBooked(context, eventId)
+ClassService->ClassCommand: CommitBooked(context, eventId, true)
+ClassCommand-->ClassService: is commited
+ClassService-->Caller: is commited
+
+@enduml

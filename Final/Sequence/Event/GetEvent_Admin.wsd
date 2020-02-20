@@ -1,0 +1,55 @@
+@startuml GetEvent_Admin
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EventPage" as EventPage
+participant ":EventTableContainer" as EventTableContainer
+participant ":EventTable" as EventTable
+participant ":EventService (Frontend)" as FEEventService
+participant ":Router" as Router
+participant ":EventHTTP Transport" as EventHTTPTransport
+participant ":EventEndpoint" as EventEndpoint
+participant ":EventService" as EventService
+participant ":EventCommand" as EventCommand
+participant ":EventQuery" as EventQuery
+
+Admin->EventPage: Open "Manage Event" Page
+EventPage->EventTableContainer: Render "Event Table" Container
+EventTableContainer->EventTable: Render "Event Table"
+EventTable-->EventTableContainer: rendered
+EventTableContainer->EventTableContainer: fetchEvents()
+EventTableContainer->FEEventService: fetchEvents(status, page, limit)
+FEEventService->Router: route("GET", "v2/events")
+Router->EventHTTPTransport: FetchPaginatedEvents(EventService, []ServerOption)
+EventHTTPTransport->EventEndpoint: All(EventService, withPaginated)
+EventEndpoint->EventService: All(context, params)
+
+alt "With Paginate"
+    EventService->EventQuery: All(context, []SliceConditions, PaginateModel)
+else
+    EventService->EventQuery: All(context, []SliceConditions, nil)
+end
+EventQuery-->EventService: events
+EventService-->EventEndpoint: events
+
+opt "With Paginate"
+    EventEndpoint->EventService: GetPagination(context, params, PaginateModel)
+    EventService->EventQuery: Count(context, []SliceConditions)
+    EventQuery-->EventService: total
+    EventService-->EventEndpoint: total
+end
+
+EventEndpoint->EventEndpoint: response := Response(events, paginateMetadata)
+EventEndpoint-->EventHTTPTransport: response
+EventHTTPTransport-->Router: response
+Router-->FEEventService: response
+FEEventService-->EventTableContainer: response
+EventTableContainer->EventTable: Render "Event Table"
+EventTable-->EventTableContainer: rendered
+EventTableContainer-->EventPage: rendered
+EventPage-->Admin: rendered
+
+@enduml

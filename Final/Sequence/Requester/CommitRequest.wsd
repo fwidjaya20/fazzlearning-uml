@@ -1,0 +1,63 @@
+@startuml CommitRequest
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DetailClassPage" as DetailClassPage
+participant ":ListRequestorContainer" as ListRequestorContainer
+participant ":RequestorService (Frontend)" as FERequestorService
+participant ":Router" as Router
+participant ":RequesterHTTPTransport" as RequestHTTPTransport
+participant ":RequesterEndpoint" as RequestEndpoint
+participant ":RequesterService" as RequestService
+participant ":RequesterQuery" as RequestQuery
+participant ":RequesterCommand" as RequestCommand
+participant ":NatsStreaming" as NatsStreaming
+
+Admin->DetailClassPage: Change "Requester" Status
+DetailClassPage->ListRequestorContainer: handleResponseChange(id, value)
+ListRequestorContainer-->DetailClassPage: changed
+DetailClassPage-->Admin: changed
+
+Admin->DetailClassPage: Click "Submit" Button
+DetailClassPage->ListRequestorContainer: handleResponseSubmit()
+ListRequestorContainer->FERequestorService: commitRequestor(classId, []payload)
+FERequestorService->Router: route("PATCH", "v2/class/{class_id}/requester/commit")
+Router->RequestHTTPTransport: CommitStatus(RequestService, []ServerOption)
+RequestHTTPTransport->RequestEndpoint: Commit(RequestService)
+RequestEndpoint->RequestService: CommitRequest(context, payload)
+
+loop "For each Requester"
+    RequestService->RequestService: Validate()
+    
+    alt "Data Not Valid"
+        RequestService-->RequestEndpoint: UnprocessableEntity
+        RequestEndpoint-->RequestHTTPTransport: UnprocessableEntity
+        RequestHTTPTransport-->Router: UnprocessableEntity
+        Router-->FERequestorService: UnprocessableEntity
+        FERequestorService-->ListRequestorContainer: UnprocessableEntity
+        ListRequestorContainer-->DetailClassPage: UnprocessableEntity
+        DetailClassPage-->Admin: UnprocessableEntity
+    else
+        RequestService->RequestQuery: GetPureModel(context, []SliceCondition)
+        RequestQuery-->RequestService: requester
+
+        RequestService->RequestCommand: CommitStatus(context, requester)
+        RequestCommand-->RequestService: is commited
+    end
+end
+
+RequestService->NatsStreaming: publishRequestUpdated(context, id)
+NatsStreaming-->RequestService: published
+
+RequestEndpoint->RequestEndpoint: response := Response(isCommited)
+RequestEndpoint-->RequestHTTPTransport: response
+RequestHTTPTransport-->Router: response
+Router-->FERequestorService: response
+FERequestorService-->ListRequestorContainer: response
+ListRequestorContainer-->DetailClassPage: response
+DetailClassPage-->Admin: response
+
+@enduml

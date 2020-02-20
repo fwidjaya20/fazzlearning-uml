@@ -1,0 +1,67 @@
+@startuml CreateRole
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":AddRolePage" as AddRolePage
+participant ":AddRoleFormContainer" as AddRoleFormContainer
+participant ":RoleForm" as RoleForm
+participant ":RoleService (Frontend)" as FERoleService
+participant ":Router" as Router
+participant ":RoleHTTPTransport" as RoleHTTPTransport
+participant ":RoleEndpoint" as RoleEndpoint
+participant ":RoleService" as RoleService
+participant ":RoleCommand" as RoleCommand
+participant ":RoleQuery" as RoleQuery
+
+Admin->AddRolePage: Open "Add Role" Page
+AddRolePage->AddRoleFormContainer: Render "Add Role Form" Container
+AddRoleFormContainer->RoleForm: Render "Role Form"
+RoleForm-->AddRoleFormContainer: rendered
+AddRoleFormContainer-->AddRolePage: rendered
+AddRolePage-->Admin: rendered
+
+Admin->AddRolePage: Fill Form
+AddRolePage->AddRoleFormContainer: Fill Form
+AddRoleFormContainer->RoleForm: Fill Form
+RoleForm-->AddRoleFormContainer: form data
+AddRoleFormContainer-->AddRolePage: form data
+AddRolePage-->Admin: form data
+
+Admin->AddRolePage: Click "Create Role" Button
+AddRolePage->AddRoleFormContainer: handleRoleFormSubmitted()
+AddRoleFormContainer->FERoleService: createRole(payload)
+FERoleService->Router: route("POST", "v2/role", formData)
+Router->RoleHTTPTransport: CreateRole(RoleService, []ServerOption)
+RoleHTTPTransport->RoleEndpoint: Create(RoleService)
+RoleEndpoint->RoleService: CreateRole(context, payload)
+RoleService->RoleService: Validate()
+
+alt "Data not valid"
+    RoleService-->RoleEndpoint: UnprocessableEntity
+    RoleEndpoint-->RoleHTTPTransport: UnprocessableEntity
+    RoleHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoleService: UnprocessableEntity
+    FERoleService-->AddRoleFormContainer: UnprocessableEntity
+    AddRoleFormContainer-->AddRolePage: UnprocessableEntity
+    AddRolePage-->Admin: UnprocessableEntity
+else
+    RoleService->RoleService: role := RoleModel()
+    RoleService->RoleCommand: Create(context, role)
+
+    RoleCommand-->RoleService: uuid
+    RoleService->RoleQuery: Find(context, uuid)
+
+    RoleQuery-->RoleService: role
+    RoleService-->RoleEndpoint: role
+    RoleEndpoint->RoleEndpoint: response := Response(role, nil)
+    RoleEndpoint-->RoleHTTPTransport: response
+    RoleHTTPTransport-->Router: response
+    Router-->AddRoleFormContainer: response
+    AddRoleFormContainer-->AddRolePage: response
+    AddRolePage-->Admin: response
+end
+
+@enduml

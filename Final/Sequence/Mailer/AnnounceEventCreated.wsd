@@ -1,0 +1,19 @@
+@startuml AnnounceEventCreated
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Caller" as Caller
+participant ":MailerService" as MailerService
+participant ":MessageService (Tempalte Tag)" as MessageService
+participant ":PayfazzMessanger" as PayfazzMessanger
+
+Caller->MailerService: AnnounceEventCreated(context, payload)
+MailerService->MessageService: GetCompiledMessage(context, status, payload)
+MessageService-->MailerService: compiled message
+MailerService->PayfazzMessanger: SendEmail(receiver, subject, compiledMessage)
+PayfazzMessanger-->MailerService: sent
+MailerService-->Caller: sent
+
+@enduml

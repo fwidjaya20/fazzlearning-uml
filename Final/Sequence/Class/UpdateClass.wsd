@@ -1,0 +1,67 @@
+@startuml UpdateClass
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EditClassPage" as EditClassPage
+participant ":EditClassFormContainer" as EditClassFormContainer
+participant ":ClassForm" as ClassForm
+participant ":ClassService" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
+
+Admin->EditClassPage: Open "Edit Class" Page
+EditClassPage->EditClassFormContainer: Render "Edit Class Form" Container
+EditClassFormContainer->ClassForm: Render "Class Form"
+ClassForm-->EditClassFormContainer: rendered
+EditClassFormContainer-->EditClassPage: rendered
+EditClassPage-->Admin: rendered
+
+Admin->EditClassPage: Fill Form
+EditClassPage->EditClassFormContainer: Fill Form
+EditClassFormContainer->ClassForm: Fill Form
+ClassForm-->EditClassFormContainer: form data
+EditClassFormContainer-->EditClassPage: form data
+EditClassPage-->Admin: form data
+
+Admin->EditClassPage: Click "Create Class" Button
+EditClassPage->EditClassFormContainer: handleClassFormSubmmitted()
+EditClassFormContainer->FEClassService: updateClass(eventId, classId, payload)
+FEClassService->Router: route("POST", "v2/{event_id}/class/{class_id}", formData)
+Router->ClassHTTPTransport: UpdateClass(ClassService, []ServerOption)
+ClassHTTPTransport->ClassEndpoint: Update(ClassService)
+ClassEndpoint->ClassService: Update(context, payload)
+ClassService->ClassService: Validate()
+
+alt "Data not valid"
+    ClassService-->ClassEndpoint: UnprocessableEntity
+    ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+    ClassHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEClassService: UnprocessableEntity
+    FEClassService-->EditClassFormContainer: UnprocessableEntity
+    EditClassFormContainer-->EditClassPage: UnprocessableEntity
+    EditClassPage-->Admin: UnprocessableEntity
+else
+    ClassService->ClassQuery: GetPureModel(context, []SliceConditions)
+    ClassQuery-->ClassService: classes
+
+    ClassService->ClassCommand: Update(context, class)
+    ClassCommand-->ClassService: isUpdated
+
+    ClassService-->ClassEndpoint: class
+    ClassEndpoint->ClassEndpoint: response := Response(class, nil)
+    ClassEndpoint-->ClassHTTPTransport: response
+    ClassHTTPTransport-->Router: response
+    Router-->FEClassService: response
+    FEClassService-->EditClassFormContainer: response
+    EditClassFormContainer-->EditClassPage: response
+    EditClassPage-->Admin: response
+end
+
+@enduml

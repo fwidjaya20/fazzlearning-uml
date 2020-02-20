@@ -1,0 +1,101 @@
+@startuml CreateUser
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":AddUserPage" as CreateUserPage
+participant ":AddUserFormContainer" as AddUserFormContainer
+participant ":UserForm" as UserFormComponent
+participant ":UserService (Frontend)" as FEUserService
+participant ":RoleService (Frontend)" as FERoleService
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Route" as Route
+participant ":UserHTTP Transport" as UserHTTPTransport
+participant ":UserEndpoint" as UserEndpoint
+participant ":UserService" as UserService
+participant ":UserQuery" as UserQuery
+participant ":UserCommand" as UserCommand
+participant ":NatsStreaming" as NatsStreaming
+
+' Load Data
+Admin->CreateUserPage: Open "Add User" Page
+CreateUserPage->AddUserFormContainer: Render "Add User Form" Container
+AddUserFormContainer->UserFormComponent: Render "Add User Form"
+
+' Fetch Roles
+UserFormComponent->UserFormComponent: fetchRoles()
+UserFormComponent->FERoleService: fetchRoles(page, limit)
+FERoleService-->UserFormComponent: roles
+UserFormComponent->UserFormComponent: binding response to attibute
+' End Fetch Roles
+
+' Fetch Division
+UserFormComponent->UserFormComponent: fetchDivisions()
+UserFormComponent->FEDivisionService: fetchDivisions(page, limit, keyword)
+FEDivisionService-->UserFormComponent: divisions
+UserFormComponent->UserFormComponent: binding response to attibute
+' End Fetch Division
+
+UserFormComponent-->AddUserFormContainer: rendered
+AddUserFormContainer-->CreateUserPage: rendered
+CreateUserPage-->Admin: rendered
+' End Load Data
+
+' Fill Data
+Admin->CreateUserPage: Fill Form
+CreateUserPage->AddUserFormContainer: Fill Form
+AddUserFormContainer->UserFormComponent: Fill Form
+
+opt "Do Search Role"
+    UserFormComponent->UserFormComponent: fetchRoles()
+end
+
+opt "Do Search Division"
+    UserFormComponent->UserFormComponent: fetchDivisions()
+end
+
+UserFormComponent-->AddUserFormContainer: form data
+AddUserFormContainer-->CreateUserPage: form data
+CreateUserPage-->Admin: form data
+' End Fill Data
+
+Admin->CreateUserPage: Click "Create User" Button
+CreateUserPage->AddUserFormContainer: handleUserFormSubmitted()
+AddUserFormContainer->FEUserService: createUser(payload)
+FEUserService->Route: route("POST", "v2/user", formData)
+Route->UserHTTPTransport: CreateUser(UserService, []ServerOption)
+UserHTTPTransport->UserEndpoint: Create(UserService)
+UserEndpoint->UserService: CreateUser(context, payload)
+UserService->UserService: Validate()
+
+alt "Data not valid"
+    UserService-->UserEndpoint: UnprocessableEntity
+    UserEndpoint-->UserHTTPTransport: UnprocessableEntity
+    UserHTTPTransport-->Route: UnprocessableEntity
+    Route-->FEUserService: UnprocessableEntity
+    FEUserService-->AddUserFormContainer: UnprocessableEntity
+    AddUserFormContainer-->CreateUserPage: UnprocessableEntity
+    CreateUserPage-->Admin: UnprocessableEntity
+else
+    UserService->UserService: user := UserModel()
+    UserService->UserCommand: Create(context, user)
+    UserCommand-->UserService: uuid
+    UserService->UserQuery: Find(context, []SliceCondition)
+    UserQuery-->UserService: user
+
+    UserService->NatsService: publishUserCreated(context, data)
+    NatsService-->UserService: published
+
+    UserService-->UserEndpoint: user
+    UserEndpoint->UserEndpoint:  response := Response(user, nil)
+    UserEndpoint-->UserHTTPTransport: response
+    UserHTTPTransport-->Route: response
+    Route-->FEUserService: response
+    FEUserService-->AddUserFormContainer: response
+    AddUserFormContainer-->CreateUserPage: response
+    CreateUserPage-->Admin: response
+end
+
+@enduml

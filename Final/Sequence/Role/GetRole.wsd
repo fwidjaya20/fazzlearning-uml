@@ -1,0 +1,54 @@
+@startuml GetRole
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant "RolePage" as RolePage
+participant "RoleTableContainer" as RoleTableContainer
+participant "RoleTable" as RoleTable
+participant ":RoleService (Frontend)" as FERoleService
+participant ":Router" as Router
+participant ":RoleHTTPTransport" as RoleHTTPTransport
+participant ":RoleEndpoint" as RoleEndpoint
+participant ":RoleService" as RoleService
+participant ":RoleQuery" as RoleQuery
+
+Admin->RolePage: Open "Manage Role" Page
+RolePage->RoleTableContainer: Render "Role Table" Container
+RoleTableContainer->RoleTable: Render "Role Table"
+RoleTable-->RoleTableContainer: rendered
+RoleTableContainer->RoleTableContainer: fetchRoles()
+RoleTableContainer->FERoleService: fetchRoles(pages, limit, keyword)
+FERoleService->Router: route("GET", "v2/roles")
+Router->RoleHTTPTransport: FetchPaginatedRoles(RoleService, []ServerOption)
+RoleHTTPTransport->RoleEndpoint: All(RoleService, withPaginated)
+RoleEndpoint->RoleService: All(context, params)
+
+alt "With Paginate"
+    RoleService->RoleQuery: All([]SliceConditions, PaginateModel)
+else
+    RoleService->RoleQuery: All([]SliceConditions, nil)
+end
+RoleQuery-->RoleService: roles
+RoleService-->RoleEndpoint: roles
+
+opt "With Paginate"
+    RoleEndpoint->RoleService: GetPagination(context, PaginateModel)
+    RoleService->RoleQuery: Count(context, []SliceCondition)
+    RoleQuery-->RoleService: total
+    RoleService-->RoleEndpoint: total
+end
+
+RoleEndpoint->RoleEndpoint: response := Response(roles, paginateMetadata)
+RoleEndpoint-->RoleHTTPTransport: response
+RoleHTTPTransport-->Router: response
+Router-->FERoleService: response
+FERoleService-->RoleTableContainer: response
+RoleTableContainer->RoleTable: Render "Role Table"
+RoleTable-->RoleTableContainer: rendered
+RoleTableContainer-->RolePage: rendered
+RolePage-->Admin: rendered
+
+@enduml

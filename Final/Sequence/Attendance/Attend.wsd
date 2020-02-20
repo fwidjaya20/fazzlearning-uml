@@ -1,0 +1,55 @@
+@startuml Attend
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":HomePage" as HomePage
+participant ":ScanPage" as ScanPage
+participant ":AttendanceService (Frontend)" as FEAttendanceService
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceService
+participant ":AttendanceQuery" as AttendanceQuery
+participant ":AttendanceCommand" as AttendanceCommand
+
+Member->HomePage: Open "Home" Page
+HomePage-->Member: rendered
+Member->HomePage: Hit "Scanner" Button
+HomePage-->Member: redirect to Scan Page
+
+Member->ScanPage: Open "Scan" Page
+ScanPage->ScanPage: handleScan(data)
+ScanPage->FEAttendanceService: attend(classId)
+FEAttendanceService->Router: route("PATCH", "v2/class/{class_id}/attend")
+Router->AttendanceHTTPTransport: Attend(AttendanceService, []ServerOption)
+AttendanceHTTPTransport->AttendanceEndpoint: Attend(AttendanceService)
+AttendanceEndpoint->AttendanceService: Attend(context, params)
+
+AttendanceService->AttendanceService: Validate()
+
+alt "Data Not Valid"
+    AttendanceService-->AttendanceEndpoint: UnprocessableEntity
+    AttendanceEndpoint-->AttendanceHTTPTransport: UnprocessableEntity
+    AttendanceHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEAttendanceService: UnprocessableEntity
+    FEAttendanceService-->ScanPage: UnprocessableEntity
+    ScanPage-->Member: UnprocessableEntity
+else
+    AttendanceService->AttendanceQuery: PureModel([]SliceCondition)
+    AttendanceQuery-->AttendanceService: attendance
+
+    AttendanceService->AttendanceCommand: Update(context, attendance)
+    AttendanceCommand-->AttendanceService: is updated
+    AttendanceService-->AttendanceEndpoint: is updated
+    AttendanceEndpoint->AttendanceEndpoint: response := Response(isupdated, nil)
+    AttendanceEndpoint-->AttendanceHTTPTransport: response
+    AttendanceHTTPTransport-->Router: response
+    Router-->FEAttendanceService: response
+    FEAttendanceService-->ScanPage: response
+    ScanPage-->Member: response
+end
+
+@enduml

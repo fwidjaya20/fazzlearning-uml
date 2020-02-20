@@ -1,0 +1,36 @@
+@startuml GetRequester
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DetailClassPage" as DetailClassPage
+participant ":ListRequestorsContainer" as ListRequestorContainer
+participant ":RequestorService (Frontend)" as FERequestorService
+participant ":Router" as Router
+participant ":RequesterHTTP Transport" as RequestHTTPTransport
+participant ":RequesterEndpoint" as RequestEndpoint
+participant ":RequesterService" as RequestService
+participant ":RequesterQuery" as RequestQuery
+
+Admin->DetailClassPage: Open "Detail Class" Page
+DetailClassPage->ListRequestorContainer: fetchRequester()
+ListRequestorContainer->FERequestorService: fetchClassRequestor(classId)
+FERequestorService->Router: route("GET", "v2/class/{class_id}/requester")
+Router->RequestHTTPTransport: GetByClass(RequesterService, []ServerOption)
+RequestHTTPTransport->RequestEndpoint: GetByClass(RequesterService)
+RequestEndpoint->RequestService: GetByClassId(context, classId)
+RequestService->RequestQuery: Find(context, []SliceCondition)
+RequestQuery-->RequestService: requester
+RequestService-->RequestEndpoint: requester
+RequestEndpoint->RequestEndpoint: response := Response(requester, nil)
+RequestEndpoint-->RequestHTTPTransport: response
+RequestHTTPTransport-->Router: response
+Router-->FERequestorService: responses
+FERequestorService-->ListRequestorContainer: responses
+ListRequestorContainer->ListRequestorContainer: Render "List Requestor" Container
+ListRequestorContainer-->DetailClassPage: rendered
+DetailClassPage-->Admin: rendered
+
+@enduml

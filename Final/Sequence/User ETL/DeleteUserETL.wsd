@@ -1,0 +1,17 @@
+@startuml DeleteUserETL
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":UserETLService" as UserETLService
+participant ":UserETLCommand" as UserETLCommand
+
+Caller->UserETLService: DeletePersistance(context, payload)
+UserETLService->UserETLCommand: Delete(context, []email)
+UserETLCommand-->UserETLService: Is Deleted
+UserETLService-->Caller: Is Deleted
+
+@enduml

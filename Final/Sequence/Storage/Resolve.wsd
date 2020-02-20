@@ -1,0 +1,33 @@
+@startuml Resolve
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant "Router" as Router
+participant ":StorageHTTPTransport" as StorageHTTPTransport
+participant ":StorageEndpoint" as StorageEndpoint
+participant ":StorageService" as StorageService
+participant ":AWSS3" as AWSS3
+
+Caller->Router: route("GET", "v2/resolve/{file_name}")
+Router->StorageHTTPTransport: ResolveURL(StorageService, []ServerOption)
+StorageHTTPTransport->StorageEndpoint: ResolveURL(StorageService, key)
+StorageEndpoint->StorageService: ResolveURL(context, key)
+StorageService->AWSS3: GetResourceURL(key)
+AWSS3-->StorageService: link, error
+
+alt "AWS Error"
+    StorageService-->StorageEndpoint: InternalServerError
+    StorageEndpoint-->StorageHTTPTransport: InternalServerError
+    StorageHTTPTransport-->Router: InternalServerError
+    Router-->Caller: InternalServerError
+else
+    StorageService-->StorageEndpoint: link
+    StorageEndpoint-->StorageHTTPTransport: link
+    StorageHTTPTransport-->Router: link
+    Router-->Caller: link
+end
+
+@enduml

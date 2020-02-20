@@ -1,0 +1,73 @@
+@startuml PostComment
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Member" as Member
+participant ":EventPage" as EventPage
+participant ":EventCommentsContainer" as EventCommentsContainer
+participant ":CommentComponent" as CommentComponent
+participant ":CommentForm" as CommentFormComponent
+participant ":ConversationService (Frontend)" as FEConversationService
+participant ":Router" as Router
+participant ":ConversationHTTPTransport" as ConversationHTTPTransport
+participant ":ConversationEndpoint" as ConversationEndpoint
+participant ":ConversationService" as ConversationService
+participant ":ConversationCommand" as ConversationCommand
+participant ":ConversationQuery" as ConversationQuery
+
+Member->EventPage: Open "Event" Page
+EventPage->EventCommentsContainer: Render "Event Comments" Container
+EventCommentsContainer->CommentComponent: Render "Comment" Component
+CommentComponent->CommentFormComponent: Render "Comment Form" Component
+CommentFormComponent-->CommentComponent: rendered
+CommentComponent-->EventCommentsContainer: rendered
+EventCommentsContainer-->EventPage: rendered
+EventPage-->Member: rendered
+
+Member->EventPage: Fill form
+EventPage->EventCommentsContainer: Fill form
+EventCommentsContainer->CommentComponent: Fill form
+CommentComponent->CommentFormComponent: Fill form
+CommentFormComponent-->CommentComponent: form data
+CommentComponent-->EventCommentsContainer: form data
+EventCommentsContainer-->EventPage: form data
+EventPage-->Member: form data
+
+Member->EventPage: Click "Send" Button
+EventPage->EventCommentsContainer: handleSubmitComment()
+EventCommentsContainer->FEConversationService: postComment(eventId, payload)
+FEConversationService->Router: route("POST", "v2/event/{event_id}/comment")
+Router->ConversationHTTPTransport: CreateComment(ConversationService, []ServerOption)
+ConversationHTTPTransport->ConversationEndpoint: CreateComment(ConversationService)
+ConversationEndpoint->ConversationService: CreateComment(context, payload)
+ConversationService->ConversationService: Validate()
+
+alt "Is Not Valid"
+    ConversationService-->ConversationEndpoint: UnprocessableEntity
+    ConversationEndpoint-->ConversationHTTPTransport: UnprocessableEntity
+    ConversationHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEConversationService: UnprocessableEntity
+    FEConversationService-->EventCommentsContainer: UnprocessableEntity
+    EventCommentsContainer-->EventPage: UnprocessableEntity
+    EventPage-->Member: UnprocessableEntity
+else
+    ConversationService->ConversationService: m := CommentModel()
+    ConversationService->ConversationCommand: Create(context, m)
+    ConversationCommand-->ConversationService: uuid
+
+    ConversationService->ConversationQuery: GetPureCommendModel(context, []SliceCondition)
+    ConversationQuery-->ConversationService: command
+
+    ConversationService-->ConversationEndpoint: command
+    ConversationEndpoint->ConversationEndpoint: response := Response(command, nil)
+    ConversationEndpoint-->ConversationHTTPTransport: response
+    ConversationHTTPTransport-->Router: response
+    Router-->FEConversationService: response
+    FEConversationService-->EventCommentsContainer: response
+    EventCommentsContainer-->EventPage: response
+    EventPage-->Member: response
+end
+
+@enduml

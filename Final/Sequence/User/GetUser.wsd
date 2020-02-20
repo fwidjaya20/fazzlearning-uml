@@ -1,0 +1,56 @@
+@startuml DeleteUser
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":UserPage" as UserPage
+participant ":UserTableContainer" as UserTableContainer
+participant ":UserTable" as UserTable
+participant ":UserService (Frontend)" as FEUserService
+participant ":Router" as Router
+participant ":UserHTTPTransport" as UserHTTPTransport
+participant ":UserEndpoint" as UserEndpoint
+participant ":UserService" as UserService
+participant ":UserCommand" as UserCommand
+participant ":UserQuery" as UserQuery
+
+Admin->UserPage: Open "Manage User" Page
+UserPage->UserTableContainer: Render "User Table" Container
+UserTableContainer->UserTable: Render "User Table"
+UserTable-->UserTableContainer: rendered
+UserTableContainer->UserTableContainer: fetchUser()
+UserTableContainer->FEUserService: fetchUser(page, limit, keyword)
+FEUserService->Router: route("GET", "v2/users")
+Router->UserHTTPTransport: FetchPaginatedUsers(UserService, []ServerOption)
+UserHTTPTransport->UserEndpoint: All(UserService, withPaginated)
+UserEndpoint->UserService: All(context, params)
+
+alt "With Paginate"
+    UserService->UserQuery: All(context, []SliceConditions, PaginateModel)
+else
+    UserService->UserQuery: All(context, []SliceConditions, nil)
+end
+
+UserQuery-->UserService: users
+UserService-->UserEndpoint: users
+
+opt "With Paginate"
+    UserEndpoint->UserService: GetPagination(context, PaginateModel)
+    UserService->UserQuery: Count(context, []SliceConditions)
+    UserQuery-->UserService: total
+    UserService-->UserEndpoint: total
+end
+
+UserEndpoint->UserEndpoint: response := Response(users, paginateMetadata)
+UserEndpoint-->UserHTTPTransport: response
+UserHTTPTransport-->Router: response
+Router-->FEUserService: response
+FEUserService-->UserTableContainer: response
+UserTableContainer->UserTable: Render "User Table"
+UserTable-->UserTableContainer: rendered
+UserTableContainer-->UserPage: rendered
+UserPage-->Admin: rendered
+
+@enduml

@@ -1,0 +1,41 @@
+@startuml Logout
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Employee
+participant ":ProfilePage" as ProfilePage
+participant ":ProfileContainer" as ProfileContainer
+participant ":AuthService (Frontend)" as FEAuthService
+participant ":Router" as Router
+participant ":SessionHTTP Transport" as SessionHTTPTransport
+participant ":SessionEndpoint" as SessionEndpoint
+participant ":SessionService" as SessionService
+participant ":SessionCommand" as SessionCommand
+participant ":SessionQuery" as SessionQuery
+
+Employee->ProfilePage: Open "Profile" Page
+ProfilePage-->Employee: response
+
+Employee->ProfilePage: Click "Logout" Button
+ProfilePage->ProfileContainer: handleLogout()
+ProfileContainer->FEAuthService: logout()
+FEAuthService->Router: route("POST", "v2/logout")
+Router->SessionHTTPTransport: Logout(SessionService, []ServerOption)
+SessionHTTPTransport->SessionEndpoint: Logout(SessionService)
+SessionEndpoint->SessionService: Logout(context)
+SessionService->SessionQuery: FindToken(context, token)
+SessionQuery-->SessionService: session
+SessionService->SessionCommand: Delete(context, session)
+SessionCommand-->SessionService: isDeleted
+SessionService-->SessionEndpoint: isDeleted
+SessionEndpoint->SessionEndpoint: response := Response(user, nil)
+SessionEndpoint-->SessionHTTPTransport: response
+SessionHTTPTransport-->Router: response
+Router-->FEAuthService: response
+FEAuthService-->ProfileContainer: response
+ProfileContainer-->ProfilePage: response
+ProfilePage-->Employee: response
+
+@enduml

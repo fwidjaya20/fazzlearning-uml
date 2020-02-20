@@ -1,0 +1,39 @@
+@startuml GenerateQRCode
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DetailClassPage" as DetailClassPage
+participant ":DetailClassContainer" as DetailClassContainer
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassQuery" as ClassQuery
+participant ":LibraryQRCode" as QRCode
+
+Admin->DetailClassPage: Open "Detail Class" Page
+DetailClassPage->DetailClassContainer: generateQRCode()
+DetailClassContainer->FEClassService: generateQRCode(classId)
+FEClassService->Router: route("GET", "v2/class/{class_id}/qrcode")
+Router->ClassHTTPTransport: QRCode(ClassService, []ServerOption)
+ClassHTTPTransport->ClassEndpoint: QRCode(ClassService)
+ClassEndpoint->ClassService: QRCode(context, ClassService, classId)
+ClassService->ClassQuery: GetPureModel(context, []SliceCondition)
+ClassQuery-->ClassService: class
+ClassService->QRCode: PNG()
+QRCode-->ClassService: qrCode
+ClassService-->ClassEndpoint: qrCode
+ClassEndpoint->ClassEndpoint: response := Response(qrCode, nil)
+ClassEndpoint-->ClassHTTPTransport: response
+ClassHTTPTransport-->Router: response
+Router-->FEClassService: response
+FEClassService-->DetailClassContainer: response
+DetailClassContainer-->DetailClassPage: response
+DetailClassPage->DetailClassPage: display QR Code
+DetailClassPage-->Admin: display QR Code
+
+@enduml

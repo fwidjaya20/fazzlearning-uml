@@ -1,0 +1,29 @@
+@startuml CreatePoster
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":PosterService" as PosterService
+participant ":PosterCommand" as PosterCommand
+participant ":PosterQuery" as PosterQuery
+
+Caller->PosterService: Create(context, payload)
+PosterService->PosterService: Validate()
+
+alt "Data not valid"
+    PosterService-->Caller: UnprocessableEntity
+else
+    loop "for each imageLink"
+        PosterService->PosterService: poster := PosterModel()
+        PosterService->PosterCommand: Create(context, poster)
+        PosterCommand-->PosterService: imageLink
+
+        PosterService->PosterQuery: Find(context, []SliceCondition)
+        PosterQuery-->PosterService: poster
+    end
+    PosterService-->Caller: poster
+end
+
+@enduml

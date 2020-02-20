@@ -1,0 +1,35 @@
+@startuml GetFavourite
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":FavouritePage" as FavouritePage
+participant ":FavouriteContainer" as FavouriteContainer
+participant ":FavouriteService (Frontend)" as FEFavouriteService
+participant ":Router" as Router
+participant ":FavouriteHTTPTransport" as FavouriteHTTPTransport
+participant ":FavouriteEndpoint" as FavouriteEndpoint
+participant ":FavouriteService" as FavouriteService
+participant ":FavouriteQuery" as FavouriteQuery
+
+Member->FavouritePage: Open "Favourite" Pages
+FavouritePage->FavouriteContainer: fetchFavouriteList()
+FavouriteContainer->FEFavouriteService: fetchFavourite()
+FEFavouriteService->Router: router("GET", "v2/favourites")
+Router->FavouriteHTTPTransport: FetchUserFavourites(FavouriteService, []ServerOption)
+FavouriteHTTPTransport->FavouriteEndpoint: All(FavouriteService)
+FavouriteEndpoint->FavouriteService: All(context, params)
+FavouriteService->FavouriteQuery: All(context, []SliceCondition, email, paginateModel)
+FavouriteQuery-->FavouriteService: favourites
+FavouriteService-->FavouriteEndpoint: favourites
+FavouriteEndpoint->FavouriteEndpoint: response := Response(favourites, nil)
+FavouriteEndpoint-->FavouriteHTTPTransport: response
+FavouriteHTTPTransport-->Router: response
+Router-->FEFavouriteService: response
+FEFavouriteService-->FavouriteContainer: response
+FavouriteContainer-->FavouritePage: rendered
+FavouritePage-->Member: rendered
+
+@enduml

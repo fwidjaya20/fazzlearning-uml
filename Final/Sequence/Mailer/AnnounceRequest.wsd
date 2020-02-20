@@ -1,0 +1,37 @@
+@startuml AnnounceRequest
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Caller" as Caller
+participant ":MailerService" as MailerService
+participant ":MessageService (Template Tag)" as MessageService
+participant ":PayfazzMessenger" as PayfazzMessanger
+
+Caller->MailerService: AnnounceRequest(context, []acceptedRequestor, []lowPriorRequestor, []rejectdRequestor)
+
+loop "for each accepted requestor"
+    MailerService->MessageService: GetCompiledMessage(context, type, payload)
+    MessageService-->MailerService: compiled message
+    MailerService->PayfazzMessanger: SendEmail(receiver, subject, compiledMessage)
+    PayfazzMessanger-->MailerService: sent
+end
+
+loop "for each lowprior requestor"
+    MailerService->MessageService: GetCompiledMessage(context, type, payload)
+    MessageService-->MailerService: compiled message
+    MailerService->PayfazzMessanger: SendEmail(receiver, subject, compiledMessage)
+    PayfazzMessanger-->MailerService: sent
+end
+
+loop "for each rejected requestor"
+    MailerService->MessageService: GetCompiledMessage(context, type, payload)
+    MessageService-->MailerService: compiled message
+    MailerService->PayfazzMessanger: SendEmail(receiver, subject, compiledMessage)
+    PayfazzMessanger-->MailerService: sent
+end
+
+MailerService-->Caller: sent
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml DeleteRole
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":RolePage" as RolePage
+participant ":RoleTableContainer" as RoleTableContainer
+participant ":RoleTable" as RoleTable
+participant ":RoleService (Frontend)" as FERoleService
+participant ":Router" as Router
+participant ":RoleHTTPTransport" as RoleHTTPTransport
+participant ":RoleEndpoint" as RoleEndpoint
+participant ":RoleService" as RoleService
+participant ":RoleCommand" as RoleCommand
+participant ":RoleQuery" as RoleQuery
+
+Admin->RolePage: Open "Manage Role" Page
+RolePage->RoleTableContainer: Render "Role Table" Container
+RoleTableContainer->RoleTable: Render "Role Table"
+RoleTable-->RoleTableContainer: rendered
+RoleTableContainer-->RolePage: rendered
+RolePage-->Admin: rendered
+Admin->RolePage: Mark "Role"
+RolePage->RoleTableContainer: Mark "Role"
+RoleTableContainer->RoleTable: Mark "Role"
+RoleTable-->RoleTableContainer: marked
+RoleTableContainer-->RolePage: marked
+RolePage-->Admin: marked
+
+Admin->RolePage: Click "Delete Selected" Button
+RolePage->RoleTableContainer: showDeleteConfirmation(item)
+
+alt "Cancel Delete"
+    RoleTableContainer-->RolePage: Close Dialog
+    RolePage-->Admin: Close Dialog
+else
+    RoleTableContainer->RoleTableContainer: handleDeleteConfirmation(item)
+    RoleTableContainer->FERoleService: deleteRole([]payload)
+    FERoleService->Router: route("DELETE", "v2/roles", formData)
+    Router->RoleHTTPTransport: DeleteRoles(RoleService, []ServerOption)
+    RoleHTTPTransport->RoleEndpoint: DeleteMany(RoleService)
+    RoleEndpoint->RoleService: DeleteRoles(context, []id)
+
+    loop "for each id"
+        RoleService->RoleQuery: Find(context, id)
+        RoleQuery-->RoleService: role
+        RoleService->RoleCommand: Delete(context, role)
+        RoleCommand-->RoleService: isDeleted
+    end
+
+    RoleService-->RoleEndpoint: isDeleted
+    RoleEndpoint->RoleEndpoint: response := Response(isDeleted, nil)
+    RoleEndpoint-->RoleHTTPTransport: response
+    RoleHTTPTransport-->Router: response
+    Router-->FERoleService: response
+    FERoleService-->RoleTableContainer: response
+    RoleTableContainer-->RolePage: response
+    RolePage-->Admin: response
+end
+
+@enduml
