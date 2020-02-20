@@ -1,0 +1,18 @@
+@startuml GetRole
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Manage Role Page;
+
+|System|
+:Get Role data from Database;
+:Display the data to table;
+
+stop
+
+@enduml

@@ -1,0 +1,23 @@
+@startuml Unlike
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Click Filled Love Button;
+
+|System|
+:Delete Favourite data from Database;
+split
+    -> DELETED;
+    :Adding Success Information;
+split again
+    -> NOT DELETED;
+    :Adding Error Information;
+end split
+stop
+
+@enduml

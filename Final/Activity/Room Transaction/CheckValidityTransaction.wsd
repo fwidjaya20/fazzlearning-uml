@@ -1,0 +1,16 @@
+@startuml CheckValidityTransaction
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Is Valid Transaction;
+
+|System|
+:Get Count of Room Transaction from Database;
+stop
+
+@enduml

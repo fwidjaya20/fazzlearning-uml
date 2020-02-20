@@ -1,0 +1,18 @@
+@startuml GetDivision
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Manage Division Page;
+
+|System|
+:Get Division data from Database;
+:Display the data to table;
+
+stop
+
+@enduml

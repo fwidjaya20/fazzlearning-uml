@@ -1,0 +1,17 @@
+@startuml GetProfile
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin, Member|
+start
+:Open "Profile" Page;
+
+|System|
+:Get User from Database;
+:Display the data to it field;
+stop
+
+@enduml

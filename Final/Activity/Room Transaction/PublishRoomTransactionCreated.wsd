@@ -1,0 +1,19 @@
+@startuml PublishRoomTransactionCreated
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Publish Room Transaction Created;
+
+|Fazzlearning Kit|
+:Get Global Publisher;
+:Store Event on Stream;
+
+|Nats Streaming|
+:Publish;
+stop
+@enduml

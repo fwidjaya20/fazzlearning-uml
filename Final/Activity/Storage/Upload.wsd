@@ -1,0 +1,24 @@
+@startuml Upload
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Upload File;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :PutObject into AWS S3;
+    :Adding ObjectKey Information;
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

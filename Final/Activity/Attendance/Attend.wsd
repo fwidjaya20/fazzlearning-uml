@@ -1,0 +1,25 @@
+@startuml Attend
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Click Scanner Button;
+:Scan the QR Code given;
+
+|System|
+:Parse QR Code data;
+:Update Member Attendance status;
+split
+    -> UPDATED
+    :Add Success Information;
+split again
+    -> NOT UPDATED
+    :Add Delete Information;
+end split
+stop
+
+@enduml

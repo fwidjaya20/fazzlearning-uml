@@ -1,0 +1,18 @@
+@startuml ViewComment_Admin
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Detail Event Page;
+
+|System|
+:Get Thread related on Event;
+:Display the Data;
+
+stop
+
+@enduml

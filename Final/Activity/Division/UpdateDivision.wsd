@@ -1,0 +1,34 @@
+@startuml UpdateDivision
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Edit Division Page;
+
+|System|
+:Get Selected Division data from Database;
+:Display the data to its field;
+
+|Admin|
+:Change form data;
+:Hit Edit Division Button;
+
+|System|
+:Validate;
+
+if (Valid ?) then (Yes)
+    :Update Division data from Database;
+    if (IsUpdated ?) then (Yes)
+        :Adding Success Information;
+    else (No)
+        :Adding Error Information;
+    endif
+else (No)
+endif
+stop
+
+@enduml

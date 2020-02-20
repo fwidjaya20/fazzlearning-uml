@@ -1,0 +1,57 @@
+@startuml CreateClass
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open "Add Class" Page;
+:Fill "Class" Form;
+
+:Fill "Date" Field;
+
+|System|
+:Get Available Shift;
+:Display the data to field;
+
+|Admin|
+:Fill "Shift" Field;
+
+|System|
+:Get Available Room;
+:Display the data to field;
+
+|Admin|
+:Hit "Create Class" Button;
+
+|System|
+:Validate Payload;
+
+split
+    -> VALID;
+    :Check validity of the transaction;
+    split
+        -> VALID;
+        :Insert Class to Database;
+        split
+            -> CREATED;
+            :Process Material if Exist;
+            :Add Success Information;
+            :Publish Class.ClassCreated Event on Stream;
+        split again
+            -> NOT CREATED;
+            :Add Error Information;
+        end split
+    split again
+        -> NOT VALID;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

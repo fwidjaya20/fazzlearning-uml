@@ -1,0 +1,29 @@
+@startuml DeletePoster
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Delete Poster by Event;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Delete Poster data from Database;
+    split
+        -> DELETED;
+        :Add Success Information;
+    split again
+        -> NOT DELETED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+
+@enduml

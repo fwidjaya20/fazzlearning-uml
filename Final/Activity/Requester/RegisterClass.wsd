@@ -1,0 +1,34 @@
+@startuml RegisterClass
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Class Page;
+
+|Member|
+:Fill Reason field (Opt);
+:Hit Register Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Insert Requester data to Database;
+    split
+        -> CREATED;
+        :Add Success Information;
+    split again
+        -> NOT CREATED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

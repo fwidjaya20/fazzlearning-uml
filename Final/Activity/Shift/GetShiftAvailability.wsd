@@ -1,0 +1,19 @@
+@startuml GetShiftAvailability
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Class Form;
+:Fill Date Field;
+
+|System|
+:Get Available Shift data from Database;
+:Display the data to Shift field;
+
+stop
+
+@enduml

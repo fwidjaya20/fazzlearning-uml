@@ -1,0 +1,38 @@
+@startuml UpdateEvent
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Edit Event Page;
+
+|System|
+:Get Selected Event data from Database;
+:Display the data to its field;
+
+|Admin|
+:Change Event Form;
+:Hit Edit Event Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Update Event data from Database;
+    split
+        -> UPDATED;
+        :Adding Success Information;
+    split again
+        -> NOT UPDATED;
+        :Adding Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Adding Error Information;
+end split
+stop
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml GenerateQRCode
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Class Detail Page;
+:Click Generate QR Code Button;
+
+|System|
+:Generate QR Code based on Class Identity;
+:Display the QR Code;
+stop
+
+@enduml

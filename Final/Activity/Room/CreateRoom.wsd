@@ -1,0 +1,32 @@
+@startuml CreateRoom
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Add Room Page;
+:Fill Room Form;
+:Hit Create Room Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Insert Room data to Database;
+    split
+        -> CREATED;
+        :Add Success Information;
+    split again
+        -> NOT CREATED;
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

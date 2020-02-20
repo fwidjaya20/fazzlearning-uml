@@ -1,0 +1,19 @@
+@startuml PublishCommitRequest
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Publish Commit Request;
+
+|Fazzlearning Kit|
+:Get Global Publisher;
+:Store Event on Stream;
+
+|Nats Streaming|
+:Publish;
+stop
+@enduml

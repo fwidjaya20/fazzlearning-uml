@@ -1,0 +1,40 @@
+@startuml DeleteClass
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Detail Class Page;
+
+|System|
+:Get Class data from Database;
+:Display the data to table;
+
+|Admin|
+:Hit Delete Button;
+
+|System|
+:Show Confirmation Dialog;
+
+|Admin|
+if (Agree Delete ?) then (No)
+    :Close Dialog;
+else (Yes)
+    |System|
+    :Delete Selected Class from Database;
+    split
+        -> DELETED;
+        :Delete Related Material if Exist;
+        :Add Success Information;
+        :Publish Class.ClassDeleted Event on Stream;
+    split again
+        -> NOT DELETED;
+        :Add Error Information;
+    end split
+endif
+stop
+
+@enduml

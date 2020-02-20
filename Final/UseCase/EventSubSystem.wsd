@@ -1,0 +1,28 @@
+@startuml EventSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+actor Member
+
+rectangle "Event System" {
+    Admin --> (Create Event)
+    Admin --> (Update Event)
+    Admin --> (Delete Event)
+    Admin --> (Get Event)
+
+    (Get Event) <-- Member
+
+    (Create Event) ..> (Upload) : include
+    (Create Event) ..> (Create Poster) : include
+    (Create Event) ..> (CommitBooked) : include
+    (Create Event) ..> (Publish Subject Based Message on Event Created) : include
+    
+    (Delete Event) ..> (Delete Poster) : include
+}
+
+@enduml

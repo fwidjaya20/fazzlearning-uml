@@ -1,0 +1,24 @@
+@startuml TRANSACTION_SubscribeClassDeleted
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Subscribe Class.ClassDeleted;
+
+|System|
+:Delete Room Transaction;
+split
+    -> SUCCESS;
+    goto END
+split again
+    -> FAILED;
+    :Add Error Information;
+end split
+label END
+stop
+
+@enduml

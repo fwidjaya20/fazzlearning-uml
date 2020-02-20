@@ -1,0 +1,19 @@
+@startuml Logout
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin, Member|
+start
+:Open "Profile" Page;
+:Hit "Logout" Button;
+
+|System|
+:Get Logged User Token;
+:Get Token from Database;
+:Delete Session from Database;
+stop
+
+@enduml

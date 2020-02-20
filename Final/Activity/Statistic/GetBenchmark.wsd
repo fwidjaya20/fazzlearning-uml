@@ -1,0 +1,19 @@
+@startuml GetBenchmark
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Dashboard Page;
+
+|System|
+:Get Count of Event from Database;
+:Get Count of Class from Database;
+:Display the data from card;
+
+stop
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml PostNotification
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+
+start
+:Post Notification;
+
+|System|
+:Insert Notification data to Database;
+split
+    -> CREATED;
+    :Add Success Information;
+split again
+    -> NOT CREATED;
+    :Add Error Information;
+end split
+stop
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml MaterialSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Caller
+
+rectangle "Material System" {
+    Caller --> (Create Material)
+    Caller --> (Delete Material)
+}
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml ConfirmAttendance
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Member|
+start
+:Open Ticket Detail Request;
+:Click Confirmation Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Check Confirmation Status;
+    split
+        -> ACCEPT;
+        :Insert Requester data as Attendance on Database;
+        split
+            -> SUCCESS;
+            :Add Success Information;
+        split again
+            -> FAILED;
+            :Add Error Information;
+        end split
+    split again
+        -> DECLINE;
+        :Set Requester status into Declined on Database;
+        split
+            -> SUCCESS;
+            :Add Success Information;
+        split again
+            -> FAILED;
+            :Add Error Information;
+        end split
+    end split
+split again
+    -> NOT VALID;
+    :Adding Error Information;
+end split
+stop
+
+@enduml

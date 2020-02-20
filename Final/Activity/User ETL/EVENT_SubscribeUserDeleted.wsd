@@ -1,0 +1,24 @@
+@startuml EVENT_SubscribeUserDeleted
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Subscribe User.UserDeleted;
+
+|System|
+:Delete Replica User from UserETL;
+split
+    -> SUCCESS;
+    goto END
+split again
+    -> FAILED;
+    :Add Error Information;
+end split
+label END
+stop
+
+@enduml

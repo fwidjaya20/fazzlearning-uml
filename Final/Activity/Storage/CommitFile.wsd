@@ -1,0 +1,19 @@
+@startuml CommitFile
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Caller|
+start
+:Commit File;
+
+|System|
+:Rename all files on selected directory;
+:Zip the directory;
+:Upload file to AWS S3;
+:Remove selected directory;
+stop
+
+@enduml

@@ -1,0 +1,60 @@
+@startuml CreateUser
+
+skinparam ConditionEndStyle hline
+skinparam conditionStyle diamond
+skinparam Monochrome true
+skinparam Shadowing false
+
+|Admin|
+start
+:Open Add User Page;
+
+|System|
+:Get Roles and Division from Database;
+:Display fetched data into its own field;
+
+|Admin|
+:Fill User Form;
+
+if (Do Search Role ?) then (No)
+    goto TA
+else (Yes)
+    |System|
+    :Search Role;
+endif
+
+|Admin|
+label TA
+:Fill User Form;
+
+|Admin|
+if (Do Search Division ?) then (No)
+    goto TT
+else (Yes)
+    |System|
+    :Search Division;
+endif
+
+|Admin|
+label TT
+:Hit Create User Button;
+
+|System|
+:Validate Payload;
+split
+    -> VALID;
+    :Insert User to Database;
+    split
+        -> CREATED;
+        :Publish User.UserCreated Event on Stream;
+        :Add Success Information;
+    split again
+        :Add Error Information;
+    end split
+split again
+    -> NOT VALID;
+    :Add Error Information;
+end split
+stop
+
+@enduml

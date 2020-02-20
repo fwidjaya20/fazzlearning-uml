@@ -1,0 +1,47 @@
+@startuml ClassSubSystem
+
+left to right direction
+
+skinparam Monochrome true
+skinparam Shadowing false
+skinparam packageStyle rectangle
+
+actor Admin
+actor Member
+
+rectangle "Class System" {
+    Admin --> (Create Class)
+    Admin --> (Update Class)
+    Admin --> (Delete Class)
+    Admin --> (Get Class)
+    Admin --> (Booking Class)
+    Admin --> (Unbooking Class)
+    Admin --> (Get Booked)
+
+    (Get Class) <-- Member
+    (Get Class based on User Availability) <-- Member
+
+    (Create Class) ..> (Upload) : include
+    (Create Class) ..> (Commit File) : include
+    (Create Class) ..> (Create Material) : include
+    
+    (Delete Class) ..> (Delete Material) : include
+
+    (Booking Class) ..> (Create Class) : include
+    (Unbooking Class) ..> (Delete Class) : include
+
+    (Create Class) ..> (Publish Class Created) : include
+    (Delete Class) ..> (Publish Class Deleted) : include
+
+    (Booking Class) ..> (Create Class) : include
+    (Unbooking Class) ..> (Delete Class) : include
+
+    (Create Class) ..> (Get Available Shift) : include
+    (Create Class) ..> (Get Available Room) : include
+    (Create Class) ..> (Check Validity of Room Transaction) : include
+    (Booking Class) ..> (Get Available Shift) : include
+    (Booking Class) ..> (Get Available Room) : include
+    (Booking Class) ..> (Check Validity of Room Transaction) : include
+}
+
+@enduml
