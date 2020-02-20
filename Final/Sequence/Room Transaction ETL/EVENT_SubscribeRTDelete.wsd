@@ -1,0 +1,17 @@
+@startuml SubscribeRTDeleted
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":RoomTransactionETLNATSTransport" as RoomTransactionETLNATSTransport
+participant ":RoomTransactionETLService" as RoomTransactionETLService
+
+Caller->RoomTransactionETLNATSTransport: roomTransactionDeletedSubscriber(conn, logger, service)
+RoomTransactionETLNATSTransport->RoomTransactionETLService: DeletePersistance(context, []id)
+RoomTransactionETLService-->RoomTransactionETLNATSTransport: subscribed
+RoomTransactionETLNATSTransport-->Caller: subscribed
+
+@enduml

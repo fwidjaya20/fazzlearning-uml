@@ -1,0 +1,69 @@
+@startuml UpdateRole
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EditRolePage" as EditRolePage
+participant ":EditRoleFormContainer" as EditRoleFormContainer
+participant ":RoleForm" as RoleForm
+participant ":RoleService (Frontend)" as FERoleService
+participant ":Router" as Router
+participant ":RoleHTTPTransport" as RoleHTTPTransport
+participant ":RoleEndpoint" as RoleEndpoint
+participant ":RoleService" as RoleService
+participant ":RoleRoleCommand" as RoleCommand
+participant ":RoleRoleQuery" as RoleQuery
+
+Admin->EditRolePage: Open "Edit Role" Page
+EditRolePage->EditRoleFormContainer: Render "Edit Role Form" Container
+EditRoleFormContainer->RoleForm: Render "Role Form"
+RoleForm-->EditRoleFormContainer: rendered
+EditRoleFormContainer-->EditRolePage: rendered
+EditRolePage-->Admin: rendered
+
+Admin->EditRolePage: Fill Form
+EditRolePage->EditRoleFormContainer: Fill Form
+EditRoleFormContainer->RoleForm: Fill Form
+RoleForm-->EditRoleFormContainer: form data
+EditRoleFormContainer-->EditRolePage: form data
+EditRolePage-->Admin: form data
+
+Admin->EditRolePage: Click "Update Role" Button
+EditRolePage->EditRoleFormContainer: handleRoleFormSubmitted()
+EditRoleFormContainer->FERoleService: updateRole(id, payload)
+FERoleService->Router: route("PUT", "v2/role/{role_id}", formData)
+Router->RoleHTTPTransport: UpdateRole(RoleService, []ServerOption)
+RoleHTTPTransport->RoleEndpoint: Update(RoleService, id)
+RoleEndpoint->RoleService: UpdateRole(context, payload, id)
+RoleService->RoleService: Validate()
+
+alt "Data not valid"
+    RoleService-->RoleEndpoint: UnprocessableEntity
+    RoleEndpoint-->RoleHTTPTransport: UnprocessableEntity
+    RoleHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoleService: UnprocessableEntity
+    FERoleService-->EditRoleFormContainer: UnprocessableEntity
+    EditRoleFormContainer-->EditRolePage: UnprocessableEntity
+    EditRolePage-->Admin: UnprocessableEntity
+else
+    RoleService->RoleQuery: Find(context, uuid)
+
+    RoleQuery-->RoleService: role
+    RoleService->RoleService: binding role data
+    RoleService->RoleCommand: Update(context, role)
+
+    RoleCommand-->RoleService: isUpdated
+    RoleService-->RoleEndpoint: role
+    RoleEndpoint->RoleEndpoint: response := Response(role, nil)
+    RoleEndpoint-->RoleHTTPTransport: response
+    RoleHTTPTransport-->Router: response
+    Router-->FERoleService: response
+    FERoleService-->EditRoleFormContainer: response
+    EditRoleFormContainer-->EditRolePage: response
+    EditRolePage-->Admin: response
+end
+
+
+@enduml

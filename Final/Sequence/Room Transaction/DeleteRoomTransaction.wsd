@@ -1,0 +1,35 @@
+@startuml DeleteRoomTransaction
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":RoomTransactionService" as RoomTransactionService
+participant ":RoomTransactionCommand" as RoomTransactionCommand
+participant ":RoomTransactionQuery" as RoomTransactionQuery
+participant ":NatsStreaming" as NatsStreaming
+
+Caller->RoomTransactionService: Delete(context, payload)
+RoomTransactionService->RoomTransactionService: Validate()
+
+alt "Data Not Valid"
+    RoomTransactionService-->Caller: UnprocessableEntity
+else
+    RoomTransactionService->RoomTransactionQuery: Find(context, []SliceCondition)
+    RoomTransactionQuery-->RoomTransactionService: roomTrans
+    
+    loop "For each roomTrans"
+        RoomTransactionService->RoomTransactionCommand: Delete(context, roomTransaction)
+
+        RoomTransactionCommand-->RoomTransactionService: boolean
+
+    end
+
+    RoomTransactionService->NatsStreaming: publishTransactionDeleted(context, []id)
+    NatsStreaming-->RoomTransactionService: published
+    RoomTransactionService-->Caller: deleted
+end
+
+@enduml

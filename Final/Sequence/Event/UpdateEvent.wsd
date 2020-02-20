@@ -1,0 +1,65 @@
+@startuml UpdateEvent
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EditEventPage" as EditEventPage
+participant ":EditEventFormContainer" as EditEventFormContainer
+participant ":EventForm" as EventForm
+participant ":EventService (Frontend)" as FEEventService
+participant ":Router" as Router
+participant ":EventHTTPTransport" as EventHTTPTransport
+participant ":EventEndpoint" as EventEndpoint
+participant ":EventService" as EventService
+participant ":EventCommand" as EventCommand
+participant ":EventQuery" as EventQuery
+
+Admin->EditEventPage: Open "Edit Event" Page
+EditEventPage->EditEventFormContainer: Render "Edit Event Form" Container
+EditEventFormContainer->EventForm: Render "Event Form"
+EventForm-->EditEventFormContainer: rendered
+EditEventFormContainer-->EditEventPage: rendered
+EditEventPage-->Admin: rendered
+
+Admin->EditEventPage: Fill Form
+EditEventPage->EditEventFormContainer: Fill Form
+EditEventFormContainer->EventForm: Fill Form
+EventForm-->EditEventFormContainer: form data
+EditEventFormContainer-->EditEventPage: form data
+EditEventPage-->Admin: form data
+
+Admin->EditEventPage: Click "Update Event" Button
+EditEventPage->EditEventFormContainer: handleEventFormSubmitted()
+EditEventFormContainer->FEEventService: updateEvent(eventId, payload)
+FEEventService->Router: route("PATCH", "v2/event/{event_id}", formData)
+Router->EventHTTPTransport: UpdateEvent(EventService, []ServerOption)
+EventHTTPTransport->EventEndpoint: Update(EventService)
+EventEndpoint->EventService: Update(context, payload)
+EventService->EventService: Validate()
+
+alt "Data not valid"
+    EventService-->EventEndpoint: UnprocessableEntity
+    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
+    EventHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEEventService: UnprocessableEntity
+    FEEventService-->EditEventFormContainer: UnprocessableEntity
+    EditEventFormContainer-->EditEventPage: UnprocessableEntity
+    EditEventPage-->Admin: UnprocessableEntity
+else
+    EventService->EventQuery: GetPureModel(context, []SliceConditions)
+    EventQuery-->EventService: events
+    EventService->EventCommand: Update(context, event)
+    EventCommand-->EventService: isUpdated
+    EventService-->EventEndpoint: event
+    EventEndpoint->EventEndpoint: response := Response(event, nil)
+    EventEndpoint-->EventHTTPTransport: response
+    EventHTTPTransport-->Router: response
+    Router-->FEEventService: response
+    FEEventService-->EditEventFormContainer: response
+    EditEventFormContainer-->EditEventPage: response
+    EditEventPage-->Admin: response
+end
+
+@enduml

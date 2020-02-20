@@ -1,0 +1,34 @@
+@startuml GetBenchmark
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DashboardPage" as Dashboard
+participant ":StatisticService (Frontend)" as FEStatisticService
+participant ":Router" as Router
+participant ":StatisticHTTPTransport" as StatisticHTTPTransport
+participant ":StatisticEndpoint" as StatisticEndpoint
+participant ":StatisticService" as StatisticService
+participant ":StatisticQuery" as StatisticQuery
+
+Admin->Dashboard: Open "Dashboard" Page
+Dashboard->Dashboard: fetchStatistic()
+Dashboard->FEStatisticService: fetchStatistic()
+FEStatisticService->Router: route("GET", "v2/statistic/benchmark")
+Router->StatisticHTTPTransport: FetchBenchmark(StatisticService, []ServerOption)
+StatisticHTTPTransport->StatisticEndpoint: GetBenchmark(StatisticService)
+StatisticEndpoint->StatisticService: Benchmark(context)
+StatisticService->StatisticQuery: GetBenchmark(context)
+StatisticQuery-->StatisticService: benchmark
+StatisticService-->StatisticEndpoint: benchmark
+StatisticEndpoint->StatisticEndpoint: response := Response(benchmark, nil)
+StatisticEndpoint-->StatisticHTTPTransport: response
+StatisticHTTPTransport-->Router: response
+Router-->FEStatisticService: response
+FEStatisticService-->Dashboard: response
+Dashboard-->Dashboard: render "benchmark"
+Dashboard-->Admin: rendered
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml UpdateRoom
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EditRoomPage" as EditRoomPage
+participant ":EditRoomFormContainer" as EditRoomFormContainer
+participant ":RoomForm" as RoomForm
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomRoomCommand" as RoomCommand
+participant ":RoomRoomQuery" as RoomQuery
+
+Admin->EditRoomPage: Open "Edit Room" Page
+EditRoomPage->EditRoomFormContainer: Render "Edit Room Form" Container
+EditRoomFormContainer->RoomForm: Render "Room Form"
+RoomForm-->EditRoomFormContainer: rendered
+EditRoomFormContainer-->EditRoomPage: rendered
+EditRoomPage-->Admin: rendered
+
+Admin->EditRoomPage: Fill Form
+EditRoomPage->EditRoomFormContainer: Fill Form
+EditRoomFormContainer->RoomForm: Fill Form
+RoomForm-->EditRoomFormContainer: form data
+EditRoomFormContainer-->EditRoomPage: form data
+EditRoomPage-->Admin: form data
+
+Admin->EditRoomPage: Click "Update Room" Button
+EditRoomPage->EditRoomFormContainer: handleRoomFormSubmitted()
+EditRoomFormContainer->FERoomService: updateRoom(id, payload)
+FERoomService->Router: route("PUT", "v2/room/{room_id}", formData)
+Router->RoomHTTPTransport: UpdateRoom(RoomService, []ServerOption)
+RoomHTTPTransport->RoomEndpoint: Update(RoomService)
+RoomEndpoint->RoomService: Update(context, payload)
+RoomService->RoomService: Validate()
+
+alt "Data not valid"
+    RoomService-->RoomEndpoint: UnprocessableEntity
+    RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
+    RoomHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoomService: UnprocessableEntity
+    FERoomService-->EditRoomFormContainer: UnprocessableEntity
+    EditRoomFormContainer-->EditRoomPage: UnprocessableEntity
+    EditRoomPage-->Admin: UnprocessableEntity
+else
+    RoomService->RoomQuery: Find(context, []SliceCondition)
+    RoomQuery-->RoomService: room
+    RoomService->RoomCommand: Update(context, room)
+    RoomCommand-->RoomService: isUpdated
+    RoomService-->RoomEndpoint: room
+    RoomEndpoint->RoomEndpoint: response := Response(room, nil)
+    RoomEndpoint-->RoomHTTPTransport: response
+    RoomHTTPTransport-->Router: response
+    Router-->FERoomService: response
+    FERoomService-->EditRoomFormContainer: response
+    EditRoomFormContainer-->EditRoomPage: response
+    EditRoomPage-->Admin: response
+end
+
+@enduml

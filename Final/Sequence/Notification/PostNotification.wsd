@@ -1,0 +1,41 @@
+@startuml PostNotification
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Caller" as Caller
+participant ":NotificationService" as NotificationService
+participant ":UserGRPCTransport" as UserGRPCTransport
+participant ":NotificationCommand" as NotificationCommand
+
+Caller->NotificationService: Post(context, payload)
+
+loop "for each notification"
+    NotificationService->NotificationService: Validate()
+
+    alt "Data Not Valid"
+        NotificationService-->Caller: UnprocessableEntity
+    else
+        alt "notification behaviour is PRIVATE"
+            loop "for each receiver"
+                NotificationService->NotificationService: notif := NotificationModel()
+                NotificationService->NotificationService: datas := append(datas, notif)
+            end
+        else
+            NotificationService->UserGRPCTransport: GetMember(context, ProtoBuffer)
+            UserGRPCTransport-->NotificationService: users
+
+            loop "for each users"
+                NotificationService->NotificationService: notif := NotificationModel()
+                NotificationService->NotificationService: datas := append(datas, notif)
+            end
+        end
+
+        NotificationService->NotificationCommand: Create(context, datas)
+        NotificationCommand-->NotificationService: is created
+        NotificationService-->Caller: is created
+    end
+end
+
+@enduml

@@ -1,0 +1,103 @@
+@startuml Register
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":FulfilmentPage" as FulfilmentPage
+participant ":DivisionFulfilmentContainer" as DivisionFulfilmentFormContainer
+participant ":IdentityFulfilmentContainer" as IdentityFulfilmentFormContainer
+participant ":AuthService (Frontend)" as FEAuthService
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Route" as Route
+participant ":SessionTransport" as SessionTransport
+participant ":SessionEndpoint" as SessionEndpoint
+participant ":SessionService" as SessionService
+participant ":SessionStategy" as SessionStrategy
+participant ":SessionCommand" as SessionCommand
+participant ":UserQuery" as UserQuery
+participant ":UserCommand" as UserCommand
+
+Member->FulfilmentPage: Open "Fulfilment" Page
+FulfilmentPage->FEDivisionService: fetchDivision()
+FEDivisionService-->FulfilmentPage: divisions
+FulfilmentPage->DivisionFulfilmentFormContainer: Fill Data
+DivisionFulfilmentFormContainer-->FulfilmentPage: handleDivisionChanged(value)
+FulfilmentPage-->Member: form data
+Member->FulfilmentPage: Click "Next" Button
+FulfilmentPage->FulfilmentPage: nextFulfilmentStep()
+FulfilmentPage->IdentityFulfilmentFormContainer: Fill Data
+IdentityFulfilmentFormContainer-->FulfilmentPage: handleIdentityNumberChanged(e)
+FulfilmentPage-->Member: form data
+Member->FulfilmentPage: handleFulfillmentCompleted()
+FulfilmentPage->FEAuthService: login(email, name, identityNumber, divisionId)
+FEAuthService->Route: route("POST", "v2/auth/login")
+
+Route->SessionTransport: Authenticate(SessionService, []ServerOption)
+SessionTransport->SessionEndpoint: Login(SessionService)
+SessionEndpoint->SessionService: Login(context, source, payload)
+SessionService->SessionService: Validate()
+
+alt "Data not valid"
+    SessionService-->SessionEndpoint: UnprocessableEntity
+    SessionEndpoint-->SessionTransport: UnprocessableEntity
+    SessionTransport-->Route: UnprocessableEntity
+    Route-->FEAuthService: UnprocessableEntity
+    FEAuthService-->FulfilmentPage: UnprocessableEntity
+    FulfilmentPage-->Member: UnprocessableEntity
+else
+    SessionService->SessionStrategy: Login(context, query, command, payload)
+
+    alt "Source is WEB"
+        SessionStrategy->UserQuery: Find(context, []SliceConditions)
+        UserQuery-->SessionStrategy: users
+    else "Source is PWA"
+        SessionStrategy->UserQuery: Find(context, []SliceConditions)
+        UserQuery-->SessionStrategy: users
+
+        opt "users is null"
+            SessionStrategy->UserQuery: GetPureModel(context, []SliceConditions)
+            UserQuery-->SessionStrategy: users
+        end
+
+        alt "onTrash is null"
+            SessionStrategy->SessionStrategy: user := UserModel();
+            SessionStrategy->SessionStrategy: binding user data
+            SessionStrategy->UserCommand: Create(context, user);
+            UserCommand->SessionStrategy: isCreated
+        else "onTrash.DeletedAt is not null"
+            SessionStrategy->UserCommand: UpdateSoftDelete(ctx, onTrash)
+            UserCommand->SessionStrategy: isUpdated
+        end
+    end
+
+    SessionStrategy->UserQuery: Find(context, []SliceCondition)
+    UserQuery-->SessionStrategy: users
+
+    alt "User not found"
+        SessionStrategy-->SessionService: BadRequest
+        SessionService-->SessionEndpoint: BadRequest
+        SessionEndpoint-->SessionTransport: BadRequest
+        SessionTransport-->Route: BadRequest
+        Route-->FEAuthService: BadRequest
+        FEAuthService-->FulfilmentPage: BadRequest
+        FulfilmentPage-->Member: BadRequest
+    else
+        SessionStrategy-->SessionService: user
+        SessionService->SessionService: generateToken(context, logger, user)
+        SessionService->SessionService: session := SessionModel()
+        SessionService->SessionService: binding session data
+        SessionService->SessionCommand: Create(context, session)
+        SessionCommand-->SessionService: session
+        SessionService-->SessionEndpoint: session
+        SessionEndpoint->SessionEndpoint: response := Response(session, nil)
+        SessionEndpoint-->SessionTransport: response
+        SessionTransport-->Route: response
+        Route-->FEAuthService: response
+        FEAuthService-->FulfilmentPage: response
+        FulfilmentPage-->Member: response
+    end
+end
+
+@enduml

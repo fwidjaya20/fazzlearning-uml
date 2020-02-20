@@ -1,0 +1,35 @@
+@startuml GetRoomAvailable
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":ClassForm" as ClassForm
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomQuery" as RoomQuery
+
+Admin->ClassForm: Choose Shift
+ClassForm->ClassForm: fetchAvailableRooms(date, []shift)
+ClassForm->FERoomService: fetchAvailableRooms(date, []shift)
+FERoomService->Router: route("GET", "v2/shift/available?date=YOUR_DATE&shift=YOUR_SHIFTS")
+Router->RoomHTTPTransport: FindAvailableRoom(RoomService, []ServerOption)
+RoomHTTPTransport->RoomEndpoint: FindAvailableRoom(RoomService)
+RoomEndpoint->RoomService: Available(context, params)
+
+RoomService->RoomQuery: Available(context, date, shiftId)
+RoomQuery-->RoomService: rooms
+RoomService-->RoomEndpoint: rooms
+RoomEndpoint->RoomEndpoint: response := Response(rooms, nil)
+RoomEndpoint-->RoomHTTPTransport: response
+RoomHTTPTransport-->Router: response
+Router-->FERoomService: response
+FERoomService-->ClassForm: response
+ClassForm->ClassForm: display rooms options to field
+ClassForm-->Admin: rendered
+
+@enduml

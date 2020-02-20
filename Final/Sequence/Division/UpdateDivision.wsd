@@ -1,0 +1,66 @@
+@startuml UpdateDivision
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EditDivisionPage" as EditDivisionPage
+participant "EditDivisionFormContainer" as EditDivisionFormContainer
+participant ":DivisionForm" as DivisionForm
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Router" as Router
+participant ":DivisionHTTP Transport" as DivisionHTTPTransport
+participant ":DivisionEndpoint" as DivisionEndpoint
+participant ":DivisionService" as DivisionService
+participant ":DivisionCommand" as DivisionCommand
+participant ":DivisionQuery" as DivisionQuery
+
+Admin->EditDivisionPage: Open "Edit Division" Page
+EditDivisionPage->EditDivisionFormContainer: Render "Edit Division Form" Container
+EditDivisionFormContainer->DivisionForm: Render "Division Form"
+DivisionForm-->EditDivisionFormContainer: rendered
+EditDivisionFormContainer-->EditDivisionPage: rendered
+EditDivisionPage-->Admin: rendered
+
+Admin->EditDivisionPage: Fill Form
+EditDivisionPage->EditDivisionFormContainer: Fill Form
+EditDivisionFormContainer->DivisionForm: Fill Form
+DivisionForm-->EditDivisionFormContainer: form data
+EditDivisionFormContainer-->EditDivisionPage: form data
+EditDivisionPage-->Admin: form data
+
+Admin->EditDivisionPage: Click "Update Division" Button
+EditDivisionPage->EditDivisionFormContainer: handleDivisionFormSubmitted()
+EditDivisionFormContainer->FEDivisionService: updateDivision(divisionId, payload)
+FEDivisionService->Router: route("PUT", "v2/division/{division_id}", formData)
+Router->DivisionHTTPTransport: UpdateDivision(DivisionService, []ServerOption)
+DivisionHTTPTransport->DivisionEndpoint: Update(DivisionService, id)
+DivisionEndpoint->DivisionService: UpdateDivision(context, payload, id)
+DivisionService->DivisionService: Validate()
+
+alt "Data not valid"
+    DivisionService-->DivisionEndpoint: UnprocessableEntity
+    DivisionEndpoint-->DivisionHTTPTransport: UnprocessableEntity
+    DivisionHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEDivisionService: UnprocessableEntity
+    FEDivisionService-->EditDivisionFormContainer: UnprocessableEntity
+    EditDivisionFormContainer-->EditDivisionPage: UnprocessableEntity
+    EditDivisionPage-->Admin: UnprocessableEntity
+else
+    DivisionService->DivisionQuery: Find(context, uuid)
+    DivisionQuery-->DivisionService: division
+    DivisionService->DivisionService: binding division data
+    DivisionService->DivisionCommand: Update(context, division)
+    DivisionCommand-->DivisionService: isUpdated
+    DivisionService-->DivisionEndpoint: division
+    DivisionEndpoint->DivisionEndpoint: response := Response(division, nil)
+    DivisionEndpoint-->DivisionHTTPTransport: response
+    DivisionHTTPTransport-->Router: response
+    Router-->FEDivisionService: response
+    FEDivisionService-->EditDivisionFormContainer: response
+    EditDivisionFormContainer-->EditDivisionPage: response
+    EditDivisionPage-->Admin: response
+end
+
+@enduml

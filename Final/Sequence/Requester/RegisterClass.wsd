@@ -1,0 +1,65 @@
+@startuml RegisterClass
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":ClassPage" as ClassPage
+participant ":ClassActionContainer" as ClassActionContainer
+participant ":ClassService" as FEClassService
+participant ":Router" as Router
+participant ":RequesterHTTPTransport" as RequesterHTTPTransport
+participant ":RequesterEndpoint" as RequesterEndpoint
+participant ":RequesterService" as RequesterService
+participant ":RequesterCommand" as RequesterCommand
+participant ":RequesterQuery" as RequesterQuery
+
+Member->ClassPage: Open "Class" Page
+ClassPage->ClassActionContainer: Render "Class Action" Container
+ClassActionContainer-->ClassPage: rendered
+ClassPage-->Member: rendered
+
+opt "Fill Reason (optional)"
+    Member->ClassPage: Fill Form
+    ClassPage->ClassActionContainer: handleInputReason()
+    ClassActionContainer-->ClassPage: form data
+    ClassPage-->Member: form data
+end
+
+Member->ClassPage: Click "Register" Button
+ClassPage->ClassActionContainer: handleJoinClassClicked()
+ClassActionContainer->FEClassService: registerClass(classId, payload)
+FEClassService->Router: route("POST", "v2/class/{class_id}/register")
+Router->RequesterHTTPTransport: Register(RequesterService, []ServerOption)
+RequesterHTTPTransport->RequesterEndpoint: Register(RequesterService)
+RequesterEndpoint->RequesterService: Register(context, payload)
+RequesterService->RequesterService: Validate()
+
+alt "Data Not Valid"
+    RequesterService-->RequesterEndpoint: UnprocessableEntity
+    RequesterEndpoint-->RequesterHTTPTransport: UnprocessableEntity
+    RequesterHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEClassService: UnprocessableEntity
+    FEClassService-->ClassActionContainer: UnprocessableEntity
+    ClassActionContainer-->ClassPage: UnprocessableEntity
+    ClassPage-->Member: UnprocessableEntity
+else
+    RequesterService->RequesterService: m := RequestModel()
+    RequesterService->RequesterCommand: Create(context, m)
+    RequesterCommand-->RequesterService: uuid
+
+    RequesterService->RequesterQuery: PureModel(context, []SliceCondition)
+    RequesterQuery-->RequesterService: requester
+end
+
+RequesterService-->RequesterEndpoint: requester
+RequesterEndpoint->RequesterEndpoint: response := Response(requester, nil)
+RequesterEndpoint-->RequesterHTTPTransport: response
+RequesterHTTPTransport-->Router: response
+Router-->FEClassService: response
+FEClassService-->ClassActionContainer: response
+ClassActionContainer-->ClassPage: response
+ClassPage-->Member: response
+
+@enduml

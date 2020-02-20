@@ -1,0 +1,81 @@
+@startuml PostComment
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Admin" as Admin
+participant ":DetailEventPage" as DetailEventPage
+participant ":DetailEventContainer" as DetailEventContainer
+participant ":WallPostContainer" as WallPostContainer
+participant ":CommentComponent" as CommentComponent
+participant ":CommentForm" as CommentForm
+participant ":ConversationService (Frontend)" as FEConversationService
+participant ":Router" as Router
+participant ":ConversationHTTPTransport" as ConversationHTTPTransport
+participant ":ConversationEndpoint" as ConversationEndpoint
+participant ":ConversationService" as ConversationService
+participant ":ConversationCommand" as ConversationCommand
+participant ":ConversationQuery" as ConversationQuery
+
+Admin->DetailEventPage: Open "Detail Event" Page
+DetailEventPage->DetailEventContainer: Render "Detail Event" Container
+DetailEventContainer->WallPostContainer: Render "Wall Post" Container
+WallPostContainer->CommentComponent: Render "Comment" Component
+CommentComponent->CommentForm: Render "Comment Form" Component
+CommentForm-->CommentComponent: rendered
+CommentComponent-->WallPostContainer: rendered
+WallPostContainer-->DetailEventContainer: rendered
+DetailEventContainer-->DetailEventPage: rendered
+DetailEventPage-->Admin: rendered
+
+Admin->DetailEventPage: fill form
+DetailEventPage->DetailEventContainer: fill form
+DetailEventContainer->WallPostContainer: fill form
+WallPostContainer->CommentComponent: fill form
+CommentComponent->CommentForm: fill form
+CommentForm-->CommentComponent: form data
+CommentComponent-->WallPostContainer: form data
+WallPostContainer-->DetailEventContainer: form data
+DetailEventContainer-->DetailEventPage: form data
+DetailEventPage-->Admin: form data
+
+Admin->DetailEventPage: Click "Post" Button
+DetailEventPage->DetailEventContainer: click
+DetailEventContainer->WallPostContainer: handleSubmitComment()
+WallPostContainer->FEConversationService: createComment(eventId, payload)
+FEConversationService->Router: route("POST", "v2/event/{event_id}/comment")
+Router->ConversationHTTPTransport: CreateComment(ConversationService, []ServerOption)
+ConversationHTTPTransport->ConversationEndpoint: CreateComment(ConversationService)
+ConversationEndpoint->ConversationService: CreateComment(context, payload)
+ConversationService->ConversationService: Validate()
+
+alt "Is Not Valid"
+    ConversationService-->ConversationEndpoint: UnprocessableEntity
+    ConversationEndpoint-->ConversationHTTPTransport: UnprocessableEntity
+    ConversationHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEConversationService: UnprocessableEntity
+    FEConversationService-->WallPostContainer: UnprocessableEntity
+    WallPostContainer-->DetailEventContainer: UnprocessableEntity
+    DetailEventContainer-->DetailEventPage: UnprocessableEntity
+    DetailEventPage-->Admin: UnprocessableEntity
+else
+    ConversationService->ConversationService: m := CommentModel()
+    ConversationService->ConversationCommand: Create(context, m)
+    ConversationCommand-->ConversationService: uuid
+
+    ConversationService->ConversationQuery: GetPureCommendModel(context, []SliceCondition)
+    ConversationQuery-->ConversationService: command
+
+    ConversationService-->ConversationEndpoint: command
+    ConversationEndpoint->ConversationEndpoint: response := Response(command, nil)
+    ConversationEndpoint-->ConversationHTTPTransport: response
+    ConversationHTTPTransport-->Router: response
+    Router-->FEConversationService: response
+    FEConversationService-->WallPostContainer: response
+    WallPostContainer-->DetailEventContainer: response
+    DetailEventContainer-->DetailEventPage: response
+    DetailEventPage-->Admin: response
+end
+
+@enduml

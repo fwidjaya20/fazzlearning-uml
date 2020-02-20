@@ -1,0 +1,17 @@
+@startuml DeleteRoomTransactionETL
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":RoomTransactionETLService" as RoomTransactionETLService
+participant ":RoomTransactionETLCommand" as RoomTransactionETLCommand
+
+Caller->RoomTransactionETLService: DeletePersistance(conn, looger, service)
+RoomTransactionETLService->RoomTransactionETLCommand: DeleteBulk([]id)
+RoomTransactionETLCommand-->RoomTransactionETLService: Is Deleted
+RoomTransactionETLService-->Caller: Is Deleted
+
+@enduml

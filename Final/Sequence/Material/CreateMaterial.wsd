@@ -1,0 +1,29 @@
+@startuml CreateMaterial
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":MaterialService" as MaterialService
+participant ":MaterialCommand" as MaterialCommand
+participant ":MaterialQuery" as MaterialQuery
+
+Caller->MaterialService: Create(context, payload)
+MaterialService->MaterialService: Validate()
+
+alt "Data not valid"
+    MaterialService-->Caller: UnprocessableEntity
+else
+    loop "for each imageLink"
+        MaterialService->MaterialService: material := MaterialModel()
+        MaterialService->MaterialCommand: Create(context, material)
+        MaterialCommand-->MaterialService: materialLink
+
+        MaterialService->MaterialQuery: Find(context, []SliceConditions)
+        MaterialQuery-->MaterialService: material
+    end
+    MaterialService-->Caller: Material
+end
+
+@enduml

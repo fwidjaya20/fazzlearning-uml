@@ -1,0 +1,33 @@
+@startuml Upload
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":StorageGRPCTransport" as StorageGRPCTransport
+participant ":StorageService" as StorageService
+participant ":AWSS3" as AWSS3
+
+Caller->StorageGRPCTransport: Upload(ProtoBuffer)
+StorageGRPCTransport->StorageService: Upload(context, bytes)
+StorageService->StorageService: Validate()
+
+alt "Data not valid"
+    StorageService-->StorageGRPCTransport: GRPC_PRECONDITION_FAILED
+    StorageGRPCTransport->Caller: GRPC_PRECONDITION_FAILED
+else
+    loop "For each file"
+        StorageService->AWSS3: PutObject(PutObjectInput)
+        AWSS3-->StorageService: key, error
+
+        break "Any error"
+            StorageService-->StorageGRPCTransport: GRPC_INTERNAL
+            StorageGRPCTransport-->Caller: GRPC_INTERNAL
+        end
+    end
+    StorageService-->StorageGRPCTransport: OK
+    StorageGRPCTransport-->Caller: OK
+end
+
+@enduml

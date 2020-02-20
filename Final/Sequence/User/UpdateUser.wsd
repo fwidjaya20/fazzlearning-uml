@@ -1,0 +1,98 @@
+@startuml UpdateUser
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":EditUserPage" as EditUserPage
+participant ":EditUserFormContainer" as EditUserFormContainer
+participant ":UserForm" as UserFormComponent
+participant ":UserService (Frontend)" as FEUserService
+participant ":RoleService (Frontend)" as FERoleService
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Router" as Router
+participant ":UserHTTPTransport" as UserHTTPTransport
+participant ":UserEndpoint" as UserEndpoint
+participant ":UserService" as UserService
+participant ":UserQuery" as UserQuery
+participant ":UserCommand" as UserCommand
+
+' Load Data
+Admin->EditUserPage: Open "Edit User" Page
+EditUserPage->EditUserFormContainer: Render "Edit User Form" Container
+EditUserFormContainer->UserFormComponent: Render "Edit User Form"
+
+' Fetch Roles
+UserFormComponent->UserFormComponent: fetchRoles()
+UserFormComponent->FERoleService: fetchRoles(page, limit)
+FERoleService-->UserFormComponent: roles
+UserFormComponent->UserFormComponent: binding response to attibute
+' End Fetch Roles
+
+' Fetch Division
+UserFormComponent->UserFormComponent: fetchDivisions()
+UserFormComponent->FEDivisionService: fetchDivisions(page, limit, keyword)
+FEDivisionService-->UserFormComponent: divisions
+UserFormComponent->UserFormComponent: binding response to attibute
+' End Fetch Division
+
+UserFormComponent-->EditUserFormContainer: rendered
+EditUserFormContainer-->EditUserPage: rendered
+EditUserPage-->Admin: rendered
+' End Load Data
+
+' Fill Data
+Admin->EditUserPage: Fill Form
+EditUserPage->EditUserFormContainer: Fill Form
+EditUserFormContainer->UserFormComponent: Fill Form
+
+opt "Do Search Role"
+    UserFormComponent->UserFormComponent: fetchRoles()
+end
+
+opt "Do Search Division"
+    UserFormComponent->UserFormComponent: fetchDivisions()
+end
+
+UserFormComponent-->EditUserFormContainer: form data
+EditUserFormContainer-->EditUserPage: form data
+EditUserPage-->Admin: form data
+' End Fill Data
+
+Admin->EditUserPage: Click "Update User" Button
+EditUserPage->EditUserFormContainer: handleUserFormSubmitted()
+EditUserFormContainer->FEUserService: updateUser(userId, payload)
+FEUserService->Router: Router("PUT", "v2/user/{email}", formData)
+Router->UserHTTPTransport: UpdateUser(UserService, []ServerOption)
+UserHTTPTransport->UserEndpoint: Update(UserService, email)
+UserEndpoint->UserService: UpdateUser(context, payload, email)
+UserService->UserService: Validate()
+
+alt "Data not valid"
+    UserService-->UserEndpoint: UnprocessableEntity
+    UserEndpoint-->UserHTTPTransport: UnprocessableEntity
+    UserHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEUserService: UnprocessableEntity
+    FEUserService-->EditUserFormContainer: UnprocessableEntity
+    EditUserFormContainer-->EditUserPage: UnprocessableEntity
+    EditUserPage-->Admin: UnprocessableEntity
+else
+    UserService->UserQuery: Find(context, []SliceCondition)
+    UserQuery-->UserService: user
+
+    UserService->UserService: binding user data
+
+    UserService->UserCommand: Update(context, user)
+    UserCommand-->UserService: uuid
+    UserService->UserEndpoint: user
+    UserEndpoint->UserEndpoint:  response := Response(user, nil)
+    UserEndpoint-->UserHTTPTransport: response
+    UserHTTPTransport-->Router: response
+    Router-->FEUserService: response
+    FEUserService-->EditUserFormContainer: response
+    EditUserFormContainer-->EditUserPage: response
+    EditUserPage-->Admin: response
+end
+
+@enduml

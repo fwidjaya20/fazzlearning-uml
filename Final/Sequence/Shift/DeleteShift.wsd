@@ -1,0 +1,77 @@
+@startuml DeleteShift
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":ShiftPage" as ShiftPage
+participant ":ShiftTableContainer" as ShiftTableContainer
+participant ":ShiftTable" as ShiftTable
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ShiftHTTPTransport" as ShiftHTTPTransport
+participant ":ShiftEndpoint" as ShiftEndpoint
+participant ":ShiftService" as ShiftService
+participant ":ShiftCommand" as ShiftCommand
+participant ":ShiftQuery" as ShiftQuery
+
+Admin->ShiftPage: Open "Manage Shift" Page
+ShiftPage->ShiftTableContainer: Render "Shift Table" Container
+ShiftTableContainer->ShiftTable: Render "Shift Table"
+ShiftTable-->ShiftTableContainer: rendered
+ShiftTableContainer-->ShiftPage: rendered
+ShiftPage-->Admin: rendered
+
+Admin->ShiftPage: Mark "Shift"
+ShiftPage->ShiftTableContainer: Mark "Shift"
+ShiftTableContainer->ShiftTable: Mark "Shift"
+ShiftTable-->ShiftTableContainer: marked
+ShiftTableContainer-->ShiftPage: marked
+ShiftPage-->Admin: marked
+
+Admin->ShiftPage: Click "Delete Selected" Button
+ShiftPage->ShiftTableContainer: showDeleteConfirmation(item)
+
+alt "Cancel Delete"
+    ShiftTableContainer-->ShiftPage: Close Dialog
+    ShiftPage-->Admin: Close Dialog
+else
+    ShiftTableContainer->ShiftTableContainer: handleDeleteConfirmation(item)
+    ShiftTableContainer->FEShiftService: deleteShift(payload)
+    FEShiftService->Router: route("DELETE", "v2/Shifts", formData)
+    Router->ShiftHTTPTransport: DeleteShifts(ShiftService, []ServerOption)
+    ShiftHTTPTransport->ShiftEndpoint: Delete(ShiftService)
+    ShiftEndpoint->ShiftService: DeleteMany(context, payload)
+    ShiftService->ShiftService: Validate()
+
+    alt "Is Not Valid"
+        ShiftService-->ShiftEndpoint: UnprocessableEntity
+        ShiftEndpoint->ShiftEndpoint: UnprocessableEntity
+        ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+        ShiftHTTPTransport-->Router: UnprocessableEntity
+        Router-->FEShiftService: UnprocessableEntity
+        FEShiftService-->ShiftTableContainer: UnprocessableEntity
+        ShiftTableContainer-->ShiftPage: UnprocessableEntity
+        ShiftPage-->Admin: UnprocessableEntity
+    else
+        loop "for each id"
+            ShiftService->ShiftQuery: Find(context, []SliceCondition)
+            ShiftQuery-->ShiftService: shift
+
+            ShiftService->ShiftCommand: Delete(context, shift)
+            ShiftCommand-->ShiftService: isDeleted
+        end
+
+        ShiftService-->ShiftEndpoint: isDeleted
+        ShiftEndpoint->ShiftEndpoint: response := Response(isDeleted, nil)
+        ShiftEndpoint-->ShiftHTTPTransport: response
+        ShiftHTTPTransport-->Router: response
+        Router-->FEShiftService: response
+        FEShiftService-->ShiftTableContainer: response
+        ShiftTableContainer-->ShiftPage: response
+        ShiftPage-->Admin: response
+    end
+end
+
+@enduml

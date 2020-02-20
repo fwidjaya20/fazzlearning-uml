@@ -1,0 +1,59 @@
+@startuml UnbookingClass
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":AddEventPage" as AddEventPage
+participant ":BookingListContainer" as BookingListContainer
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassQuery" as ClassQuery
+participant ":MaterialService" as MaterialService
+participant ":NatsStreaming" as NatsStreaming
+
+Admin->AddEventPage: Open "Add Event" Page
+AddEventPage->BookingListContainer: fetchBookedClass()
+BookingListContainer-->AddEventPage: rendered
+AddEventPage-->Admin: rendered
+
+Admin->AddEventPage: Hover "Booked Class"
+AddEventPage->BookingListContainer: handleOpenCreateClassPopup()
+
+alt "Cancel Delete"
+    BookingListContainer-->AddEventPage: Close Dialog
+    AddEventPage-->Admin: Close Dialog
+else
+    BookingListContainer->BookingListContainer: handleDeleteBookedClass(bookedId)
+    BookingListContainer->FEClassService: deleteBookingClass(bookedId)
+    FEClassService->Router: route("DELETE", "v2/booking/{class_id}")
+    Router->ClassHTTPTransport: DeleteBookedClass(ClassService, []ServerOption)
+    ClassHTTPTransport->ClassEndpoint: DeleteBooked(ClassService)
+    ClassEndpoint->ClassService: Delete(context, payload)
+
+    ClassService->ClassQuery: GetPureModel(context, []SliceConditions)
+    ClassQuery-->ClassService: classes
+
+    ClassService->ClassCommand: Delete(context, class)
+    ClassCommand-->ClassService: isDeleted
+
+    ClassService->MaterialService: DeleteByClass(context, classId)
+    MaterialService-->ClassService: isDeleted
+
+    ClassService->NatsStreaming: publishClassDeleted(context, data)
+    NatsStreaming-->ClassService: published
+    
+    ClassService-->ClassEndpoint: isDeleted
+    ClassEndpoint->ClassEndpoint: response := Response(isDeleted, nil)
+    ClassEndpoint-->ClassHTTPTransport: response
+    ClassHTTPTransport-->Router: response
+    Router-->FEClassService: response
+    BookingListContainer-->AddEventPage: rendered
+    AddEventPage-->Admin: rendered
+end
+
+@enduml

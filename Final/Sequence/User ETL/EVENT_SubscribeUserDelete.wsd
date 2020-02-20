@@ -1,0 +1,17 @@
+@startuml SubscribeUserDeleted
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":UserETLNATSTransport" as UserETLNATSTransport
+participant ":UserETLService" as UserETLService
+
+Caller->UserETLNATSTransport: userDeletedSubscriber(conn, logger, service)
+UserETLNATSTransport->UserETLService: DeletePersistance(context, payload)
+UserETLService-->UserETLNATSTransport: subscribed
+UserETLNATSTransport-->Caller: subscribed
+
+@enduml

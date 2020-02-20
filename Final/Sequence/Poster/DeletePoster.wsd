@@ -1,0 +1,26 @@
+@startuml DeletePoster
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":PosterService" as PosterService
+participant ":PosterCommand" as PosterCommand
+participant ":PosterQuery" as PosterQuery
+
+Caller->PosterService: DeleteByEvent(context, eventId)
+PosterService->PosterQuery: Find(context, []SliceConditions)
+PosterQuery-->PosterService: posters
+
+alt "len(posters) < 1"
+    PosterService-->Caller: false
+else
+    loop "for each posters"
+        PosterService->PosterCommand: Delete(context, poster)
+        PosterCommand-->PosterService: isDeleted
+    end
+    PosterService-->Caller: isDeleted
+end
+
+@enduml

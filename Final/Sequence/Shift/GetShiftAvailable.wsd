@@ -1,0 +1,35 @@
+@startuml GetShiftAvailable
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":ClassForm" as ClassForm
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ShiftHTTPTransport" as ShiftHTTPTransport
+participant ":ShiftEndpoint" as ShiftEndpoint
+participant ":ShiftService" as ShiftService
+participant ":ShiftQuery" as ShiftQuery
+
+Admin->ClassForm: Choose Date 
+ClassForm->ClassForm: fetchAvailableShifts(date)
+ClassForm->FEShiftService: fetchAvailableShifts(date)
+FEShiftService->Router: route("GET", "v2/shift/available?date=YOUR_DATE")
+Router->ShiftHTTPTransport: FindAvailableShift(ShiftService, []ServerOption)
+ShiftHTTPTransport->ShiftEndpoint: FindAvailableShift(ShiftService)
+ShiftEndpoint->ShiftService: Available(context, params)
+
+ShiftService->ShiftQuery: Available(context, date)
+ShiftQuery-->ShiftService: shifts
+ShiftService-->ShiftEndpoint: shifts
+
+ShiftEndpoint->ShiftEndpoint: response := Response(shifts, nil)
+ShiftEndpoint-->ShiftHTTPTransport: response
+ShiftHTTPTransport-->Router: response
+Router-->FEShiftService: response
+FEShiftService-->ClassForm: response
+ClassForm-->Admin: rendered
+
+@enduml

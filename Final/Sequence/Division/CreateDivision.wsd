@@ -1,0 +1,67 @@
+@startuml CreateDivision
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":AddDivisionPage" as AddDivisionPage
+participant ":AddDivisionFormContainer" as AddDivisionFormContainer
+participant ":DivisionForm" as DivisionForm
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Router" as Router
+participant ":DivisionHTTPTransport" as DivisionHTTPTransport
+participant ":DivisionEndpoint" as DivisionEndpoint
+participant ":DivisionService" as DivisionService
+participant ":DivisionCommand" as DivisionCommand
+participant ":DivisionQuery" as DivisionQuery
+
+Admin->AddDivisionPage: Open "Add Division" Page
+AddDivisionPage->AddDivisionFormContainer: Render "Add Division Form" Container
+AddDivisionFormContainer->DivisionForm: Render "Division Form"
+DivisionForm-->AddDivisionFormContainer: rendered
+AddDivisionFormContainer-->AddDivisionPage: rendered
+AddDivisionPage-->Admin: rendered
+
+Admin->AddDivisionPage: Fill Form
+AddDivisionPage->AddDivisionFormContainer: Fill Form
+AddDivisionFormContainer->DivisionForm: Fill Form
+DivisionForm-->AddDivisionFormContainer: form data
+AddDivisionFormContainer-->AddDivisionPage: form data
+AddDivisionPage-->Admin: form data
+
+Admin->AddDivisionPage: Click "Create Division" Button
+AddDivisionPage->AddDivisionFormContainer: handleDivisionFormSubmitted()
+AddDivisionFormContainer->FEDivisionService: createDivision(payload)
+FEDivisionService->Router: route("POST", "v2/division", formData)
+
+Router->DivisionHTTPTransport: CreateDivision(DivisionService, []ServerOption)
+DivisionHTTPTransport->DivisionEndpoint: Create(DivisionService)
+DivisionEndpoint->DivisionService: CreateDivision(context, payload)
+DivisionService->DivisionService: Validate()
+
+alt "Data not valid"
+    DivisionService-->DivisionEndpoint: UnprocessableEntity
+    DivisionEndpoint-->DivisionHTTPTransport: UnprocessableEntity
+    DivisionHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEDivisionService: UnprocessableEntity
+    FEDivisionService-->AddDivisionFormContainer: UnprocessableEntity
+    AddDivisionFormContainer-->AddDivisionPage: UnprocessableEntity
+    AddDivisionPage-->Admin: UnprocessableEntity
+else
+    DivisionService->DivisionService: division := DivisionModel()
+    DivisionService->DivisionCommand: Create(context, division)
+    DivisionCommand-->DivisionService: uuid
+    DivisionService->DivisionQuery: Find(context, uuid)
+    DivisionQuery-->DivisionService: division
+    DivisionService-->DivisionEndpoint: division
+    DivisionEndpoint->DivisionEndpoint: response := Response(Division, nil)
+    DivisionEndpoint-->DivisionHTTPTransport: response
+    DivisionHTTPTransport-->Router: response
+    Router-->FEDivisionService: response
+    FEDivisionService-->AddDivisionFormContainer: response
+    AddDivisionFormContainer-->AddDivisionPage: response
+    AddDivisionPage-->Admin: response
+end
+
+@enduml

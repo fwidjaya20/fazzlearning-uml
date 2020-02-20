@@ -1,0 +1,57 @@
+@startuml ConfirmAttendance
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":TicketDetailPage" as TicketDetailPage
+participant ":TicketDetailContainer" as TicketDetailContainer
+participant ":AttendanceService (Frontend)" as FEAttendanceService
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceService
+participant ":RequesterService" as RequesterService
+participant ":AttendanceCommand" as AttendanceCommand
+participant ":AttendanceQuery" as AttendanceQuery
+
+Member->TicketDetailPage: Click "Yes" Button
+TicketDetailPage->TicketDetailContainer: handleConfirmation(input)
+TicketDetailContainer->FEAttendanceService: confirmAttendance(classId, payload)
+FEAttendanceService->Router: route("PATCH", "v2/class/{class_id}/attendance/confirmation")
+Router->AttendanceHTTPTransport: Confirmation(AttendanceService, []ServerOption)
+AttendanceHTTPTransport->AttendanceEndpoint: Confirmation(AttendanceService)
+AttendanceEndpoint->AttendanceService: Confirmation(context, payload)
+AttendanceService->AttendanceService: Validate()
+
+alt "Data Not Valid"
+    AttendanceService-->AttendanceEndpoint: UnprocessableEntity
+    AttendanceEndpoint-->AttendanceHTTPTransport: UnprocessableEntity
+    AttendanceHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEAttendanceService: UnprocessableEntity
+    FEAttendanceService-->TicketDetailContainer: UnprocessableEntity
+    TicketDetailContainer-->TicketDetailPage: UnprocessableEntity
+    TicketDetailPage-->Member: UnprocessableEntity
+else
+    AttendanceService->AttendanceQuery: GetPureModel(context, []SliceCondition)
+    AttendanceQuery-->AttendanceService: ticket
+
+    alt "Ticket Status is Accepted"
+        AttendanceService->AttendanceService: Register(context, []payload)
+    else 
+        AttendanceService->RequesterService: UpdateRequestStatus(context, ticket)
+        RequesterService-->AttendanceService: is updated
+    end 
+
+    AttendanceService-->AttendanceEndpoint: is updated
+    AttendanceEndpoint-->AttendanceEndpoint: response := Response(is updated, nil)
+    AttendanceEndpoint-->AttendanceHTTPTransport: response
+    AttendanceHTTPTransport-->Router: response
+    Router-->FEAttendanceService: response
+    FEAttendanceService-->TicketDetailContainer: response
+    TicketDetailContainer-->TicketDetailPage: response
+    TicketDetailPage-->Member: response
+end
+
+@enduml

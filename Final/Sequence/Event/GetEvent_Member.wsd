@@ -1,0 +1,55 @@
+@startuml GetEvent_Member
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":HomePage" as HomePage
+participant ":ListEventContainer" as ListEventContainer
+participant ":EventGroup" as EventGroup
+participant ":EventService (Frontend)" as FEEventService
+participant ":Router" as Router
+participant ":EventHTTPTransport" as EventHTTPTransport
+participant ":EventEndpoint" as EventEndpoint
+participant ":EventService" as EventService
+participant ":EventCommand" as EventCommand
+participant ":EventQuery" as EventQuery
+
+Member->HomePage: Open "Home" Page
+HomePage->ListEventContainer: Render "Event Group" Container
+ListEventContainer->EventGroup: Render "Event Card"
+EventGroup-->ListEventContainer: rendered
+ListEventContainer->ListEventContainer: fetchEventGroup()
+ListEventContainer->FEEventService: fetchEvent()
+FEEventService->Router: route("GET", "v2/events")
+Router->EventHTTPTransport: FetchPaginatedEvents(EventService, []ServerOption)
+EventHTTPTransport->EventEndpoint: All(EventService, withPaginated)
+EventEndpoint->EventService: All(context, params)
+
+alt "With Paginate"
+    EventService->EventQuery: All(context, []SliceConditions, PaginateModel)
+else
+    EventService->EventQuery: All(context, []SliceConditions, nil)
+end
+EventQuery-->EventService: events
+EventService-->EventEndpoint: events
+
+opt "With Paginate"
+    EventEndpoint->EventService: GetPagination(context, params, PaginateModel)
+    EventService->EventQuery: Count(context, []SliceConditions)
+    EventQuery-->EventService: total
+    EventService-->EventEndpoint: total
+end
+
+EventEndpoint->EventEndpoint: response := Response(events, paginateMetadata)
+EventEndpoint-->EventHTTPTransport: response
+EventHTTPTransport-->Router: response
+Router-->FEEventService: response
+FEEventService-->ListEventContainer: response
+ListEventContainer->EventGroup: Render "Event Table"
+EventGroup-->ListEventContainer: rendered
+ListEventContainer-->HomePage: rendered
+HomePage-->Member: rendered
+
+@enduml

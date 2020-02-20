@@ -1,0 +1,19 @@
+@startuml MAILER_SubscribeCommitRequest
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Caller" as Caller
+participant ":MailerNATSTransport" as MailerNATSTransport
+participant ":MailerService" as MailerService
+
+Caller->MailerNATSTransport: requestUpdatedSubscriber(conn, logger, mailerService)
+
+alt "Data Not Valid"
+    MailerNATSTransport-->Caller: panic
+else
+    MailerNATSTransport->MailerService: AnnounceRequest(context, approvedRequest, lowPriorRequest, rejectedRequest)
+end
+
+@enduml

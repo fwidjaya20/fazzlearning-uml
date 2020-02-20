@@ -1,0 +1,17 @@
+@startuml CreateUserETL
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":UserETLService" as UserETLService
+participant ":UserETLCommand" as UserETLCommand
+
+Caller->UserETLService: ReplicaPersistance(context, payload)
+UserETLService->UserETLCommand: Create(context, user)
+UserETLCommand-->UserETLService: Is Created
+UserETLService-->Caller: Is Created
+
+@enduml

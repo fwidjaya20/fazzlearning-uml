@@ -1,0 +1,54 @@
+@startuml GetRoom
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":RoomPage" as RoomPage
+participant ":RoomTableContainer" as RoomTableContainer
+participant ":RoomTable" as RoomTable
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomQuery" as RoomQuery
+
+Admin->RoomPage: Open "Manage Room" Page
+RoomPage->RoomTableContainer: Render "Room Table" Container
+RoomTableContainer->RoomTable: Render "Room Table"
+RoomTable-->RoomTableContainer: rendered
+RoomTableContainer->RoomTableContainer: fetchRooms()
+RoomTableContainer->FERoomService: fetchRooms(page)
+FERoomService->Router: route("GET", "v2/rooms")
+Router->RoomHTTPTransport: FetchPaginatedRooms(RoomService, []ServerOption)
+RoomHTTPTransport->RoomEndpoint: All(RoomService, withPaginated)
+RoomEndpoint->RoomService: All(context, params)
+
+alt "With Paginate"
+    RoomService->RoomQuery: All(context, []SliceConditions, PaginateModel)
+else
+    RoomService->RoomQuery: All(context, []SliceConditions, nil)
+end
+RoomQuery-->RoomService: rooms
+RoomService-->RoomEndpoint: rooms
+
+opt "With Paginate"
+    RoomEndpoint->RoomService: GetPagination(context, params)
+    RoomService->RoomQuery: Count(context, []SliceConditions)
+    RoomQuery-->RoomService: total
+    RoomService-->RoomEndpoint: total
+end
+
+RoomEndpoint->RoomEndpoint: response := Response(Rooms, paginateMetadata)
+RoomEndpoint-->RoomHTTPTransport: response
+RoomHTTPTransport-->Router: response
+Router-->FERoomService: response
+FERoomService-->RoomTableContainer: response
+RoomTableContainer->RoomTable: Render "Room Table"
+RoomTable-->RoomTableContainer: rendered
+RoomTableContainer-->RoomPage: rendered
+RoomPage-->Admin: rendered
+
+@enduml

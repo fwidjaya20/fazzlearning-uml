@@ -1,0 +1,34 @@
+@startuml GetCalendar
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DashboardPage" as Dashboard
+participant ":StatisticService (Frontend)" as FEStatisticService
+participant ":Router" as Router
+participant ":StatisticHTTPTransport" as StatisticHTTPTransport
+participant ":StatisticEndpoint" as StatisticEndpoint
+participant ":StatisticService" as StatisticService
+participant ":StatisticQuery" as StatisticQuery
+
+Admin->Dashboard: Open "Dashboard" Page
+Dashboard->Dashboard: fetchCalendar()
+Dashboard->FEStatisticService: fetchCalendar(date)
+FEStatisticService->Router: route("GET", "v2/statistic/calendar")
+Router->StatisticHTTPTransport: FetchCalendar(StatisticService, []ServerOption)
+StatisticHTTPTransport->StatisticEndpoint: GetCalendar(StatisticService)
+StatisticEndpoint->StatisticService: Calendar(context, date)
+StatisticService->StatisticQuery: FindCalendar(context, date)
+StatisticQuery-->StatisticService: calendar
+StatisticService-->StatisticEndpoint: calendar
+StatisticEndpoint->StatisticEndpoint: response := Response(calendar, nil)
+StatisticEndpoint-->StatisticHTTPTransport: response
+StatisticHTTPTransport-->Router: response
+Router-->FEStatisticService: response
+FEStatisticService-->Dashboard: response
+Dashboard->Dashboard: Render "Calendar"
+Dashboard-->Admin: rendered
+
+@enduml

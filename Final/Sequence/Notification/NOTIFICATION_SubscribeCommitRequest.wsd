@@ -1,0 +1,48 @@
+@startuml NOTIFICATION_SubscribeCommitRequest
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Caller" as Caller
+participant ":NotificationNATSTransport" as NotificationNATSTransport
+participant ":NotificationService" as NotificationService
+participant ":MessageService (Template Tag)" as MessageService
+
+Caller->NotificationNATSTransport: requestUpdatedSubscriber(conn, logger, notifService, messageService)
+
+alt "Data Not Valid"
+    NotificationNATSTransport-->Caller: panic
+else
+    loop "for each requester"
+        alt "status is Approved"
+            NotificationNATSTransport->MessageService: GetCompiledMessage(context, type, payload)
+            MessageService-->NotificationNATSTransport: compiled message
+        else "status is Low Priority"
+            NotificationNATSTransport->MessageService: GetCompiledMessage(context, type, payload)
+            MessageService-->NotificationNATSTransport: compiled message
+        else "status is Rejected"
+            NotificationNATSTransport->MessageService: GetCompiledMessage(context, type, payload)
+            MessageService-->NotificationNATSTransport: compiled message
+        end
+    end
+
+    opt "there is approved"
+        NotificationNATSTransport->NotificationService: Post(context, []payload)
+        NotificationService-->NotificationNATSTransport: subscribed
+    end
+
+    opt "there is lowPriorities"
+        NotificationNATSTransport->NotificationService: Post(context, []payload)
+        NotificationService-->NotificationNATSTransport: subscribed
+    end
+
+    opt "there is rejected"
+        NotificationNATSTransport->NotificationService: Post(context, []payload)
+        NotificationService-->NotificationNATSTransport: subscribed
+    end
+
+    NotificationNATSTransport-->Caller: subscribed
+end
+
+@enduml

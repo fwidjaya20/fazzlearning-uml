@@ -1,0 +1,25 @@
+@startuml MAILER_SubscribeEventCreated
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor "Caller" as Caller
+participant "MailerNATSTransport" as MailerNATSTransport
+participant "MailerService" as MailerService
+
+Caller->MailerNATSTransport: eventCreatedSubscriber(conn, logger, mailerService)
+
+alt "Data Not Valid"
+    MailerNATSTransport-->Caller: panic
+else
+    alt "Is Broadcast"
+        MailerNATSTransport->MailerService: AnnounceEventCreated(context, payload)
+        MailerService-->MailerNATSTransport: subscribed
+        MailerNATSTransport-->Caller: subscribed
+    else
+        MailerNATSTransport-->Caller: subscribed
+    end
+end
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml PublishRoomTransactionCreated
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":FazzlearningKitEvent" as FazzlearningKitEvent
+participant ":NatsStreaming" as NatsStreaming
+
+Caller->FazzlearningKitEvent: GetGlobalPublisher()
+FazzlearningKitEvent-->Caller: publisher
+Caller->FazzlearningKitEvent: Store(StoreDetail)
+FazzlearningKitEvent->NatsStreaming: Publish(Transaction.TransactionCreated, []byte)
+NatsStreaming-->FazzlearningKitEvent: published
+FazzlearningKitEvent-->Caller: published
+
+@enduml

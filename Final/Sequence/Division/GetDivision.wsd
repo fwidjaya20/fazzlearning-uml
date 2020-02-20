@@ -1,0 +1,54 @@
+@startuml GetDivision
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":DivisionPage" as DivisionPage
+participant ":DivisionTableContainer" as DivisionTableContainer
+participant ":DivisionTable" as DivisionTable
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Router" as Router
+participant ":DivisionHTTPTransport" as DivisionHTTPTransport
+participant ":DivisionEndpoint" as DivisionEndpoint
+participant ":DivisionService" as DivisionService
+participant ":DivisionQuery" as DivisionQuery
+
+Admin->DivisionPage: Open "Manage Division" Page
+DivisionPage->DivisionTableContainer: Render "Division Table" Container
+DivisionTableContainer->DivisionTable: Render "Division Table"
+DivisionTable-->DivisionTableContainer: rendered
+DivisionTableContainer->DivisionTableContainer: fetchDivision()
+DivisionTableContainer->FEDivisionService: fetchDivisions(page, limit, keyword)
+FEDivisionService->Router: route("GET", "v2/divisions")
+Router->DivisionHTTPTransport: FetchPaginatedDivisions(DivisionService, []ServerOption)
+DivisionHTTPTransport->DivisionEndpoint: All(DivisionService, withPaginated)
+DivisionEndpoint->DivisionService: All(context, params)
+
+alt "With Paginate"
+    DivisionService->DivisionQuery: All(context, []SliceConditions, PaginateModel)
+else
+    DivisionService->DivisionQuery: All(context, []SliceConditions, nil)
+end
+DivisionQuery-->DivisionService: divisions
+DivisionService-->DivisionEndpoint: divisions
+
+opt "With Paginate"
+    DivisionEndpoint->DivisionService: GetPagination(context, PaginateModel)
+    DivisionService->DivisionQuery: Count(context, []SliceConditions)
+    DivisionQuery-->DivisionService: total
+    DivisionService-->DivisionEndpoint: total
+end
+
+DivisionEndpoint->DivisionEndpoint: response := Response(divisions, paginateMetadata)
+DivisionEndpoint-->DivisionHTTPTransport: response
+DivisionHTTPTransport-->Router: response
+Router-->FEDivisionService: response
+FEDivisionService-->DivisionTableContainer: response
+DivisionTableContainer->DivisionTable: Render "Division Table"
+DivisionTable-->DivisionTableContainer: rendered
+DivisionTableContainer-->DivisionPage: rendered
+DivisionPage-->Admin: rendered
+
+@enduml

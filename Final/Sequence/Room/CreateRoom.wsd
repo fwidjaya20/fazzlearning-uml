@@ -1,0 +1,66 @@
+@startuml CreateRoom
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":AddRoomPage" as AddRoomPage
+participant ":AddRoomFormContainer" as AddRoomFormContainer
+participant ":RoomForm" as RoomForm
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomCommand" as RoomCommand
+participant ":RoomQuery" as RoomQuery
+
+Admin->AddRoomPage: Open "Add Room" Page
+AddRoomPage->AddRoomFormContainer: Render "Add Room Form" Container
+AddRoomFormContainer->RoomForm: Render "Room Form"
+RoomForm-->AddRoomFormContainer: rendered
+AddRoomFormContainer-->AddRoomPage: rendered
+AddRoomPage-->Admin: rendered
+
+Admin->AddRoomPage: Fill Form
+AddRoomPage->AddRoomFormContainer: Fill Form
+AddRoomFormContainer->RoomForm: Fill Form
+RoomForm-->AddRoomFormContainer: form data
+AddRoomFormContainer-->AddRoomPage: form data
+AddRoomPage-->Admin: form data
+
+Admin->AddRoomPage: Click "Create Room" Button
+AddRoomPage->AddRoomFormContainer: handleRoomFormSubmitted()
+AddRoomFormContainer->FERoomService: createRoom(payload)
+FERoomService->Router: route("POST", "v2/room", formData)
+Router->RoomHTTPTransport: CreateRoom(RoomService, []ServerOption)
+RoomHTTPTransport->RoomEndpoint: Create(RoomService)
+RoomEndpoint->RoomService: Create(context, payload)
+RoomService->RoomService: Validate()
+
+alt "Data not valid"
+    RoomService-->RoomEndpoint: UnprocessableEntity
+    RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
+    RoomHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoomService: UnprocessableEntity
+    FERoomService-->AddRoomFormContainer: UnprocessableEntity
+    AddRoomFormContainer-->AddRoomPage: UnprocessableEntity
+    AddRoomPage-->Admin: UnprocessableEntity
+else
+    RoomService->RoomService: room := RoomModel()
+    RoomService->RoomCommand: Create(context, room)
+    RoomCommand-->RoomService: uuid
+    RoomService->RoomQuery: Find(context, uuid)
+    RoomQuery-->RoomService: room
+    RoomService-->RoomEndpoint: room
+    RoomEndpoint->RoomEndpoint: response := Response(room, nil)
+    RoomEndpoint-->RoomHTTPTransport: response
+    RoomHTTPTransport-->Router: response
+    Router-->FERoomService: response
+    FERoomService-->AddRoomFormContainer: response
+    AddRoomFormContainer-->AddRoomPage: response
+    AddRoomPage-->Admin: response
+end
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml SubscribeUserCreated
+
+skinparam ConditionStyle hline
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":UserETLNATSTransport" as UserETLNATSTransport
+participant ":UserETLService" as UserETLService
+
+Caller->UserETLNATSTransport: userCreatedSubscriber(conn, logger, service)
+UserETLNATSTransport->UserETLService: ReplicaPersistance(context, payload)
+UserETLService-->UserETLNATSTransport: subscribed
+UserETLNATSTransport-->Caller: subscribed
+
+@enduml

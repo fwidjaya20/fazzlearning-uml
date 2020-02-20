@@ -1,0 +1,65 @@
+@startuml DeleteRoom
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":RoomPage" as RoomPage
+participant ":RoomTableContainer" as RoomTableContainer
+participant ":RoomTable" as RoomTable
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomCommand" as RoomCommand
+participant ":RoomQuery" as RoomQuery
+
+Admin->RoomPage: Open "Manage Room" Page
+RoomPage->RoomTableContainer: Render "Room Table" Container
+RoomTableContainer->RoomTable: Render "Room Table"
+RoomTable-->RoomTableContainer: rendered
+RoomTableContainer-->RoomPage: rendered
+RoomPage-->Admin: rendered
+
+Admin->RoomPage: Mark "Room"
+RoomPage->RoomTableContainer: Mark "Room"
+RoomTableContainer->RoomTable: Mark "Room"
+RoomTable-->RoomTableContainer: marked
+RoomTableContainer-->RoomPage: marked
+RoomPage-->Admin: marked
+
+Admin->RoomPage: Click "Delete Selected" Button
+RoomPage->RoomTableContainer: showDeleteConfirmation(item)
+
+alt "Cancel Delete"
+    RoomTableContainer-->RoomPage: Close Dialog
+    RoomPage-->Admin: Close Dialog
+else
+    RoomTableContainer->RoomTableContainer: handleDeleteConfirmation(item)
+    RoomTableContainer->FERoomService: deleteRoom(id)
+    FERoomService->Router: route("DELETE", "v2/rooms", formData)
+    Router->RoomHTTPTransport: DeleteRoom(RoomService, []ServerOption)
+    RoomHTTPTransport->RoomEndpoint: Delete(RoomService)
+    RoomEndpoint->RoomService: DeleteMany(context, payload)
+
+    loop "for each id"
+        RoomService->RoomQuery: Find(context, []SliceCondition)
+        RoomQuery-->RoomService: room
+
+        RoomService->RoomCommand: Delete(context, room)
+        RoomCommand-->RoomService: isDeleted
+    end
+
+    RoomService-->RoomEndpoint: isDeleted
+    RoomEndpoint->RoomEndpoint: response := Response(isDeleted, nil)
+    RoomEndpoint-->RoomHTTPTransport: response
+    RoomHTTPTransport-->Router: response
+    Router-->FERoomService: response
+    FERoomService-->RoomTableContainer: response
+    RoomTableContainer-->RoomPage: response
+    RoomPage-->Admin: response
+end
+
+@enduml

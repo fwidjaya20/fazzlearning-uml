@@ -1,0 +1,66 @@
+@startuml CreateShift
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":AddShiftPage" as AddShiftPage
+participant ":AddShiftFormContainer" as AddShiftFormContainer
+participant ":ShiftForm" as ShiftForm
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ShiftHTTPTransport" as ShiftHTTPTransport
+participant ":ShiftEndpoint" as ShiftEndpoint
+participant ":ShiftService" as ShiftService
+participant ":ShiftCommand" as ShiftCommand
+participant ":ShiftQuery" as ShiftQuery
+
+Admin->AddShiftPage: Open "Add Shift" Page
+AddShiftPage->AddShiftFormContainer: Render "Add Shift Form" Container
+AddShiftFormContainer->ShiftForm: Render "Shift Form"
+ShiftForm-->AddShiftFormContainer: rendered
+AddShiftFormContainer-->AddShiftPage: rendered
+AddShiftPage-->Admin: rendered
+
+Admin->AddShiftPage: Fill Form
+AddShiftPage->AddShiftFormContainer: Fill Form
+AddShiftFormContainer->ShiftForm: Fill Form
+ShiftForm-->AddShiftFormContainer: form data
+AddShiftFormContainer-->AddShiftPage: form data
+AddShiftPage-->Admin: form data
+
+Admin->AddShiftPage: Click "Create Shift" Button
+AddShiftPage->AddShiftFormContainer: handleShiftFormSubmitted()
+AddShiftFormContainer->FEShiftService: createShift(payload)
+FEShiftService->Router: route("POST", "v2/shift", formData)
+Router->ShiftHTTPTransport: CreateShift(ShiftService, []ServerOption)
+ShiftHTTPTransport->ShiftEndpoint: Create(ShiftService)
+ShiftEndpoint->ShiftService: Create(context, payload)
+ShiftService->ShiftService: Validate()
+
+alt "Data not valid"
+    ShiftService-->ShiftEndpoint: UnprocessableEntity
+    ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+    ShiftHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEShiftService: UnprocessableEntity
+    FEShiftService-->AddShiftFormContainer: UnprocessableEntity
+    AddShiftFormContainer-->AddShiftPage: UnprocessableEntity
+    AddShiftPage-->Admin: UnprocessableEntity
+else
+    ShiftService->ShiftService: shift := ShiftModel()
+    ShiftService->ShiftCommand: Create(context, shift)
+    ShiftCommand-->ShiftService: uuid
+    ShiftService->ShiftQuery: Find(context, []SliceCondition)
+    ShiftQuery-->ShiftService: shift
+    ShiftService-->ShiftEndpoint: shift
+    ShiftEndpoint->ShiftEndpoint: response := Response(shift, nil)
+    ShiftEndpoint-->ShiftHTTPTransport: response
+    ShiftHTTPTransport-->Router: response
+    Router-->FEShiftService: response
+    FEShiftService-->AddShiftFormContainer: response
+    AddShiftFormContainer-->AddShiftPage: response
+    AddShiftPage-->Admin: response
+end
+
+@enduml

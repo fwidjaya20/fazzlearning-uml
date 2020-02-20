@@ -1,0 +1,36 @@
+@startuml GetRequested
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":TicketListPage" as TicketListPage
+participant ":TicketListContainer" as TicketListContainer
+participant ":TicketService (Frontend)" as FETicketService
+participant ":Router" as Router
+participant ":RequesterHTTPTransport" as RequestHTTPTransport
+participant ":RequesterEndpoint" as RequestEndpoint
+participant ":RequesterService" as RequestService
+participant ":RequesterQuery" as RequestQuery
+
+Member->TicketListPage: Open "Ticket List" Page
+TicketListPage->TicketListContainer: fetchTickets()
+TicketListContainer->FETicketService: fetchTicket()
+FETicketService->Router: route("GET", "v2/tickets")
+Router->RequestHTTPTransport: GetTickets(RequesterService, []ServerOption)
+RequestHTTPTransport->RequestEndpoint: GetTickets(RequesterService)
+RequestEndpoint->RequestService: GetTicket(context, payload)
+RequestService->RequestQuery: FindTicket(context, []SliceCondition)
+RequestQuery-->RequestService: tickets
+RequestService-->RequestEndpoint: tickets
+RequestEndpoint->RequestEndpoint: response := Response(tickets, nil)
+RequestEndpoint-->RequestHTTPTransport: response
+RequestHTTPTransport-->Router: response
+Router-->FETicketService: response
+FETicketService-->TicketListContainer: response
+TicketListContainer->TicketListContainer: re render
+TicketListContainer-->TicketListPage: rendered
+TicketListPage-->Member: rendered
+
+@enduml

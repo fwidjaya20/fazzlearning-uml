@@ -1,0 +1,41 @@
+@startuml ReadNotification
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Member
+participant ":NotificationDetailPage" as NotificationDetailPage
+participant ":NotificationDetailContainer" as NotificationContainer
+participant ":NotificationService (Frontend)" as FENotificationService
+participant ":Router" as Router
+participant ":NotificationHTTPTransport" as NotificationHTTPTransport
+participant ":NotificationEndpoint" as NotificationEndpoint
+participant ":NotificationService" as NotificationService
+participant ":NotificationQuery" as NotificationQuery
+participant ":NotificationCommand" as NotificationCommand
+
+Member->NotificationDetailPage: Open "Notification Detail" Pages
+NotificationDetailPage->NotificationContainer: markNotificationAsRead()
+NotificationContainer->FENotificationService: readNotif(notifId)
+FENotificationService->Router: router("PATCH", "v2/notification/{notif_id}")
+Router->NotificationHTTPTransport: Read(NotificationService, []ServerOption)
+NotificationHTTPTransport->NotificationEndpoint: Read(NotificationService)
+NotificationEndpoint->NotificationService: Read(context, payload)
+
+NotificationService->NotificationQuery: Find(context, []SliceCondition)
+NotificationQuery-->NotificationService: notification
+
+NotificationService->NotificationCommand: Update(context, notif)
+NotificationCommand-->NotificationService: is updated
+
+NotificationService-->NotificationEndpoint: is updated
+NotificationEndpoint->NotificationEndpoint: response := Response(isUpdated, nil)
+NotificationEndpoint-->NotificationHTTPTransport: response
+NotificationHTTPTransport-->Router: response
+Router-->FENotificationService: response
+FENotificationService-->NotificationContainer: response
+NotificationContainer-->NotificationDetailPage: response
+NotificationDetailPage-->Member: response
+
+@enduml

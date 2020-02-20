@@ -1,0 +1,69 @@
+@startuml DeleteUser
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Admin
+participant ":UserPage" as UserPage
+participant ":UserTableContainer" as UserTableContainer
+participant ":UserTable" as UserTable
+participant ":UserService (Frontend)" as FEUserService
+participant ":Router" as Router
+participant ":UserHTTPTransport" as UserHTTPTransport
+participant ":UserEndpoint" as UserEndpoint
+participant ":UserService" as UserService
+participant ":UserCommand" as UserCommand
+participant ":UserQuery" as UserQuery
+participant ":NatsStreaming" as NatsStreaming
+
+Admin->UserPage: Open "Manage User" Page
+UserPage->UserTableContainer: Render "User Table" Container
+UserTableContainer->UserTable: Render "User Table"
+UserTable-->UserTableContainer: rendered
+UserTableContainer-->UserPage: rendered
+UserPage-->Admin: rendered
+
+Admin->UserPage: Mark "User"
+UserPage->UserTableContainer: Mark "User"
+UserTableContainer->UserTable: Mark "User"
+UserTable-->UserTableContainer: marked
+UserTableContainer-->UserPage: marked
+UserPage-->Admin: marked
+
+Admin->UserPage: Click "Delete Selected" Button
+UserPage->UserTableContainer: showDeleteConfirmation(item)
+
+alt "Cancel Delete"
+    UserTableContainer-->UserPage: Close Dialog
+    UserPage-->Admin: Close Dialog
+else
+    UserTableContainer->UserTableContainer: handleDeleteConfirmation(item)
+    UserTableContainer->FEUserService: deleteUser(payload)
+    FEUserService->Router: route("DELETE", "v2/users", formData)
+    Router->UserHTTPTransport: DeleteUsers(UserService, []ServerOption)
+    UserHTTPTransport->UserEndpoint: DeleteMany(UserService)
+    UserEndpoint->UserService: DeleteUsers(context, []email)
+
+    loop "for each uuid"
+        UserService->UserQuery: GetPureModel(context, []SliceConditions])
+        UserQuery-->UserService: user
+
+        UserService->UserCommand: Delete(context, user)
+        UserCommand-->UserService: isDeleted
+    end
+
+    UserService->NatsService: publishUserDeleted(context, data)
+    NatsService-->UserService: published
+
+    UserService-->UserEndpoint: isDeleted
+    UserEndpoint->UserEndpoint: response := Response(isDeleted, nil)
+    UserEndpoint-->UserHTTPTransport: response
+    UserHTTPTransport-->Router: response
+    Router-->FEUserService: response
+    FEUserService-->UserTableContainer: response
+    UserTableContainer-->UserPage: response
+    UserPage-->Admin: response
+end
+
+@enduml

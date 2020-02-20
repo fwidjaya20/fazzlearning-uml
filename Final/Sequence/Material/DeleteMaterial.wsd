@@ -1,0 +1,26 @@
+@startuml DeleteMaterial
+
+skinparam Monochrome true
+skinparam Shadowing false
+hide footbox
+
+actor Caller
+participant ":MaterialService" as MaterialService
+participant ":MaterialCommand" as MaterialCommand
+participant ":MaterialQuery" as MaterialQuery
+
+Caller->MaterialService: DeleteByClass(context, classId)
+MaterialService->MaterialQuery: Find(context, []SliceConditions)
+MaterialQuery-->MaterialService: materials
+
+alt "len(materials) < 1"
+    MaterialService-->Caller: false
+else
+    loop "for each materials"
+        MaterialService->MaterialCommand: Delete(context, material)
+        MaterialCommand-->MaterialService: isDeleted
+    end
+    MaterialService-->Caller: isDeleted
+end
+
+@enduml
