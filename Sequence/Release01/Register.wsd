@@ -5,18 +5,19 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Fulfilment Page" as FulfilmentPage
-participant "Container: Division Fulfilment Container" as DivisionFulfilmentFormContainer
-participant "Container: Identity Fulfilment Container" as IdentityFulfilmentFormContainer
-participant "Service: Auth Service" as FEAuthService
-participant "Service: Division Service" as FEDivisionService
-participant "Route" as Route
-participant "Session: Transport" as SessionTransport
-participant "Session: Endpoint" as SessionEndpoint
-participant "Session: Service" as SessionService
-participant "Session: Stategy" as SessionStrategy
-participant "Session: Command" as SessionCommand
-participant "User: Query" as UserQuery
+participant ":FulfilmentPage" as FulfilmentPage
+participant ":DivisionFulfilmentContainer" as DivisionFulfilmentFormContainer
+participant ":IdentityFulfilmentContainer" as IdentityFulfilmentFormContainer
+participant ":AuthService (Frontend)" as FEAuthService
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Route" as Route
+participant ":SessionTransport" as SessionTransport
+participant ":SessionEndpoint" as SessionEndpoint
+participant ":SessionService" as SessionService
+participant ":SessionStategy" as SessionStrategy
+participant ":SessionCommand" as SessionCommand
+participant ":UserQuery" as UserQuery
+participant ":UserCommand" as UserCommand
 
 Member->FulfilmentPage: Open "Fulfilment" Page
 FulfilmentPage->FEDivisionService: fetchDivision()

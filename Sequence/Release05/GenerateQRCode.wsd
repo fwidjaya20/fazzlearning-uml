@@ -5,15 +5,15 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Detail Class" as DetailClassPage
-participant "Container: Detail Class" as DetailClassContainer
-participant "Service: Class Service" as FEClassService
-participant "Router" as Router
-participant "Class: HTTP Transport" as ClassHTTPTransport
-participant "Class: Endpoint" as ClassEndpoint
-participant "Class: Service" as ClassService
-participant "Class: Query" as ClassQuery
-participant "Library: QRCode" as QRCode
+participant ":DetailClassPage" as DetailClassPage
+participant ":DetailClassContainer" as DetailClassContainer
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassQuery" as ClassQuery
+participant ":LibraryQRCode" as QRCode
 
 Admin->DetailClassPage: Open "Detail Class" Page
 DetailClassPage->DetailClassContainer: generateQRCode()

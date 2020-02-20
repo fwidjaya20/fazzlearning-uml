@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "Poster: Service" as PosterService
-participant "Poster: Command" as PosterCommand
-participant "Poster: Query" as PosterQuery
+participant ":PosterService" as PosterService
+participant ":PosterCommand" as PosterCommand
+participant ":PosterQuery" as PosterQuery
 
 Caller->PosterService: Create(context, payload)
 PosterService->PosterService: Validate()

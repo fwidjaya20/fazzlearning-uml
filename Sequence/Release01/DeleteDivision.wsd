@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Division" as DivisionPage
-participant "Container: Division Table" as DivisionTableContainer
-participant "Component: Division Table" as DivisionTable
-participant "Service: Division Service" as FEDivisionService
-participant "Router" as Router
-participant "Division: HTTP Transport" as DivisionHTTPTransport
-participant "Division: Endpoint" as DivisionEndpoint
-participant "Division: Service" as DivisionService
-participant "Division: Command" as DivisionCommand
-participant "Division: Query" as DivisionQuery
+participant ":DivisionPage" as DivisionPage
+participant ":DivisionTableContainer" as DivisionTableContainer
+participant ":DivisionTable" as DivisionTable
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Router" as Router
+participant ":DivisionHTTPTransport" as DivisionHTTPTransport
+participant ":DivisionEndpoint" as DivisionEndpoint
+participant ":DivisionService" as DivisionService
+participant ":DivisionCommand" as DivisionCommand
+participant ":DivisionQuery" as DivisionQuery
 
 
 Admin->DivisionPage: Open "Manage Division" Page

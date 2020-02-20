@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Ticket Detail" as TicketDetailPage
-participant "Container: Ticket Detail" as TicketDetailContainer
-participant "Service: Attendance Service" as FEAttendanceService
-participant "Router" as Router
-participant "Attendance: HTTP Transport" as AttendanceHTTPTransport
-participant "Attendance: Endpoint" as AttendanceEndpoint
-participant "Attendance: Service" as AttendanceService
-participant "Requester: Service" as RequesterService
-participant "Attendance: Command" as AttendanceCommand
-participant "Attendance: Query" as AttendanceQuery
+participant ":TicketDetailPage" as TicketDetailPage
+participant ":TicketDetailContainer" as TicketDetailContainer
+participant ":AttendanceService (Frontend)" as FEAttendanceService
+participant ":Router" as Router
+participant ":AttendanceHTTPTransport" as AttendanceHTTPTransport
+participant ":AttendanceEndpoint" as AttendanceEndpoint
+participant ":AttendanceService" as AttendanceService
+participant ":RequesterService" as RequesterService
+participant ":AttendanceCommand" as AttendanceCommand
+participant ":AttendanceQuery" as AttendanceQuery
 
 Member->TicketDetailPage: Click "Yes" Button
 TicketDetailPage->TicketDetailContainer: handleConfirmation(input)

@@ -5,17 +5,15 @@ skinparam Shadowing false
 hide footbox
 
 actor Employee
-participant "Page: Profile" as ProfilePage
-participant "Container: Profile Container" as ProfileContainer
-participant "Service: Auth Service" as FEAuthService
-participant "Router" as Router
-participant "Session: HTTP Transport" as SessionHTTPTransport
-participant "Session: Endpoint" as SessionEndpoint
-participant "Session: Service" as SessionService
-participant "User: Service" as UserService
-participant "User: Query" as UserQuery
-participant "Session: Command" as SessionCommand
-participant "Session: Query" as SessionQuery
+participant ":ProfilePage" as ProfilePage
+participant ":ProfileContainer" as ProfileContainer
+participant ":AuthService (Frontend)" as FEAuthService
+participant ":Router" as Router
+participant ":SessionHTTP Transport" as SessionHTTPTransport
+participant ":SessionEndpoint" as SessionEndpoint
+participant ":SessionService" as SessionService
+participant ":SessionCommand" as SessionCommand
+participant ":SessionQuery" as SessionQuery
 
 Employee->ProfilePage: Open "Profile" Page
 ProfilePage-->Employee: response

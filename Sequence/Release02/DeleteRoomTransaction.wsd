@@ -6,10 +6,10 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "RoomTransaction: Service" as RoomTransactionService
-participant "RoomTransaction: Command" as RoomTransactionCommand
-participant "RoomTransaction: Query" as RoomTransactionQuery
-participant "Nats Streaming" as NatsStreaming
+participant ":RoomTransactionService" as RoomTransactionService
+participant ":RoomTransactionCommand" as RoomTransactionCommand
+participant ":RoomTransactionQuery" as RoomTransactionQuery
+participant ":NatsStreaming" as NatsStreaming
 
 Caller->RoomTransactionService: Delete(context, payload)
 RoomTransactionService->RoomTransactionService: Validate()

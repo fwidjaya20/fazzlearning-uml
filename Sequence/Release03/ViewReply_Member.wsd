@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor "Member" as Member
-participant "Page: Event" as EventPage
-participant "Container: Event Comments" as EventCommentsContainer
-participant "Component: Comment" as CommentComponent
-participant "Component: CommentForm" as CommentFormComponent
-participant "Service: Conversation Service" as FEConversationService
-participant "Router" as Router
-participant "Conversation: HTTP Transport" as ConversationHTTPTransport
-participant "Conversation: Endpoint" as ConversationEndpoint
-participant "Conversation: Service" as ConversationService
-participant "Conversation: Query" as ConversationQuery
+participant ":EventPage" as EventPage
+participant ":EventCommentsContainer" as EventCommentsContainer
+participant ":CommentComponent" as CommentComponent
+participant ":CommentForm" as CommentFormComponent
+participant ":ConversationService" as FEConversationService
+participant ":Router" as Router
+participant ":ConversationHTTPTransport" as ConversationHTTPTransport
+participant ":ConversationEndpoint" as ConversationEndpoint
+participant ":ConversationService" as ConversationService
+participant ":ConversationQuery" as ConversationQuery
 
 Member->EventPage: Open "Event" Page
 EventPage->EventCommentsContainer: Render "Event Comments" Container

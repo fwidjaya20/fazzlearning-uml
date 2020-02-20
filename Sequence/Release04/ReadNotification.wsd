@@ -5,15 +5,15 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Notification Detail" as NotificationDetailPage
-participant "Container: Notification Detail" as NotificationContainer
-participant "Service: Notification Service" as FENotificationService
-participant "Router" as Router
-participant "Notification: HTTP Transport" as NotificationHTTPTransport
-participant "Notification: Endpoint" as NotificationEndpoint
-participant "Notification: Service" as NotificationService
-participant "Notification: Query" as NotificationQuery
-participant "Notification: Command" as NotificationCommand
+participant ":NotificationDetailPage" as NotificationDetailPage
+participant ":NotificationDetailContainer" as NotificationContainer
+participant ":NotificationService (Frontend)" as FENotificationService
+participant ":Router" as Router
+participant ":NotificationHTTPTransport" as NotificationHTTPTransport
+participant ":NotificationEndpoint" as NotificationEndpoint
+participant ":NotificationService" as NotificationService
+participant ":NotificationQuery" as NotificationQuery
+participant ":NotificationCommand" as NotificationCommand
 
 Member->NotificationDetailPage: Open "Notification Detail" Pages
 NotificationDetailPage->NotificationContainer: markNotificationAsRead()

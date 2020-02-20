@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: User" as UserPage
-participant "Container: User Table" as UserTableContainer
-participant "Component: User Table" as UserTable
-participant "Service: User Table" as FEUserService
-participant "Router" as Router
-participant "User: HTTP Transport" as UserHTTPTransport
-participant "User: Endpoint" as UserEndpoint
-participant "User: Service" as UserService
-participant "User: Command" as UserCommand
-participant "User: Query" as UserQuery
+participant ":UserPage" as UserPage
+participant ":UserTableContainer" as UserTableContainer
+participant ":UserTable" as UserTable
+participant ":UserService (Frontend)" as FEUserService
+participant ":Router" as Router
+participant ":UserHTTPTransport" as UserHTTPTransport
+participant ":UserEndpoint" as UserEndpoint
+participant ":UserService" as UserService
+participant ":UserCommand" as UserCommand
+participant ":UserQuery" as UserQuery
 
 Admin->UserPage: Open "Manage User" Page
 UserPage->UserTableContainer: Render "User Table" Container

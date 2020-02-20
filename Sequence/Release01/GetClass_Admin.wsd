@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Detail Event" as DetailEventPage
-participant "Container: List Event Class" as ListEventClassContainer
-participant "Component: Class Table" as ClassTable
-participant "Service: Class Service" as FEClassService
-participant "Router" as Router
-participant "Class: HTTP Transport" as ClassHTTPTransport
-participant "Class: Endpoint" as ClassEndpoint
-participant "Class: Service" as ClassService
-participant "Class: Command" as ClassCommand
-participant "Class: Query" as ClassQuery
+participant ":DetailEventPage" as DetailEventPage
+participant ":ListEventClassContainer" as ListEventClassContainer
+participant ":ClassTable" as ClassTable
+participant ":ClassService (Frontend)" as FEClassService
+participant ":Router" as Router
+participant ":ClassHTTPTransport" as ClassHTTPTransport
+participant ":ClassEndpoint" as ClassEndpoint
+participant ":ClassService" as ClassService
+participant ":ClassCommand" as ClassCommand
+participant ":ClassQuery" as ClassQuery
 
 Admin->DetailEventPage: Open "Detail Event" Page
 DetailEventPage->ListEventClassContainer: fetchClasses()

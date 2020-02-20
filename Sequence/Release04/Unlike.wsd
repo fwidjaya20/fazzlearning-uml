@@ -5,13 +5,13 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Component: Class Card" as ClassCard
-participant "Service: Favourite Service" as FEFavouriteService
-participant "Router" as Router
-participant "Favourite: HTTP Transport" as FavouriteHTTPTransport
-participant "Favourite: Endpoint" as FavouriteEndpoint
-participant "Favourite: Service" as FavouriteService
-participant "Favourite: Command" as FavouriteCommand
+participant ":ClassCard" as ClassCard
+participant ":FavouriteService (Frontend)" as FEFavouriteService
+participant ":Router" as Router
+participant ":FavouriteHTTPTransport" as FavouriteHTTPTransport
+participant ":FavouriteEndpoint" as FavouriteEndpoint
+participant ":FavouriteService" as FavouriteService
+participant ":FavouriteCommand" as FavouriteCommand
 
 Member->ClassCard: Click "Filled Love" Button
 ClassCard->ClassCard: handleFavourite()

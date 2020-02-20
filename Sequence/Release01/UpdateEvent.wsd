@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Edit Event" as EditEventPage
-participant "Container: Edit Event Form" as EditEventFormContainer
-participant "Component: Event Form" as EventForm
-participant "Service: Event Service" as FEEventService
-participant "Router" as Router
-participant "Event: HTTP Transport" as EventHTTPTransport
-participant "Event: Endpoint" as EventEndpoint
-participant "Event: Service" as EventService
-participant "Event: Command" as EventCommand
-participant "Event: Query" as EventQuery
+participant ":EditEventPage" as EditEventPage
+participant ":EditEventFormContainer" as EditEventFormContainer
+participant ":EventForm" as EventForm
+participant ":EventService (Frontend)" as FEEventService
+participant ":Router" as Router
+participant ":EventHTTPTransport" as EventHTTPTransport
+participant ":EventEndpoint" as EventEndpoint
+participant ":EventService" as EventService
+participant ":EventCommand" as EventCommand
+participant ":EventQuery" as EventQuery
 
 Admin->EditEventPage: Open "Edit Event" Page
 EditEventPage->EditEventFormContainer: Render "Edit Event Form" Container

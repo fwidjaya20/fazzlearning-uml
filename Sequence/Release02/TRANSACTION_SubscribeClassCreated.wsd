@@ -6,8 +6,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "RoomTransaction: NATS Transport" as RoomTransactionNATSTransport
-participant "RoomTransaction: Service" as RoomTransactionService
+participant ":RoomTransactionNATSTransport" as RoomTransactionNATSTransport
+participant ":RoomTransactionService" as RoomTransactionService
 
 Caller->RoomTransactionNATSTransport: classCreatedSubscriber
 RoomTransactionNATSTransport->RoomTransactionNATSTransport: parse message

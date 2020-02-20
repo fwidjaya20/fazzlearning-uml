@@ -5,18 +5,18 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Add User" as CreateUserPage
-participant "Container: Add User Form" as AddUserFormContainer
-participant "Component: User Form" as UserFormComponent
-participant "Service: User Service" as FEUserService
-participant "Service: Role Service" as FERoleService
-participant "Service: Division Service" as FEDivisionService
-participant "Route" as Route
-participant "User: HTTP Transport" as UserHTTPTransport
-participant "User: Endpoint" as UserEndpoint
-participant "User: Service" as UserService
-participant "User: Query" as UserQuery
-participant "User: Command" as UserCommand
+participant ":AddUserPage" as CreateUserPage
+participant ":AddUserFormContainer" as AddUserFormContainer
+participant ":UserForm" as UserFormComponent
+participant ":UserService (Frontend)" as FEUserService
+participant ":RoleService" as FERoleService
+participant ":DivisionService" as FEDivisionService
+participant ":Route" as Route
+participant ":UserHTTPTransport" as UserHTTPTransport
+participant ":UserEndpoint" as UserEndpoint
+participant ":UserService" as UserService
+participant ":UserQuery" as UserQuery
+participant ":UserCommand" as UserCommand
 
 ' Load Data
 Admin->CreateUserPage: Open "Add User" Page

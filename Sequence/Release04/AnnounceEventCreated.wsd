@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor "Caller" as Caller
-participant "Mailer: Mailer Service" as MailerService
-participant "Template Tag CMS: Message Service" as MessageService
-participant "Payfazz Messanger" as PayfazzMessanger
+participant ":MailerService" as MailerService
+participant ":MessageService (Tempalte Tag)" as MessageService
+participant ":PayfazzMessanger" as PayfazzMessanger
 
 Caller->MailerService: AnnounceEventCreated(context, payload)
 MailerService->MessageService: GetCompiledMessage(context, status, payload)

@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "Storage: GRPC Transport" as StorageGRPCTransport
-participant "Storage: Service" as StorageService
-participant "AWS: S3" as AWSS3
+participant ":StorageGRPCTransport" as StorageGRPCTransport
+participant ":StorageService" as StorageService
+participant ":AWSS3" as AWSS3
 
 Caller->StorageGRPCTransport: Upload(ProtoBuffer)
 StorageGRPCTransport->StorageService: Upload(context, bytes)

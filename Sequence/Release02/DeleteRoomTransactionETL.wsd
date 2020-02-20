@@ -6,8 +6,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "RoomTransactionETL: Service" as RoomTransactionETLService
-participant "RoomTransactionETL: Command" as RoomTransactionETLCommand
+participant ":RoomTransactionETLService" as RoomTransactionETLService
+participant ":RoomTransactionETLCommand" as RoomTransactionETLCommand
 
 Caller->RoomTransactionETLService: DeletePersistance(conn, looger, service)
 RoomTransactionETLService->RoomTransactionETLCommand: DeleteBulk([]id)

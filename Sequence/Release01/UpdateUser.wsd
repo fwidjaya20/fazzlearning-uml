@@ -5,18 +5,18 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Edit User" as EditUserPage
-participant "Container: Edit User Form" as EditUserFormContainer
-participant "Component: User Form" as UserFormComponent
-participant "Service: User Service" as FEUserService
-participant "Service: Role Service" as FERoleService
-participant "Service: Division Service" as FEDivisionService
-participant "Router" as Router
-participant "User: HTTP Transport" as UserHTTPTransport
-participant "User: Endpoint" as UserEndpoint
-participant "User: Service" as UserService
-participant "User: Query" as UserQuery
-participant "User: Command" as UserCommand
+participant ":EditUserPage" as EditUserPage
+participant ":EditUserFormContainer" as EditUserFormContainer
+participant ":UserForm" as UserFormComponent
+participant ":UserService (Frontend)" as FEUserService
+participant ":RoleService (Frontend)" as FERoleService
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Router" as Router
+participant ":UserHTTPTransport" as UserHTTPTransport
+participant ":UserEndpoint" as UserEndpoint
+participant ":UserService" as UserService
+participant ":UserQuery" as UserQuery
+participant ":UserCommand" as UserCommand
 
 ' Load Data
 Admin->EditUserPage: Open "Edit User" Page

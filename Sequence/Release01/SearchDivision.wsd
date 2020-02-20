@@ -5,13 +5,13 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Component: User Form" as UserFormComponent
-participant "Service: Division Service" as FEDivisionService
-participant "Route" as Route
-participant "Division: HTTP Transport" as DivisionHTTPTransport
-participant "Division: Endpoint" as DivisionEndpoint
-participant "Division: Service" as DivisionService
-participant "Division: Query" as DivisionQuery
+participant ":UserForm" as UserFormComponent
+participant ":DivisionService (Frontend)" as FEDivisionService
+participant ":Route" as Route
+participant ":DivisionHTTPTransport" as DivisionHTTPTransport
+participant ":DivisionEndpoint" as DivisionEndpoint
+participant ":DivisionService" as DivisionService
+participant ":DivisionQuery" as DivisionQuery
 
 Admin->UserFormComponent: type search keyword
 UserFormComponent->UserFormComponent: fetchDivisions()

@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Edit Shift" as EditShiftPage
-participant "Container: Edit Shift Form" as EditShiftFormContainer
-participant "Component: Shift Form" as ShiftForm
-participant "Shift: Shift Service" as FEShiftService
-participant "Router" as Router
-participant "Shift: HTTP Transport" as ShiftHTTPTransport
-participant "Shift: Endpoint" as ShiftEndpoint
-participant "Shift: Service" as ShiftService
-participant "Shift: ShiftCommand" as ShiftCommand
-participant "Shift: ShiftQuery" as ShiftQuery
+participant ":EditShiftPage" as EditShiftPage
+participant ":EditShiftFormContainer" as EditShiftFormContainer
+participant ":ShiftForm" as ShiftForm
+participant ":ShiftService (Frontend)" as FEShiftService
+participant ":Router" as Router
+participant ":ShiftHTTPTransport" as ShiftHTTPTransport
+participant ":ShiftEndpoint" as ShiftEndpoint
+participant ":ShiftService" as ShiftService
+participant ":ShiftShiftCommand" as ShiftCommand
+participant ":ShiftShiftQuery" as ShiftQuery
 
 Admin->EditShiftPage: Open "Edit Shift" Page
 EditShiftPage->EditShiftFormContainer: Render "Edit Shift Form" Container

@@ -5,9 +5,9 @@ skinparam Shadowing false
 hide footbox
 
 actor "Caller" as Caller
-participant "Notification: Service" as NotificationService
-participant "User: GRPC Transport" as UserGRPCTransport
-participant "Notification: Command" as NotificationCommand
+participant ":NotificationService" as NotificationService
+participant ":UserGRPCTransport" as UserGRPCTransport
+participant ":NotificationCommand" as NotificationCommand
 
 Caller->NotificationService: Post(context, payload)
 

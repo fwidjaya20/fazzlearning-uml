@@ -5,13 +5,13 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Component: Class Form" as ClassForm
-participant "Service: Room Service" as FERoomService
-participant "Router" as Router
-participant "Room: HTTP Transport" as RoomHTTPTransport
-participant "Room: Endpoint" as RoomEndpoint
-participant "Room: Service" as RoomService
-participant "Room: Query" as RoomQuery
+participant ":ClassForm" as ClassForm
+participant ":RoomService (Frontend)" as FERoomService
+participant ":Router" as Router
+participant ":RoomHTTPTransport" as RoomHTTPTransport
+participant ":RoomEndpoint" as RoomEndpoint
+participant ":RoomService" as RoomService
+participant ":RoomQuery" as RoomQuery
 
 Admin->ClassForm: Choose Shift
 ClassForm->ClassForm: fetchAvailableRooms(date, []shift)

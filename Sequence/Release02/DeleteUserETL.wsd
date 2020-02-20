@@ -6,8 +6,8 @@ skinparam Shadowing false
 hide footbox
 
 actor Caller
-participant "UserETL: Service" as UserETLService
-participant "UserETL: Command" as UserETLCommand
+participant ":UserETLService" as UserETLService
+participant ":UserETLCommand" as UserETLCommand
 
 Caller->UserETLService: DeletePersistance(context, payload)
 UserETLService->UserETLCommand: Delete(context, []email)

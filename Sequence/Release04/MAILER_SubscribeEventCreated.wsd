@@ -5,8 +5,8 @@ skinparam Shadowing false
 hide footbox
 
 actor "Caller" as Caller
-participant "Mailer: NATS Transport" as MailerNATSTransport
-participant "Mailer: Mailer Service" as MailerService
+participant "MailerNATSTransport" as MailerNATSTransport
+participant "MailerService" as MailerService
 
 Caller->MailerNATSTransport: eventCreatedSubscriber(conn, logger, mailerService)
 

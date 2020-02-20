@@ -5,14 +5,14 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Favourite" as FavouritePage
-participant "Container: Favourite" as FavouriteContainer
-participant "Service: Favourite Service" as FEFavouriteService
-participant "Router" as Router
-participant "Favourite: HTTP Transport" as FavouriteHTTPTransport
-participant "Favourite: Endpoint" as FavouriteEndpoint
-participant "Favourite: Service" as FavouriteService
-participant "Favourite: Query" as FavouriteQuery
+participant ":FavouritePage" as FavouritePage
+participant ":FavouriteContainer" as FavouriteContainer
+participant ":FavouriteService (Frontend)" as FEFavouriteService
+participant ":Router" as Router
+participant ":FavouriteHTTPTransport" as FavouriteHTTPTransport
+participant ":FavouriteEndpoint" as FavouriteEndpoint
+participant ":FavouriteService" as FavouriteService
+participant ":FavouriteQuery" as FavouriteQuery
 
 Member->FavouritePage: Open "Favourite" Pages
 FavouritePage->FavouriteContainer: fetchFavouriteList()

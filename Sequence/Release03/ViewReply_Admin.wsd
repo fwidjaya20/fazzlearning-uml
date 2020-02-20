@@ -5,16 +5,16 @@ skinparam Shadowing false
 hide footbox
 
 actor "Admin" as Admin
-participant "Page: Detail Event" as DetailEventPage
-participant "Container: Detail Event" as DetailEventContainer
-participant "Container: Wall Post" as WallPostContainer
-participant "Component: Comment" as CommentComponent
-participant "Service: Conversation Service" as FEConversationService
-participant "Router" as Router
-participant "Conversation: HTTP Transport" as ConversationHTTPTransport
-participant "Conversation: Endpoint" as ConversationEndpoint
-participant "Conversation: Service" as ConversationService
-participant "Conversation: Query" as ConversationQuery
+participant ":DetailEventPage" as DetailEventPage
+participant ":DetailEventContainer" as DetailEventContainer
+participant ":WallPostContainer" as WallPostContainer
+participant ":CommentComponent" as CommentComponent
+participant ":ConversationService (Frontend)" as FEConversationService
+participant ":Router" as Router
+participant ":ConversationHTTPTransport" as ConversationHTTPTransport
+participant ":ConversationEndpoint" as ConversationEndpoint
+participant ":ConversationService" as ConversationService
+participant ":ConversationQuery" as ConversationQuery
 
 Admin->DetailEventPage: Open "Detail Event" Page
 DetailEventPage->DetailEventContainer: Render "Detail Event" Container

@@ -5,14 +5,14 @@ skinparam Shadowing false
 hide footbox
 
 actor Member
-participant "Page: Notification" as NotificationPage
-participant "Container: Notification" as NotificationContainer
-participant "Service: Notification Service" as FENotificationService
-participant "Router" as Router
-participant "Notification: HTTP Transport" as NotificationHTTPTransport
-participant "Notification: Endpoint" as NotificationEndpoint
-participant "Notification: Service" as NotificationService
-participant "Notification: Query" as NotificationQuery
+participant ":NotificationPage" as NotificationPage
+participant ":NotificationContainer" as NotificationContainer
+participant ":NotificationService (Frontend)" as FENotificationService
+participant ":Router" as Router
+participant ":NotificationHTTPTransport" as NotificationHTTPTransport
+participant ":NotificationEndpoint" as NotificationEndpoint
+participant ":NotificationService" as NotificationService
+participant ":NotificationQuery" as NotificationQuery
 
 Member->NotificationPage: Open "Notification" Pages
 NotificationPage->NotificationContainer: fetchNotification()

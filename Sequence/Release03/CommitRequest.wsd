@@ -5,15 +5,15 @@ skinparam Shadowing false
 hide footbox
 
 actor Admin
-participant "Page: Detail Class" as DetailClassPage
-participant "Container: List Requestor Container" as ListRequestorContainer
-participant "Service: Requestor Service" as FERequestorService
-participant "Router" as Router
-participant "Requester: HTTP Transport" as RequestHTTPTransport
-participant "Requester: Endpoint" as RequestEndpoint
-participant "Requester: Service" as RequestService
-participant "Requester: Query" as RequestQuery
-participant "Requester: Command" as RequestCommand
+participant ":DetailClassPage" as DetailClassPage
+participant ":ListRequestorContainer" as ListRequestorContainer
+participant ":RequestorService (Frontend)" as FERequestorService
+participant ":Router" as Router
+participant ":RequesterHTTPTransport" as RequestHTTPTransport
+participant ":RequesterEndpoint" as RequestEndpoint
+participant ":RequesterService" as RequestService
+participant ":RequesterQuery" as RequestQuery
+participant ":RequesterCommand" as RequestCommand
 
 Admin->DetailClassPage: Change "Requester" Status
 DetailClassPage->ListRequestorContainer: handleResponseChange(id, value)
