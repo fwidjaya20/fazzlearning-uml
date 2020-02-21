@@ -32,10 +32,7 @@ RolePage-->Admin: marked
 Admin->RolePage: Click "Delete Selected" Button
 RolePage->RoleTableContainer: showDeleteConfirmation(item)
 
-alt "Cancel Delete"
-    RoleTableContainer-->RolePage: Close Dialog
-    RolePage-->Admin: Close Dialog
-else
+alt "Approve Delete Role"
     RoleTableContainer->RoleTableContainer: handleDeleteConfirmation(item)
     RoleTableContainer->FERoleService: deleteRole([]payload)
     FERoleService->Router: route("DELETE", "v2/roles", formData)
@@ -58,6 +55,9 @@ else
     FERoleService-->RoleTableContainer: response
     RoleTableContainer-->RolePage: response
     RolePage-->Admin: response
+else
+    RoleTableContainer-->RolePage: Close Dialog
+    RolePage-->Admin: Close Dialog
 end
 
 @enduml

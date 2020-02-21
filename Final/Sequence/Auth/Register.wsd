@@ -39,14 +39,7 @@ SessionTransport->SessionEndpoint: Login(SessionService)
 SessionEndpoint->SessionService: Login(context, source, payload)
 SessionService->SessionService: Validate()
 
-alt "Data not valid"
-    SessionService-->SessionEndpoint: UnprocessableEntity
-    SessionEndpoint-->SessionTransport: UnprocessableEntity
-    SessionTransport-->Route: UnprocessableEntity
-    Route-->FEAuthService: UnprocessableEntity
-    FEAuthService-->FulfilmentPage: UnprocessableEntity
-    FulfilmentPage-->Member: UnprocessableEntity
-else
+alt "Data Valid"
     SessionService->SessionStrategy: Login(context, query, command, payload)
 
     alt "Source is WEB"
@@ -75,15 +68,7 @@ else
     SessionStrategy->UserQuery: Find(context, []SliceCondition)
     UserQuery-->SessionStrategy: users
 
-    alt "User not found"
-        SessionStrategy-->SessionService: BadRequest
-        SessionService-->SessionEndpoint: BadRequest
-        SessionEndpoint-->SessionTransport: BadRequest
-        SessionTransport-->Route: BadRequest
-        Route-->FEAuthService: BadRequest
-        FEAuthService-->FulfilmentPage: BadRequest
-        FulfilmentPage-->Member: BadRequest
-    else
+    alt "User Found"
         SessionStrategy-->SessionService: user
         SessionService->SessionService: generateToken(context, logger, user)
         SessionService->SessionService: session := SessionModel()
@@ -97,7 +82,23 @@ else
         Route-->FEAuthService: response
         FEAuthService-->FulfilmentPage: response
         FulfilmentPage-->Member: response
+    else
+        SessionStrategy-->SessionService: BadRequest
+        SessionService-->SessionEndpoint: BadRequest
+        SessionEndpoint-->SessionTransport: BadRequest
+        SessionTransport-->Route: BadRequest
+        Route-->FEAuthService: BadRequest
+        FEAuthService-->FulfilmentPage: BadRequest
+        FulfilmentPage-->Member: BadRequest
     end
+else
+    SessionService-->SessionEndpoint: UnprocessableEntity
+    SessionEndpoint-->SessionTransport: UnprocessableEntity
+    SessionTransport-->Route: UnprocessableEntity
+    Route-->FEAuthService: UnprocessableEntity
+    FEAuthService-->FulfilmentPage: UnprocessableEntity
+    FulfilmentPage-->Member: UnprocessableEntity
+    
 end
 
 @enduml

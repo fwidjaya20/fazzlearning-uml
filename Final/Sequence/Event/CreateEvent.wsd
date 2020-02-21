@@ -43,27 +43,11 @@ EventHTTPTransport->EventEndpoint: Create(EventService)
 EventEndpoint->EventService: Create(context, payload)
 EventService->EventService: Validate()
 
-alt "Data not valid"
-    EventService-->EventEndpoint: UnprocessableEntity
-    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
-    EventHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEEventService: UnprocessableEntity
-    FEEventService-->AddEventFormContainer: UnprocessableEntity
-    AddEventFormContainer-->AddEventPage: UnprocessableEntity
-    AddEventPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     EventService->EventQuery: GetPureModel(context, []SliceConditions)
     EventQuery-->EventService: events
 
-    alt "there's any event"
-        EventService-->EventEndpoint: BadRequest
-        EventEndpoint-->EventHTTPTransport: BadRequest
-        EventHTTPTransport-->Router: BadRequest
-        Router-->FEEventService: BadRequest
-        FEEventService-->AddEventFormContainer: BadRequest
-        AddEventFormContainer-->AddEventPage: BadRequest
-        AddEventPage-->Admin: BadRequest
-    else
+    alt "Event Found"
         EventService->EventService: event := EventModel()
         EventService->EventCommand: Create(context, event)
         EventCommand-->EventService: uuid
@@ -91,7 +75,23 @@ else
         FEEventService-->AddEventFormContainer: response
         AddEventFormContainer-->AddEventPage: response
         AddEventPage-->Admin: response
+    else
+        EventService-->EventEndpoint: BadRequest
+        EventEndpoint-->EventHTTPTransport: BadRequest
+        EventHTTPTransport-->Router: BadRequest
+        Router-->FEEventService: BadRequest
+        FEEventService-->AddEventFormContainer: BadRequest
+        AddEventFormContainer-->AddEventPage: BadRequest
+        AddEventPage-->Admin: BadRequest
     end
+else
+    EventService-->EventEndpoint: UnprocessableEntity
+    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
+    EventHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEEventService: UnprocessableEntity
+    FEEventService-->AddEventFormContainer: UnprocessableEntity
+    AddEventFormContainer-->AddEventPage: UnprocessableEntity
+    AddEventPage-->Admin: UnprocessableEntity
 end
 
 @enduml

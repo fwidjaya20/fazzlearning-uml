@@ -59,25 +59,11 @@ ClassHTTPTransport->ClassEndpoint: Booking(ClassService, withPaginated)
 ClassEndpoint->ClassService: Create(context, params)
 ClassService->ClassService: Validate()
 
-alt "Data not valid"
-    ClassService-->ClassEndpoint: UnprocessableEntity
-    ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
-    ClassHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEClassService: UnprocessableEntity
-    FEClassService-->AddClassPopupContainer: UnprocessableEntity
-    AddClassPopupContainer-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     ClassService->TransactionGRPCTransport: IsValidTransaction(ProtoBuffer)
     TransactionGRPCTransport-->ClassService: ProtoResponse
 
-    alt "Is Not Valid Transaction"
-        ClassService-->ClassEndpoint: BadRequest
-        ClassEndpoint-->ClassHTTPTransport: BadRequest
-        ClassHTTPTransport-->Router: BadRequest
-        Router-->FEClassService: BadRequest
-        FEClassService-->AddClassPopupContainer: BadRequest
-        AddClassPopupContainer-->Admin: BadRequest
-    else
+    alt "Is Valid Transaction"
         ClassService->ClassService: class := ClassModel()
         ClassService->ClassCommand: Create(context, class)
         ClassCommand-->ClassService: uuid
@@ -95,7 +81,21 @@ else
 
         ClassService->NatsStreaming: publishClassCreated(context, data)
         NatsStreaming-->ClassService: published
+    else
+        ClassService-->ClassEndpoint: BadRequest
+        ClassEndpoint-->ClassHTTPTransport: BadRequest
+        ClassHTTPTransport-->Router: BadRequest
+        Router-->FEClassService: BadRequest
+        FEClassService-->AddClassPopupContainer: BadRequest
+        AddClassPopupContainer-->Admin: BadRequest
     end
+else
+    ClassService-->ClassEndpoint: UnprocessableEntity
+    ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+    ClassHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEClassService: UnprocessableEntity
+    FEClassService-->AddClassPopupContainer: UnprocessableEntity
+    AddClassPopupContainer-->Admin: UnprocessableEntity
 end
 
 ClassService-->ClassEndpoint: class

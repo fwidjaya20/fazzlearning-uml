@@ -12,9 +12,7 @@ participant ":PosterQuery" as PosterQuery
 Caller->PosterService: Create(context, payload)
 PosterService->PosterService: Validate()
 
-alt "Data not valid"
-    PosterService-->Caller: UnprocessableEntity
-else
+alt "Data Valid"
     loop "for each imageLink"
         PosterService->PosterService: poster := PosterModel()
         PosterService->PosterCommand: Create(context, poster)
@@ -24,6 +22,8 @@ else
         PosterQuery-->PosterService: poster
     end
     PosterService-->Caller: poster
+else
+    PosterService-->Caller: UnprocessableEntity
 end
 
 @enduml

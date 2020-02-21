@@ -33,10 +33,7 @@ ShiftPage-->Admin: marked
 Admin->ShiftPage: Click "Delete Selected" Button
 ShiftPage->ShiftTableContainer: showDeleteConfirmation(item)
 
-alt "Cancel Delete"
-    ShiftTableContainer-->ShiftPage: Close Dialog
-    ShiftPage-->Admin: Close Dialog
-else
+alt "Approve Delete Shift"
     ShiftTableContainer->ShiftTableContainer: handleDeleteConfirmation(item)
     ShiftTableContainer->FEShiftService: deleteShift(payload)
     FEShiftService->Router: route("DELETE", "v2/Shifts", formData)
@@ -45,16 +42,7 @@ else
     ShiftEndpoint->ShiftService: DeleteMany(context, payload)
     ShiftService->ShiftService: Validate()
 
-    alt "Is Not Valid"
-        ShiftService-->ShiftEndpoint: UnprocessableEntity
-        ShiftEndpoint->ShiftEndpoint: UnprocessableEntity
-        ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
-        ShiftHTTPTransport-->Router: UnprocessableEntity
-        Router-->FEShiftService: UnprocessableEntity
-        FEShiftService-->ShiftTableContainer: UnprocessableEntity
-        ShiftTableContainer-->ShiftPage: UnprocessableEntity
-        ShiftPage-->Admin: UnprocessableEntity
-    else
+    alt "Is Valid"
         loop "for each id"
             ShiftService->ShiftQuery: Find(context, []SliceCondition)
             ShiftQuery-->ShiftService: shift
@@ -71,7 +59,19 @@ else
         FEShiftService-->ShiftTableContainer: response
         ShiftTableContainer-->ShiftPage: response
         ShiftPage-->Admin: response
+    else
+        ShiftService-->ShiftEndpoint: UnprocessableEntity
+        ShiftEndpoint->ShiftEndpoint: UnprocessableEntity
+        ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+        ShiftHTTPTransport-->Router: UnprocessableEntity
+        Router-->FEShiftService: UnprocessableEntity
+        FEShiftService-->ShiftTableContainer: UnprocessableEntity
+        ShiftTableContainer-->ShiftPage: UnprocessableEntity
+        ShiftPage-->Admin: UnprocessableEntity
     end
+else
+    ShiftTableContainer-->ShiftPage: Close Dialog
+    ShiftPage-->Admin: Close Dialog
 end
 
 @enduml

@@ -39,15 +39,7 @@ RoleHTTPTransport->RoleEndpoint: Create(RoleService)
 RoleEndpoint->RoleService: CreateRole(context, payload)
 RoleService->RoleService: Validate()
 
-alt "Data not valid"
-    RoleService-->RoleEndpoint: UnprocessableEntity
-    RoleEndpoint-->RoleHTTPTransport: UnprocessableEntity
-    RoleHTTPTransport-->Router: UnprocessableEntity
-    Router-->FERoleService: UnprocessableEntity
-    FERoleService-->AddRoleFormContainer: UnprocessableEntity
-    AddRoleFormContainer-->AddRolePage: UnprocessableEntity
-    AddRolePage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     RoleService->RoleService: role := RoleModel()
     RoleService->RoleCommand: Create(context, role)
 
@@ -62,6 +54,14 @@ else
     Router-->AddRoleFormContainer: response
     AddRoleFormContainer-->AddRolePage: response
     AddRolePage-->Admin: response
+else
+    RoleService-->RoleEndpoint: UnprocessableEntity
+    RoleEndpoint-->RoleHTTPTransport: UnprocessableEntity
+    RoleHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoleService: UnprocessableEntity
+    FERoleService-->AddRoleFormContainer: UnprocessableEntity
+    AddRoleFormContainer-->AddRolePage: UnprocessableEntity
+    AddRolePage-->Admin: UnprocessableEntity
 end
 
 @enduml

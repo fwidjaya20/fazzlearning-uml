@@ -39,15 +39,7 @@ RoomHTTPTransport->RoomEndpoint: Create(RoomService)
 RoomEndpoint->RoomService: Create(context, payload)
 RoomService->RoomService: Validate()
 
-alt "Data not valid"
-    RoomService-->RoomEndpoint: UnprocessableEntity
-    RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
-    RoomHTTPTransport-->Router: UnprocessableEntity
-    Router-->FERoomService: UnprocessableEntity
-    FERoomService-->AddRoomFormContainer: UnprocessableEntity
-    AddRoomFormContainer-->AddRoomPage: UnprocessableEntity
-    AddRoomPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     RoomService->RoomService: room := RoomModel()
     RoomService->RoomCommand: Create(context, room)
     RoomCommand-->RoomService: uuid
@@ -61,6 +53,14 @@ else
     FERoomService-->AddRoomFormContainer: response
     AddRoomFormContainer-->AddRoomPage: response
     AddRoomPage-->Admin: response
+else
+    RoomService-->RoomEndpoint: UnprocessableEntity
+    RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
+    RoomHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoomService: UnprocessableEntity
+    FERoomService-->AddRoomFormContainer: UnprocessableEntity
+    AddRoomFormContainer-->AddRoomPage: UnprocessableEntity
+    AddRoomPage-->Admin: UnprocessableEntity
 end
 
 @enduml

@@ -39,15 +39,7 @@ EventHTTPTransport->EventEndpoint: Update(EventService)
 EventEndpoint->EventService: Update(context, payload)
 EventService->EventService: Validate()
 
-alt "Data not valid"
-    EventService-->EventEndpoint: UnprocessableEntity
-    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
-    EventHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEEventService: UnprocessableEntity
-    FEEventService-->EditEventFormContainer: UnprocessableEntity
-    EditEventFormContainer-->EditEventPage: UnprocessableEntity
-    EditEventPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     EventService->EventQuery: GetPureModel(context, []SliceConditions)
     EventQuery-->EventService: events
     EventService->EventCommand: Update(context, event)
@@ -60,6 +52,14 @@ else
     FEEventService-->EditEventFormContainer: response
     EditEventFormContainer-->EditEventPage: response
     EditEventPage-->Admin: response
+else
+    EventService-->EventEndpoint: UnprocessableEntity
+    EventEndpoint-->EventHTTPTransport: UnprocessableEntity
+    EventHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEEventService: UnprocessableEntity
+    FEEventService-->EditEventFormContainer: UnprocessableEntity
+    EditEventFormContainer-->EditEventPage: UnprocessableEntity
+    EditEventPage-->Admin: UnprocessableEntity
 end
 
 @enduml

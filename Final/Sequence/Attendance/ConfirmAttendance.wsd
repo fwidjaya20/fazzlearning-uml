@@ -25,15 +25,7 @@ AttendanceHTTPTransport->AttendanceEndpoint: Confirmation(AttendanceService)
 AttendanceEndpoint->AttendanceService: Confirmation(context, payload)
 AttendanceService->AttendanceService: Validate()
 
-alt "Data Not Valid"
-    AttendanceService-->AttendanceEndpoint: UnprocessableEntity
-    AttendanceEndpoint-->AttendanceHTTPTransport: UnprocessableEntity
-    AttendanceHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEAttendanceService: UnprocessableEntity
-    FEAttendanceService-->TicketDetailContainer: UnprocessableEntity
-    TicketDetailContainer-->TicketDetailPage: UnprocessableEntity
-    TicketDetailPage-->Member: UnprocessableEntity
-else
+alt "Data Valid"
     AttendanceService->AttendanceQuery: GetPureModel(context, []SliceCondition)
     AttendanceQuery-->AttendanceService: ticket
 
@@ -52,6 +44,14 @@ else
     FEAttendanceService-->TicketDetailContainer: response
     TicketDetailContainer-->TicketDetailPage: response
     TicketDetailPage-->Member: response
+else
+    AttendanceService-->AttendanceEndpoint: UnprocessableEntity
+    AttendanceEndpoint-->AttendanceHTTPTransport: UnprocessableEntity
+    AttendanceHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEAttendanceService: UnprocessableEntity
+    FEAttendanceService-->TicketDetailContainer: UnprocessableEntity
+    TicketDetailContainer-->TicketDetailPage: UnprocessableEntity
+    TicketDetailPage-->Member: UnprocessableEntity
 end
 
 @enduml

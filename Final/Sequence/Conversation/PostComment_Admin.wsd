@@ -51,15 +51,6 @@ ConversationEndpoint->ConversationService: CreateComment(context, payload)
 ConversationService->ConversationService: Validate()
 
 alt "Is Not Valid"
-    ConversationService-->ConversationEndpoint: UnprocessableEntity
-    ConversationEndpoint-->ConversationHTTPTransport: UnprocessableEntity
-    ConversationHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEConversationService: UnprocessableEntity
-    FEConversationService-->WallPostContainer: UnprocessableEntity
-    WallPostContainer-->DetailEventContainer: UnprocessableEntity
-    DetailEventContainer-->DetailEventPage: UnprocessableEntity
-    DetailEventPage-->Admin: UnprocessableEntity
-else
     ConversationService->ConversationService: m := CommentModel()
     ConversationService->ConversationCommand: Create(context, m)
     ConversationCommand-->ConversationService: uuid
@@ -76,6 +67,15 @@ else
     WallPostContainer-->DetailEventContainer: response
     DetailEventContainer-->DetailEventPage: response
     DetailEventPage-->Admin: response
+else
+    ConversationService-->ConversationEndpoint: UnprocessableEntity
+    ConversationEndpoint-->ConversationHTTPTransport: UnprocessableEntity
+    ConversationHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEConversationService: UnprocessableEntity
+    FEConversationService-->WallPostContainer: UnprocessableEntity
+    WallPostContainer-->DetailEventContainer: UnprocessableEntity
+    DetailEventContainer-->DetailEventPage: UnprocessableEntity
+    DetailEventPage-->Admin: UnprocessableEntity
 end
 
 @enduml

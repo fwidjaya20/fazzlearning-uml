@@ -12,9 +12,7 @@ participant ":MaterialQuery" as MaterialQuery
 Caller->MaterialService: Create(context, payload)
 MaterialService->MaterialService: Validate()
 
-alt "Data not valid"
-    MaterialService-->Caller: UnprocessableEntity
-else
+alt "Data Valid"
     loop "for each imageLink"
         MaterialService->MaterialService: material := MaterialModel()
         MaterialService->MaterialCommand: Create(context, material)
@@ -24,6 +22,8 @@ else
         MaterialQuery-->MaterialService: material
     end
     MaterialService-->Caller: Material
+else
+    MaterialService-->Caller: UnprocessableEntity
 end
 
 @enduml

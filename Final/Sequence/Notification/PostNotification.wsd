@@ -14,9 +14,7 @@ Caller->NotificationService: Post(context, payload)
 loop "for each notification"
     NotificationService->NotificationService: Validate()
 
-    alt "Data Not Valid"
-        NotificationService-->Caller: UnprocessableEntity
-    else
+    alt "Data Valid"
         alt "notification behaviour is PRIVATE"
             loop "for each receiver"
                 NotificationService->NotificationService: notif := NotificationModel()
@@ -35,6 +33,8 @@ loop "for each notification"
         NotificationService->NotificationCommand: Create(context, datas)
         NotificationCommand-->NotificationService: is created
         NotificationService-->Caller: is created
+    else
+        NotificationService-->Caller: UnprocessableEntity
     end
 end
 

@@ -11,15 +11,15 @@ participant ":MessageService (Template Tag)" as MessageService
 
 Caller->NotificationNATSTransport: eventCreatedSubscriber(conn, logger, notifService, messageService)
 
-alt "Data Not Valid"
-    NotificationNATSTransport-->Caller: panic
-else
+alt "Data Valid"
     NotificationNATSTransport->MessageService: GetCompileMessage(context, type, payload)
     MessageService-->NotificationNATSTransport: compiled message
 
     NotificationNATSTransport->NotificationService: Post(context, []payload)
     NotificationService-->NotificationNATSTransport: subscribed
     NotificationNATSTransport-->Caller: subscribed
+else
+    NotificationNATSTransport-->Caller: error
 end
 
 @enduml

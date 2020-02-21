@@ -40,15 +40,7 @@ DivisionHTTPTransport->DivisionEndpoint: Create(DivisionService)
 DivisionEndpoint->DivisionService: CreateDivision(context, payload)
 DivisionService->DivisionService: Validate()
 
-alt "Data not valid"
-    DivisionService-->DivisionEndpoint: UnprocessableEntity
-    DivisionEndpoint-->DivisionHTTPTransport: UnprocessableEntity
-    DivisionHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEDivisionService: UnprocessableEntity
-    FEDivisionService-->AddDivisionFormContainer: UnprocessableEntity
-    AddDivisionFormContainer-->AddDivisionPage: UnprocessableEntity
-    AddDivisionPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     DivisionService->DivisionService: division := DivisionModel()
     DivisionService->DivisionCommand: Create(context, division)
     DivisionCommand-->DivisionService: uuid
@@ -62,6 +54,15 @@ else
     FEDivisionService-->AddDivisionFormContainer: response
     AddDivisionFormContainer-->AddDivisionPage: response
     AddDivisionPage-->Admin: response
+else
+    DivisionService-->DivisionEndpoint: UnprocessableEntity
+    DivisionEndpoint-->DivisionHTTPTransport: UnprocessableEntity
+    DivisionHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEDivisionService: UnprocessableEntity
+    FEDivisionService-->AddDivisionFormContainer: UnprocessableEntity
+    AddDivisionFormContainer-->AddDivisionPage: UnprocessableEntity
+    AddDivisionPage-->Admin: UnprocessableEntity
+    
 end
 
 @enduml

@@ -39,15 +39,7 @@ RoomHTTPTransport->RoomEndpoint: Update(RoomService)
 RoomEndpoint->RoomService: Update(context, payload)
 RoomService->RoomService: Validate()
 
-alt "Data not valid"
-    RoomService-->RoomEndpoint: UnprocessableEntity
-    RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
-    RoomHTTPTransport-->Router: UnprocessableEntity
-    Router-->FERoomService: UnprocessableEntity
-    FERoomService-->EditRoomFormContainer: UnprocessableEntity
-    EditRoomFormContainer-->EditRoomPage: UnprocessableEntity
-    EditRoomPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     RoomService->RoomQuery: Find(context, []SliceCondition)
     RoomQuery-->RoomService: room
     RoomService->RoomCommand: Update(context, room)
@@ -60,6 +52,14 @@ else
     FERoomService-->EditRoomFormContainer: response
     EditRoomFormContainer-->EditRoomPage: response
     EditRoomPage-->Admin: response
+else
+    RoomService-->RoomEndpoint: UnprocessableEntity
+    RoomEndpoint-->RoomHTTPTransport: UnprocessableEntity
+    RoomHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoomService: UnprocessableEntity
+    FERoomService-->EditRoomFormContainer: UnprocessableEntity
+    EditRoomFormContainer-->EditRoomPage: UnprocessableEntity
+    EditRoomPage-->Admin: UnprocessableEntity
 end
 
 @enduml

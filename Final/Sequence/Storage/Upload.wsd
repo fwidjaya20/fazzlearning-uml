@@ -13,10 +13,7 @@ Caller->StorageGRPCTransport: Upload(ProtoBuffer)
 StorageGRPCTransport->StorageService: Upload(context, bytes)
 StorageService->StorageService: Validate()
 
-alt "Data not valid"
-    StorageService-->StorageGRPCTransport: GRPC_PRECONDITION_FAILED
-    StorageGRPCTransport->Caller: GRPC_PRECONDITION_FAILED
-else
+alt "Data Valid"
     loop "For each file"
         StorageService->AWSS3: PutObject(PutObjectInput)
         AWSS3-->StorageService: key, error
@@ -28,6 +25,9 @@ else
     end
     StorageService-->StorageGRPCTransport: OK
     StorageGRPCTransport-->Caller: OK
+else
+    StorageService-->StorageGRPCTransport: GRPC_PRECONDITION_FAILED
+    StorageGRPCTransport->Caller: GRPC_PRECONDITION_FAILED
 end
 
 @enduml

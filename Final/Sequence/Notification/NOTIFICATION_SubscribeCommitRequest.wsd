@@ -11,9 +11,7 @@ participant ":MessageService (Template Tag)" as MessageService
 
 Caller->NotificationNATSTransport: requestUpdatedSubscriber(conn, logger, notifService, messageService)
 
-alt "Data Not Valid"
-    NotificationNATSTransport-->Caller: panic
-else
+alt "Data Valid"
     loop "for each requester"
         alt "status is Approved"
             NotificationNATSTransport->MessageService: GetCompiledMessage(context, type, payload)
@@ -43,6 +41,8 @@ else
     end
 
     NotificationNATSTransport-->Caller: subscribed
+else
+    NotificationNATSTransport-->Caller: error
 end
 
 @enduml

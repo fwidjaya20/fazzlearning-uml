@@ -33,10 +33,7 @@ RoomPage-->Admin: marked
 Admin->RoomPage: Click "Delete Selected" Button
 RoomPage->RoomTableContainer: showDeleteConfirmation(item)
 
-alt "Cancel Delete"
-    RoomTableContainer-->RoomPage: Close Dialog
-    RoomPage-->Admin: Close Dialog
-else
+alt "Approve Delete Room"
     RoomTableContainer->RoomTableContainer: handleDeleteConfirmation(item)
     RoomTableContainer->FERoomService: deleteRoom(id)
     FERoomService->Router: route("DELETE", "v2/rooms", formData)
@@ -60,6 +57,9 @@ else
     FERoomService-->RoomTableContainer: response
     RoomTableContainer-->RoomPage: response
     RoomPage-->Admin: response
+else
+    RoomTableContainer-->RoomPage: Close Dialog
+    RoomPage-->Admin: Close Dialog
 end
 
 @enduml

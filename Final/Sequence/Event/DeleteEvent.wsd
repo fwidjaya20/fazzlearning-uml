@@ -20,10 +20,7 @@ participant ":PosterService" as PosterService
 Admin->DetailEventPage: Click "Delete" Button
 DetailEventPage->DetailEventContainer: showDeleteConfirmation(item)
 
-alt "Cancel Delete"
-    DetailEventContainer-->DetailEventPage: Close Dialog
-    DetailEventPage-->Admin: Close Dialog
-else
+alt "Approve Delete Event"
     DetailEventContainer->DetailEventContainer: handleDeleteConfirmation(item)
     DetailEventContainer->FEEventService: deleteEvent(payload)
     FEEventService->Router: route("DELETE", "v2/events", formData)
@@ -53,6 +50,9 @@ else
     FEEventService-->DetailEventContainer: response
     DetailEventContainer-->DetailEventPage: response
     DetailEventPage-->Admin: response
+else
+    DetailEventContainer-->DetailEventPage: Close Dialog
+    DetailEventPage-->Admin: Close Dialog
 end
 
 @enduml

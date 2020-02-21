@@ -13,14 +13,14 @@ Caller->PosterService: DeleteByEvent(context, eventId)
 PosterService->PosterQuery: Find(context, []SliceConditions)
 PosterQuery-->PosterService: posters
 
-alt "len(posters) < 1"
-    PosterService-->Caller: false
-else
+alt "Poster Found"
     loop "for each posters"
         PosterService->PosterCommand: Delete(context, poster)
         PosterCommand-->PosterService: isDeleted
     end
     PosterService-->Caller: isDeleted
+else
+    PosterService-->Caller: false
 end
 
 @enduml

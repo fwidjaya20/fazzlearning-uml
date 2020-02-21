@@ -34,10 +34,7 @@ DivisionPage-->Admin: marked
 Admin->DivisionPage: Click "Delete Selected" Button
 DivisionPage->DivisionTableContainer: showDeleteConfirmation(item)
 
-alt "Cancel Delete"
-    DivisionTableContainer-->DivisionPage: Close Dialog
-    DivisionPage-->Admin: Close Dialog
-else
+alt "Approve Delete Division"
     DivisionTableContainer->DivisionTableContainer: handleDeleteConfirmation(item)
     DivisionTableContainer->FEDivisionService: deleteDivision([]payload)
     FEDivisionService->Router: route("DELETE", "v2/divisions", formData)
@@ -61,6 +58,9 @@ else
     FEDivisionService-->DivisionTableContainer: response
     DivisionTableContainer-->DivisionPage: response
     DivisionPage-->Admin: response
+else
+    DivisionTableContainer-->DivisionPage: Close Dialog
+    DivisionPage-->Admin: Close Dialog
 end
 
 @enduml

@@ -32,7 +32,13 @@ RequestEndpoint->RequestService: CommitRequest(context, payload)
 loop "For each Requester"
     RequestService->RequestService: Validate()
     
-    alt "Data Not Valid"
+    alt "Data Valid"
+        RequestService->RequestQuery: GetPureModel(context, []SliceCondition)
+        RequestQuery-->RequestService: requester
+
+        RequestService->RequestCommand: CommitStatus(context, requester)
+        RequestCommand-->RequestService: is commited
+    else
         RequestService-->RequestEndpoint: UnprocessableEntity
         RequestEndpoint-->RequestHTTPTransport: UnprocessableEntity
         RequestHTTPTransport-->Router: UnprocessableEntity
@@ -40,12 +46,6 @@ loop "For each Requester"
         FERequestorService-->ListRequestorContainer: UnprocessableEntity
         ListRequestorContainer-->DetailClassPage: UnprocessableEntity
         DetailClassPage-->Admin: UnprocessableEntity
-    else
-        RequestService->RequestQuery: GetPureModel(context, []SliceCondition)
-        RequestQuery-->RequestService: requester
-
-        RequestService->RequestCommand: CommitStatus(context, requester)
-        RequestCommand-->RequestService: is commited
     end
 end
 

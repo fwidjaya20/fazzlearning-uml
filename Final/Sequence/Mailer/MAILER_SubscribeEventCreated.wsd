@@ -10,9 +10,7 @@ participant "MailerService" as MailerService
 
 Caller->MailerNATSTransport: eventCreatedSubscriber(conn, logger, mailerService)
 
-alt "Data Not Valid"
-    MailerNATSTransport-->Caller: panic
-else
+alt "Data Valid"
     alt "Is Broadcast"
         MailerNATSTransport->MailerService: AnnounceEventCreated(context, payload)
         MailerService-->MailerNATSTransport: subscribed
@@ -20,6 +18,8 @@ else
     else
         MailerNATSTransport-->Caller: subscribed
     end
+else
+    MailerNATSTransport-->Caller: error
 end
 
 @enduml

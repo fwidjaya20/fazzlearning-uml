@@ -39,15 +39,7 @@ ClassHTTPTransport->ClassEndpoint: Update(ClassService)
 ClassEndpoint->ClassService: Update(context, payload)
 ClassService->ClassService: Validate()
 
-alt "Data not valid"
-    ClassService-->ClassEndpoint: UnprocessableEntity
-    ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
-    ClassHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEClassService: UnprocessableEntity
-    FEClassService-->EditClassFormContainer: UnprocessableEntity
-    EditClassFormContainer-->EditClassPage: UnprocessableEntity
-    EditClassPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     ClassService->ClassQuery: GetPureModel(context, []SliceConditions)
     ClassQuery-->ClassService: classes
 
@@ -62,6 +54,14 @@ else
     FEClassService-->EditClassFormContainer: response
     EditClassFormContainer-->EditClassPage: response
     EditClassPage-->Admin: response
+else
+    ClassService-->ClassEndpoint: UnprocessableEntity
+    ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+    ClassHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEClassService: UnprocessableEntity
+    FEClassService-->EditClassFormContainer: UnprocessableEntity
+    EditClassFormContainer-->EditClassPage: UnprocessableEntity
+    EditClassPage-->Admin: UnprocessableEntity
 end
 
 @enduml

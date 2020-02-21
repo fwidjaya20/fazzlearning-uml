@@ -39,15 +39,7 @@ RoleHTTPTransport->RoleEndpoint: Update(RoleService, id)
 RoleEndpoint->RoleService: UpdateRole(context, payload, id)
 RoleService->RoleService: Validate()
 
-alt "Data not valid"
-    RoleService-->RoleEndpoint: UnprocessableEntity
-    RoleEndpoint-->RoleHTTPTransport: UnprocessableEntity
-    RoleHTTPTransport-->Router: UnprocessableEntity
-    Router-->FERoleService: UnprocessableEntity
-    FERoleService-->EditRoleFormContainer: UnprocessableEntity
-    EditRoleFormContainer-->EditRolePage: UnprocessableEntity
-    EditRolePage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     RoleService->RoleQuery: Find(context, uuid)
 
     RoleQuery-->RoleService: role
@@ -63,6 +55,14 @@ else
     FERoleService-->EditRoleFormContainer: response
     EditRoleFormContainer-->EditRolePage: response
     EditRolePage-->Admin: response
+else
+    RoleService-->RoleEndpoint: UnprocessableEntity
+    RoleEndpoint-->RoleHTTPTransport: UnprocessableEntity
+    RoleHTTPTransport-->Router: UnprocessableEntity
+    Router-->FERoleService: UnprocessableEntity
+    FERoleService-->EditRoleFormContainer: UnprocessableEntity
+    EditRoleFormContainer-->EditRolePage: UnprocessableEntity
+    EditRolePage-->Admin: UnprocessableEntity
 end
 
 
