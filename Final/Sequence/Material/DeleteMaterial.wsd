@@ -13,14 +13,14 @@ Caller->MaterialService: DeleteByClass(context, classId)
 MaterialService->MaterialQuery: Find(context, []SliceConditions)
 MaterialQuery-->MaterialService: materials
 
-alt "len(materials) < 1"
-    MaterialService-->Caller: false
-else
+alt "Material Found"
     loop "for each materials"
         MaterialService->MaterialCommand: Delete(context, material)
         MaterialCommand-->MaterialService: isDeleted
     end
     MaterialService-->Caller: isDeleted
+else
+    MaterialService-->Caller: false
 end
 
 @enduml

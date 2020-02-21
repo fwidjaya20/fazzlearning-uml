@@ -36,7 +36,14 @@ RequesterHTTPTransport->RequesterEndpoint: Register(RequesterService)
 RequesterEndpoint->RequesterService: Register(context, payload)
 RequesterService->RequesterService: Validate()
 
-alt "Data Not Valid"
+alt "Data Valid"
+    RequesterService->RequesterService: m := RequestModel()
+    RequesterService->RequesterCommand: Create(context, m)
+    RequesterCommand-->RequesterService: uuid
+
+    RequesterService->RequesterQuery: PureModel(context, []SliceCondition)
+    RequesterQuery-->RequesterService: requester
+else
     RequesterService-->RequesterEndpoint: UnprocessableEntity
     RequesterEndpoint-->RequesterHTTPTransport: UnprocessableEntity
     RequesterHTTPTransport-->Router: UnprocessableEntity
@@ -44,13 +51,6 @@ alt "Data Not Valid"
     FEClassService-->ClassActionContainer: UnprocessableEntity
     ClassActionContainer-->ClassPage: UnprocessableEntity
     ClassPage-->Member: UnprocessableEntity
-else
-    RequesterService->RequesterService: m := RequestModel()
-    RequesterService->RequesterCommand: Create(context, m)
-    RequesterCommand-->RequesterService: uuid
-
-    RequesterService->RequesterQuery: PureModel(context, []SliceCondition)
-    RequesterQuery-->RequesterService: requester
 end
 
 RequesterService-->RequesterEndpoint: requester

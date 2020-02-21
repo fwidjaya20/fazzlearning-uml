@@ -23,14 +23,7 @@ FavouriteHTTPTransport->FavouriteEndpoint: Unlike(FavouriteService)
 FavouriteEndpoint->FavouriteService: Unlike(context, payload)
 FavouriteService->FavouriteService: Validate()
 
-alt "Data Not Valid"
-    FavouriteService-->FavouriteEndpoint: UnprocessableEntity
-    FavouriteEndpoint-->FavouriteHTTPTransport: UnprocessableEntity
-    FavouriteHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEFavouriteService: UnprocessableEntity
-    FEFavouriteService-->ClassCard: UnprocessableEntity
-    ClassCard-->Member: UnprocessableEntity
-else
+alt "Data Valid"
     FavouriteService->FavouriteCommand: Delete(context, payload)
     FavouriteCommand-->FavouriteService: isDeleted
     FavouriteService-->FavouriteEndpoint: isDeleted
@@ -40,6 +33,13 @@ else
     Router-->FEFavouriteService: resopnse
     FEFavouriteService-->ClassCard: resopnse
     ClassCard-->Member: response
+else
+    FavouriteService-->FavouriteEndpoint: UnprocessableEntity
+    FavouriteEndpoint-->FavouriteHTTPTransport: UnprocessableEntity
+    FavouriteHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEFavouriteService: UnprocessableEntity
+    FEFavouriteService-->ClassCard: UnprocessableEntity
+    ClassCard-->Member: UnprocessableEntity
 end
 
 @enduml

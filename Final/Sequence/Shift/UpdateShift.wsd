@@ -40,15 +40,7 @@ ShiftHTTPTransport->ShiftEndpoint: Update(ShiftService)
 ShiftEndpoint->ShiftService: Update(context, payload)
 ShiftService->ShiftService: Validate()
 
-alt "Data not valid"
-    ShiftService-->ShiftEndpoint: UnprocessableEntity
-    ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
-    ShiftHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEShiftService: UnprocessableEntity
-    FEShiftService-->EditShiftFormContainer: UnprocessableEntity
-    EditShiftFormContainer-->EditShiftPage: UnprocessableEntity
-    EditShiftPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     ShiftService->ShiftQuery: Find(context, []SliceCondition)
     ShiftQuery-->ShiftService: shift
 
@@ -62,6 +54,14 @@ else
     FEShiftService-->EditShiftFormContainer: response
     EditShiftFormContainer-->EditShiftPage: response
     EditShiftPage-->Admin: response
+else
+    ShiftService-->ShiftEndpoint: UnprocessableEntity
+    ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+    ShiftHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEShiftService: UnprocessableEntity
+    FEShiftService-->EditShiftFormContainer: UnprocessableEntity
+    EditShiftFormContainer-->EditShiftPage: UnprocessableEntity
+    EditShiftPage-->Admin: UnprocessableEntity
 end
 
 @enduml

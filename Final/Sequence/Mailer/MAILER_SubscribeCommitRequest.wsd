@@ -10,10 +10,10 @@ participant ":MailerService" as MailerService
 
 Caller->MailerNATSTransport: requestUpdatedSubscriber(conn, logger, mailerService)
 
-alt "Data Not Valid"
-    MailerNATSTransport-->Caller: panic
-else
+alt "Data Valid"
     MailerNATSTransport->MailerService: AnnounceRequest(context, approvedRequest, lowPriorRequest, rejectedRequest)
+else
+    MailerNATSTransport-->Caller: error
 end
 
 @enduml

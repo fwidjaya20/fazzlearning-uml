@@ -18,10 +18,7 @@ participant ":TicketQuery" as TicketQuery
 Member->TicketPage: Click "Cancel Request" Button
 TicketPage->TicketDetailContainer: showCancelRegistrationConfirmation()
 
-alt "Decline Cancel Register"
-    TicketDetailContainer-->TicketPage: close dialog
-    TicketPage-->Member: close dialog
-else
+alt "Approve Cancel Register"
     TicketDetailContainer->TicketDetailContainer: handleCancelation()
     TicketDetailContainer->FEClassService: unregisterClass(classId)
     FEClassService->Router: route("DELETE", "v2/class/{class_id}/unregister")
@@ -30,15 +27,7 @@ else
     TicketEndpoint->TicketService: Unregister(context, payload)
     TicketService->TicketService: Validate()
     
-    alt "Data Not Valid"
-        TicketService-->TicketEndpoint: UnprocessableEntity
-        TicketEndpoint-->TicketHTTPTransport: UnprocessableEntity
-        TicketHTTPTransport-->Router: UnprocessableEntity
-        Router-->FEClassService: UnprocessableEntity
-        FEClassService-->TicketDetailContainer: UnprocessableEntity
-        TicketDetailContainer-->TicketPage: UnprocessableEntity
-        TicketPage-->Member: UnprocessableEntity
-    else
+    alt "Data Valid"
         TicketService->TicketQuery: GetPureModel(context, []SliceCondition)
         TicketQuery-->TicketService: ticket
         TicketService->TicketCommand: Delete(context, ticket)
@@ -51,7 +40,18 @@ else
         FEClassService-->TicketDetailContainer: response
         TicketDetailContainer-->TicketPage: response
         TicketPage-->Member: response
+    else
+        TicketService-->TicketEndpoint: UnprocessableEntity
+        TicketEndpoint-->TicketHTTPTransport: UnprocessableEntity
+        TicketHTTPTransport-->Router: UnprocessableEntity
+        Router-->FEClassService: UnprocessableEntity
+        FEClassService-->TicketDetailContainer: UnprocessableEntity
+        TicketDetailContainer-->TicketPage: UnprocessableEntity
+        TicketPage-->Member: UnprocessableEntity
     end
+else
+    TicketDetailContainer-->TicketPage: close dialog
+    TicketPage-->Member: close dialog
 end
 
 @enduml

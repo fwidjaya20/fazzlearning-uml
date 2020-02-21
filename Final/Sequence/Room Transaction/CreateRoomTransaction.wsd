@@ -13,9 +13,7 @@ participant ":Nats Streaming" as NatsStreaming
 Caller->RoomTransactionService: Create(context, payload)
 RoomTransactionService->RoomTransactionService: Validate()
 
-alt "Data Not Valid"
-    RoomTransactionService-->Caller: UnprocessableEntity
-else
+alt "Data Valid"
     loop "For each shift"
         RoomTransactionService->RoomTransactionService: rt := RoomTransactionModel()
         RoomTransactionService->RoomTransactionCommand: Create(context, rt)
@@ -25,6 +23,8 @@ else
     RoomTransactionService->NatsStreaming: publishTransactionCreated(context, []uuid)
     NatsStreaming-->RoomTransactionService: published
     RoomTransactionService-->Caller: created
+else
+    RoomTransactionService-->Caller: UnprocessableEntity
 end
 
 @enduml

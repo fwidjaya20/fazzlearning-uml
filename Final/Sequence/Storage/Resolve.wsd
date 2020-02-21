@@ -18,16 +18,16 @@ StorageEndpoint->StorageService: ResolveURL(context, key)
 StorageService->AWSS3: GetResourceURL(key)
 AWSS3-->StorageService: link, error
 
-alt "AWS Error"
-    StorageService-->StorageEndpoint: InternalServerError
-    StorageEndpoint-->StorageHTTPTransport: InternalServerError
-    StorageHTTPTransport-->Router: InternalServerError
-    Router-->Caller: InternalServerError
-else
+alt "AWS Success"
     StorageService-->StorageEndpoint: link
     StorageEndpoint-->StorageHTTPTransport: link
     StorageHTTPTransport-->Router: link
     Router-->Caller: link
+else
+    StorageService-->StorageEndpoint: InternalServerError
+    StorageEndpoint-->StorageHTTPTransport: InternalServerError
+    StorageHTTPTransport-->Router: InternalServerError
+    Router-->Caller: InternalServerError
 end
 
 @enduml

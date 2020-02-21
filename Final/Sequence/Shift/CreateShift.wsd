@@ -39,15 +39,7 @@ ShiftHTTPTransport->ShiftEndpoint: Create(ShiftService)
 ShiftEndpoint->ShiftService: Create(context, payload)
 ShiftService->ShiftService: Validate()
 
-alt "Data not valid"
-    ShiftService-->ShiftEndpoint: UnprocessableEntity
-    ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
-    ShiftHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEShiftService: UnprocessableEntity
-    FEShiftService-->AddShiftFormContainer: UnprocessableEntity
-    AddShiftFormContainer-->AddShiftPage: UnprocessableEntity
-    AddShiftPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     ShiftService->ShiftService: shift := ShiftModel()
     ShiftService->ShiftCommand: Create(context, shift)
     ShiftCommand-->ShiftService: uuid
@@ -61,6 +53,14 @@ else
     FEShiftService-->AddShiftFormContainer: response
     AddShiftFormContainer-->AddShiftPage: response
     AddShiftPage-->Admin: response
+else
+    ShiftService-->ShiftEndpoint: UnprocessableEntity
+    ShiftEndpoint-->ShiftHTTPTransport: UnprocessableEntity
+    ShiftHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEShiftService: UnprocessableEntity
+    FEShiftService-->AddShiftFormContainer: UnprocessableEntity
+    AddShiftFormContainer-->AddShiftPage: UnprocessableEntity
+    AddShiftPage-->Admin: UnprocessableEntity
 end
 
 @enduml

@@ -14,12 +14,12 @@ loop "for each payload"
     AttendanceService->AttendanceService: Validate()
 
     alt "Data not valid"
+        AttendanceService->AttendanceService: class := AttendanceModel()
+        AttendanceService->AttendanceService: classes = append(classes, class)
+    else
         break
             AttendanceService-->Caller: UnprocessableEntity
         end
-    else
-        AttendanceService->AttendanceService: class := AttendanceModel()
-        AttendanceService->AttendanceService: classes = append(classes, class)
     end
 end
 

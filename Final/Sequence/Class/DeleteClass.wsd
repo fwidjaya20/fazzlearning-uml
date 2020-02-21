@@ -20,10 +20,7 @@ participant ":NatsStreaming" as NatsStreaming
 Admin->DetailClassPage: Click "Delete" Button
 DetailClassPage->DetailClassContainer: showDeleteConfirmation(item)
 
-alt "Cancel Delete"
-    DetailClassContainer-->DetailClassPage: Close Dialog
-    DetailClassPage-->Admin: Close Dialog
-else
+alt "Approve Delete Class"
     DetailClassContainer->DetailClassContainer: handleDelete(item)
     DetailClassContainer->FEClassService: deleteClasses(eventId)
     FEClassService->Router: route("DELETE", "v2/{event_id}/class", formData)
@@ -32,15 +29,7 @@ else
     ClassEndpoint->ClassService: DeleteMany(context, payload)
     ClassService->ClassService: Validate()
 
-    alt "Data Not Valid"
-        ClassService-->ClassEndpoint: UnprocessableEntity
-        ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
-        ClassHTTPTransport-->Router: UnprocessableEntity
-        Router-->FEClassService: UnprocessableEntity
-        FEClassService-->DetailClassContainer: UnprocessableEntity
-        DetailClassContainer-->DetailClassPage: UnprocessableEntity
-        DetailClassPage-->Admin: UnprocessableEntity
-    else
+    alt "Data Valid"
         loop "for each uuid"
             ClassService->ClassQuery: GetPureModel(context, []SliceConditions)
             ClassQuery-->ClassService: classes
@@ -63,6 +52,17 @@ else
         FEClassService-->DetailClassContainer: response
         DetailClassContainer-->DetailClassPage: response
         DetailClassPage-->Admin: response
+    else
+        ClassService-->ClassEndpoint: UnprocessableEntity
+        ClassEndpoint-->ClassHTTPTransport: UnprocessableEntity
+        ClassHTTPTransport-->Router: UnprocessableEntity
+        Router-->FEClassService: UnprocessableEntity
+        FEClassService-->DetailClassContainer: UnprocessableEntity
+        DetailClassContainer-->DetailClassPage: UnprocessableEntity
+        DetailClassPage-->Admin: UnprocessableEntity
+else
+    DetailClassContainer-->DetailClassPage: Close Dialog
+    DetailClassPage-->Admin: Close Dialog
     end
 end
 

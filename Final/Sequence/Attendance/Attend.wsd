@@ -30,14 +30,7 @@ AttendanceEndpoint->AttendanceService: Attend(context, params)
 
 AttendanceService->AttendanceService: Validate()
 
-alt "Data Not Valid"
-    AttendanceService-->AttendanceEndpoint: UnprocessableEntity
-    AttendanceEndpoint-->AttendanceHTTPTransport: UnprocessableEntity
-    AttendanceHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEAttendanceService: UnprocessableEntity
-    FEAttendanceService-->ScanPage: UnprocessableEntity
-    ScanPage-->Member: UnprocessableEntity
-else
+alt "Data Valid"
     AttendanceService->AttendanceQuery: PureModel([]SliceCondition)
     AttendanceQuery-->AttendanceService: attendance
 
@@ -50,6 +43,13 @@ else
     Router-->FEAttendanceService: response
     FEAttendanceService-->ScanPage: response
     ScanPage-->Member: response
+else
+    AttendanceService-->AttendanceEndpoint: UnprocessableEntity
+    AttendanceEndpoint-->AttendanceHTTPTransport: UnprocessableEntity
+    AttendanceHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEAttendanceService: UnprocessableEntity
+    FEAttendanceService-->ScanPage: UnprocessableEntity
+    ScanPage-->Member: UnprocessableEntity
 end
 
 @enduml

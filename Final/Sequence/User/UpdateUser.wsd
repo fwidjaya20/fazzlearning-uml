@@ -69,15 +69,7 @@ UserHTTPTransport->UserEndpoint: Update(UserService, email)
 UserEndpoint->UserService: UpdateUser(context, payload, email)
 UserService->UserService: Validate()
 
-alt "Data not valid"
-    UserService-->UserEndpoint: UnprocessableEntity
-    UserEndpoint-->UserHTTPTransport: UnprocessableEntity
-    UserHTTPTransport-->Router: UnprocessableEntity
-    Router-->FEUserService: UnprocessableEntity
-    FEUserService-->EditUserFormContainer: UnprocessableEntity
-    EditUserFormContainer-->EditUserPage: UnprocessableEntity
-    EditUserPage-->Admin: UnprocessableEntity
-else
+alt "Data Valid"
     UserService->UserQuery: Find(context, []SliceCondition)
     UserQuery-->UserService: user
 
@@ -93,6 +85,14 @@ else
     FEUserService-->EditUserFormContainer: response
     EditUserFormContainer-->EditUserPage: response
     EditUserPage-->Admin: response
+else
+    UserService-->UserEndpoint: UnprocessableEntity
+    UserEndpoint-->UserHTTPTransport: UnprocessableEntity
+    UserHTTPTransport-->Router: UnprocessableEntity
+    Router-->FEUserService: UnprocessableEntity
+    FEUserService-->EditUserFormContainer: UnprocessableEntity
+    EditUserFormContainer-->EditUserPage: UnprocessableEntity
+    EditUserPage-->Admin: UnprocessableEntity
 end
 
 @enduml
